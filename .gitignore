@@ -44,4 +44,7 @@ docs/_build
 
 # Virtualenvs
 env
-env*
+env/*
+
+#Rogue sqlite3 databases
+*.db
