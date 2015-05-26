@@ -1,0 +1,3 @@
+[submodule "translatorsdesk/static/libs/CodeMirror"]
+	path = translatorsdesk/static/libs/CodeMirror
+	url = https://github.com/spMohanty/CodeMirror

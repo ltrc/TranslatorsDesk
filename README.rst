@@ -21,7 +21,7 @@ Then run the following commands to bootstrap your environment.
 
 ::
 
-    git clone https://github.com/spMohanty/translatorsdesk
+    git clone --recursive https://github.com/spMohanty/translatorsdesk
     cd translatorsdesk
     pip install -r requirements/dev.txt
     python manage.py server
@@ -32,7 +32,7 @@ Once you have installed your DBMS, run the following to create your app's databa
 
 ::
 
-    python manage.py db init 
+    python manage.py db init
     python manage.py db migrate
     python manage.py db upgrade
     python manage.py server
