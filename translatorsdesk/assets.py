@@ -3,7 +3,10 @@ from flask_assets import Bundle, Environment
 
 css = Bundle(
     "libs/bootstrap/dist/css/bootstrap.css",
+    "libs/CodeMirror/lib/codemirror.css",
+    "libs/CodeMirror/theme/eclipse.css",
     "css/style.css",
+    "css/translators-desk.css",
     filters="cssmin",
     output="public/css/common.css"
 )
@@ -11,6 +14,10 @@ css = Bundle(
 js = Bundle(
     "libs/jQuery/dist/jquery.js",
     "libs/bootstrap/dist/js/bootstrap.js",
+    "libs/CodeMirror/lib/codemirror.js",
+    "libs/CodeMirror/addon/selection/active-line.js",
+    "libs/CodeMirror/addon/display/panel.js",
+    "js/translators-desk.js",
     "js/plugins.js",
     filters='jsmin',
     output="public/js/common.js"

@@ -12,21 +12,8 @@
 
 <div class="body-content">
   <div class="row">
-    <div class="col-lg-4">
-      <h2><i class="fa fa-pencil"></i> Advanced</h2>
-      <p>Lets you choose from hundreds of languages to enter text, along with numerous customizable plugins for pre-editing and post-editing. </p>
-      <p><a class="btn btn-default" href="#">More &raquo;</a></p>
-    </div>
-    <div class="col-lg-4">
-      <h2><i class="fa fa-desktop"></i> Extensible</h2>
-      <p>Lets you choose from numerous machine translation engines in the backend.</p>
-      <p><a href="#" class="btn btn-default" href="#">More &raquo;</a></p>
-   </div>
-    <div class="col-lg-4">
-      <h2><i class="fa fa-heartbeat"></i> Intelligent </h2>
-      <p> Your personal assitant to help you translate better and faster, with inbuilt spell checkers, word suggestions and a dozen other such tools.</p>
-      <p><a href="#" class="btn btn-default" href="#">More &raquo;</a></p>
-    </div>
+    {% set codemirror_editor_id = 1 %}
+    {% include "_codemirror/_codemirror.html" %}
   </div><!-- /.row -->
 </div>
 {% endblock %}
