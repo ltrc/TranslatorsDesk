@@ -4,3 +4,6 @@
 [submodule "translatorsdesk/static/libs/Context.js"]
 	path = translatorsdesk/static/libs/Context.js
 	url = https://github.com/spMohanty/Context.js
+[submodule "translatorsdesk/static/libs/jquery.ime"]
+	path = translatorsdesk/static/libs/jquery.ime
+	url = https://github.com/spMohanty/jquery.ime.git

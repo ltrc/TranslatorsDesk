@@ -4,6 +4,7 @@ from flask_assets import Bundle, Environment
 css = Bundle(
     "libs/bootstrap/dist/css/bootstrap.css",
     "libs/CodeMirror/lib/codemirror.css",
+    "libs/jquery.ime/css/jquery.ime.css",
     "libs/CodeMirror/theme/eclipse.css",
     "libs/Context.js/context.bootstrap.css",
     "css/style.css",
@@ -15,6 +16,11 @@ css = Bundle(
 js = Bundle(
     "libs/jQuery/dist/jquery.js",
     "libs/bootstrap/dist/js/bootstrap.js",
+    "libs/jquery.ime/libs/rangy/rangy-core.js",
+    "libs/jquery.ime/src/jquery.ime.js",
+    "libs/jquery.ime/src/jquery.ime.selector.js",
+    "libs/jquery.ime/src/jquery.ime.preferences.js",
+    "libs/jquery.ime/src/jquery.ime.inputmethods.js",
     "libs/Context.js/context.js",
     "libs/CodeMirror/lib/codemirror.js",
     "libs/CodeMirror/addon/selection/active-line.js",

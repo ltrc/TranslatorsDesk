@@ -1,9 +1,13 @@
 .CodeMirror {
-  font-size: 14px;
+  font-size: 16px;
 }
 .codemirror_menu {
   margin-bottom: 0px;
   border: 0px;
+  -moz-user-select: none;
+  -khtml-user-select: none;
+  -webkit-user-select: none;
+  user-select: none;  
 }
 .codemirror_menu .container-fluid div ul li a {
   padding-right: 1px;
@@ -24,4 +28,18 @@
 	color: grey;
 	padding-left: 10px;
 	font-size: 10px;
+}
+
+/**
+ * Hide unwanted parts of jquery.ime helper menu
+ */
+
+.ime-language-list-wrapper {
+	display:none;
+}
+.ime-help-link {
+	display:none;
+}
+.ime-lang-title {
+	display:none;
 }

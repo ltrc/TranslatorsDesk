@@ -4,6 +4,8 @@
  */
 var editors = [];
 var currentEditor = null;
+var TranslatorsDeskGlobals = {}
+
 
 var currentContextMenuTargetEditor = null;
 var ContextMenuObjects = {};
@@ -36,7 +38,7 @@ ContextMenuObjects .translators_desk_selected_text_menu = ContextMenuObjects.tra
  */
 $(".codemirror_block").each(function(){
 	var editor = CodeMirror($(this)[0], {
-	  value: "मेरी सखी पिछले पांच साल से यहाँ रह रही है | ",
+	  value: "",
 	  mode: "simple",
 	  theme: 'eclipse',
 	  lineNumbers: true,
@@ -88,6 +90,10 @@ function get_corresponding_editor_id(codemirror_element){
 function get_corresponding_editor(codemirror_element){
 	var editor_id = parseInt(get_corresponding_editor_id(codemirror_element));
 	return editors[editor_id-1];
+}
+
+function get_editor_id(editor){
+	return $(editor.getWrapperElement()).parents(".codemirror_block").attr("td-editor-id");
 }
 
 /**
@@ -212,10 +218,131 @@ function setupTextSelectionHandlers(){
 	});
 }
 
+
+/**
+ * Input Methods specific functions for the editor
+ */
+
+/**
+ * Return the textarea corresponding to an editor instance
+ */
+function get_editor_textarea(editor){
+	return $(editor.getWrapperElement()).find("textarea");
+}
+
+/**
+ * get the imeselector instance corresponding to an editor instance
+ * @param  {[type]} editor [description]
+ * @return {[type]}        [description]
+ */
+function get_editor_ime_selector(editor){
+	return get_editor_textarea(editor).data("imeselector");
+}
+
+/**
+ * Sets editor language when passed the editor instance and language code
+ */
+function set_editor_language(editor,language_code){
+	get_editor_ime_selector(editor).selectLanguage(language_code);
+	//Setup the default input method as configured
+	if(TranslatorsDeskGlobals.default_input_methods(language_code)){
+		set_editor_input_method(editor, TranslatorsDeskGlobals.default_input_methods(language_code))
+	}
+}
+
+/**
+ * Sets the editor input method when passed the editor instance and input method
+ */
+function set_editor_input_method(editor, input_method){
+	get_editor_ime_selector(editor).selectIM(input_method);
+}
+
+/**
+ * Returns the language list select object
+ */
+function get_editor_language_menu(editor){
+	var editor_id = get_editor_id(editor);
+	return $("#codemirror_menu_"+editor_id).find(".translators_desk_language_list");
+}
+
+
+/**
+ * builds and renders the language list corresponding to an editor instance and the given options
+ */
+function build_language_list_menu(editor, options){
+	console.log("Building language list menu");
+
+	$.each($.ime.languages, function(key, value){
+		if(options.languages){
+			//If a default list of languages is submitted, then render only those
+			if(options.languages.indexOf(key) != -1){
+				$('<option>').val(key).text(value.autonym).appendTo(get_editor_language_menu(editor));
+			} 
+		}else{
+			//If a default list of languages is not submitted, then render all the available languages
+			$('<option>').val(key).text(value.autonym).appendTo(get_editor_language_menu(editor));
+		}
+	})
+	$(".translators_desk_language_list").change(function(){
+		set_editor_language(get_corresponding_editor_from_menu_item($(this)), $(this).val());
+	});
+}
+
+/**
+ * Holds the default input methods for supported languages
+ */
+TranslatorsDeskGlobals.default_input_methods = function(language){
+	switch(language){
+		case 'hi':
+			return 'hi-phonetic'
+		case 'pa':
+			return 'pa-phonetic'
+		case 'te':
+			return 'te-transliteration'
+		case 'ta':
+			return 'ta-transliteration'
+		case 'ur':
+			return 'ur-phonetic'
+		default:
+			return false
+	}
+}
+
+/**
+ * Instantiates jquery.ime for regional language inputs
+ */
+function setupInputMethods(editor, options){
+	build_language_list_menu(editor, options)
+	if(!options.imePath){
+		options.imePath = "/static/libs/jquery.ime/";
+	}
+	console.log(options.languages);
+	get_editor_textarea(editor).ime({
+		languages: options.languages,
+		imePath: options.imePath
+	});
+	if(options.defaultLanguage){
+		set_editor_language(editor, options.defaultLanguage);
+		get_editor_language_menu(editor).val(options.defaultLanguage);
+
+		if(options.defaultIM){
+			set_editor_input_method(editor, options.defaultIM);
+		}
+	}
+}
+
 $(document).ready(function(){
 	setupTranslatorsDeskMenuItemHandlers();
 	intitContextualMenus();
 	setupTextSelectionHandlers();
+	setupInputMethods(editors[0],
+								{
+									defaultLanguage: "hi",
+									defaultIM: "hi-phonetic",
+									languages: ['en','hi','pa', 'te', 'ta', 'ur']
+								}
+		);
+
 	$("#translators_desk_translate_btn").click(function(){
 		var editor = get_corresponding_editor_from_menu_item($(this));
 		//Meta data about the text collected and ready to be saved
