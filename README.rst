@@ -6,6 +6,14 @@ Translators Desk
 ----------------
 An opensource tool to help human translators be much more efficient at their job.
 
+Soft Features
+-------------
+* Undo/Redo and Edit History
+    * The translators desk exposes Undo/Redo buttons in the UI along with shortcuts like Ctrl + Z, Ctrl + Y for Undo/Redo operations
+    * It maintains an edit history for the text, which gets collected and can be saved as extra meta-data for the piece of text being edited
+* Mark as NER   
+    * Selecting a group of text and right clicking on it exposes a menu which lets the user add/clear NER markers
+
 Quickstart
 ----------
 

@@ -9,3 +9,19 @@
   padding-right: 1px;
   font-size : 18px;
 }
+
+.translators-desk-marker-ner {
+	color: #fff;
+	background: #d9534f;
+	border-color: #d43f3a;
+	padding:3px;
+	border-radius: 5px;
+	-moz-border-radius: 5px;
+	-webkit-border-radius: 5px;
+}
+
+.translators_desk_context_menu_header {
+	color: grey;
+	padding-left: 10px;
+	font-size: 10px;
+}

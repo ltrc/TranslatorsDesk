@@ -1,3 +1,6 @@
 [submodule "translatorsdesk/static/libs/CodeMirror"]
 	path = translatorsdesk/static/libs/CodeMirror
 	url = https://github.com/spMohanty/CodeMirror
+[submodule "translatorsdesk/static/libs/Context.js"]
+	path = translatorsdesk/static/libs/Context.js
+	url = https://github.com/spMohanty/Context.js
