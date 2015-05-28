@@ -31,6 +31,14 @@ Then run the following commands to bootstrap your environment.
 
     git clone --recursive https://github.com/spMohanty/translatorsdesk
     cd translatorsdesk
+    #Now you will have to install the enchant library using
+
+
+    brew install aspell --with-lang-en --with-lang-hi --with-lang-te --with-lang-ta --with-lang-pa # on MAC OSx
+    apt-get install aspell aspell-en aspell-hi aspell-te aspell-ta aspell-pa #Debian distributions
+    yum install aspell aspell-en aspell-hi aspell-te aspell-ta aspell-pa # RHEL distributions
+    #Note aspell dictionary for Urdu is not yet available
+
     pip install -r requirements.txt
     python manage.py server
 
