@@ -31,7 +31,7 @@ Then run the following commands to bootstrap your environment.
 
     git clone --recursive https://github.com/spMohanty/translatorsdesk
     cd translatorsdesk
-    pip install -r requirements/dev.txt
+    pip install -r requirements.txt
     python manage.py server
 
 You will see a pretty welcome screen.
