@@ -7,3 +7,6 @@
 [submodule "translatorsdesk/static/libs/jquery.ime"]
 	path = translatorsdesk/static/libs/jquery.ime
 	url = https://github.com/spMohanty/jquery.ime.git
+[submodule "translatorsdesk/static/libs/SocketIO"]
+	path = translatorsdesk/static/libs/SocketIO
+	url = https://github.com/spMohanty/socket.io-client.git

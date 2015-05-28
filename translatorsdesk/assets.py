@@ -15,6 +15,7 @@ css = Bundle(
 
 js = Bundle(
     "libs/jQuery/dist/jquery.js",
+    "libs/SocketIO/dist/socket.io.min.js",
     "libs/bootstrap/dist/js/bootstrap.js",
     "libs/jquery.ime/libs/rangy/rangy-core.js",
     "libs/jquery.ime/src/jquery.ime.js",

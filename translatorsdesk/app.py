@@ -1,6 +1,8 @@
 # -*- coding: utf-8 -*-
 '''The app module, containing the app factory function.'''
 from flask import Flask, render_template
+# from flask.ext.socketio import send, emit
+
 
 from translatorsdesk.settings import ProdConfig
 from translatorsdesk.assets import assets
@@ -14,6 +16,10 @@ from translatorsdesk.extensions import (
 )
 from translatorsdesk import public, user
 
+
+# @socketio.on('connect')
+# def test_connect():
+#     emit('test_response', {'data': 'Connected', 'count': 0})
 
 def create_app(config_object=ProdConfig):
     '''An application factory, as explained here:

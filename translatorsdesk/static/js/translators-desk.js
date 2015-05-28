@@ -331,7 +331,37 @@ function setupInputMethods(editor, options){
 	}
 }
 
+/**
+ * Sets up Socket IO Event Handlers
+ */
+
+function setupSocketEventHandlers(){
+	//Test Echo Event receiver
+    socket.on('translanslators_desk_echo_response', function(msg) {
+        console.log('Received: ' + msg.data );
+    });
+	//Debug socket.io emitter which emits garbage data at fixed intervals
+	//TODO : Remove this
+	setInterval(function(){
+		socket.emit("translanslators_desk_echo", {data:"asdkjhasjkhdkjasdakjsdhkjashjkdhjakddkjashdkajshds"});
+	}, 1000);
+}
+
+/**
+ * Sets up SocketIO connection
+ */
+function setupSocketIO(){
+	var namespace = "/td";
+    window.socket = io.connect('http://' + document.domain + ':' + location.port + namespace);
+
+    socket.on('connect', function() {
+                console.log("Translators Desk Socket Connected !!");
+            });	
+    setupSocketEventHandlers();
+}
+
 $(document).ready(function(){
+	setupSocketIO();
 	setupTranslatorsDeskMenuItemHandlers();
 	intitContextualMenus();
 	setupTextSelectionHandlers();
