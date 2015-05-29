@@ -59,10 +59,23 @@ $(".codemirror_block").each(function(){
 })
 
 /**
+ * Configures Per-language auto-suggestion query thresholds
+ */
+
+TranslatorsDeskGlobals.word_length_query_threshold = {}
+TranslatorsDeskGlobals.word_length_query_threshold['en'] = 3
+TranslatorsDeskGlobals.word_length_query_threshold['hi'] = 2
+TranslatorsDeskGlobals.word_length_query_threshold['pa'] = 2
+TranslatorsDeskGlobals.word_length_query_threshold['te'] = 2
+TranslatorsDeskGlobals.word_length_query_threshold['ta'] = 2
+
+var editor_word_length_query_threshold;
+/**
  * Instantiates Translators Desk Word Suggesstion 
  */
 CodeMirror.commands.translators_desk_aspell = function(editor) {
-	if(editor.currentWord && editor.currentWord.trim().length>3){
+	editor_word_length_query_threshold = TranslatorsDeskGlobals.word_length_query_threshold[get_editor_language_menu(editor).val()]
+	if(editor.currentWord && editor_word_length_query_threshold && editor.currentWord.trim().length > editor_word_length_query_threshold ){
 		//Only consider words of length more than 3
 		socket.emit("translanslators_desk_get_word_suggesstion", 
 					{

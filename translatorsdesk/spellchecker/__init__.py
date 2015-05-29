@@ -3,11 +3,11 @@ import aspell
 """
 	Instantiates the aspell dictionaries
 """
-en = aspell.Speller('lang', 'en')
-hi = aspell.Speller('lang', 'hi')
-te = aspell.Speller('lang', 'te')
-ta = aspell.Speller('lang', 'ta')
-pa = aspell.Speller('lang', 'pa')
+en = aspell.Speller(('lang', 'en'), ('encoding', 'utf-8'))
+hi = aspell.Speller(('lang', 'hi'), ('encoding', 'utf-8'))
+te = aspell.Speller(('lang', 'te'), ('encoding', 'utf-8'))
+ta = aspell.Speller(('lang', 'ta'), ('encoding', 'utf-8'))
+pa = aspell.Speller(('lang', 'pa'), ('encoding', 'utf-8'))
 
 dictionaries = {}
 dictionaries['en'] = en
@@ -16,15 +16,3 @@ dictionaries['te'] = te
 dictionaries['ta'] = ta
 dictionaries['pa'] = pa
 
-
-##Collect and store respective encoding names
-## TO-DO :: Write custom encoders for u-deva, u-telu, u-taml, u-guru
-dictionaries["encodings"] = {}
-for k in dictionaries.keys():
-	if k == "encodings":
-		continue
-
-	aspell_obj = dictionaries[k]	
-	for items in aspell_obj.ConfigKeys():
-		if items[0] == "encoding":
-			dictionaries["encodings"][k] = items[2]
