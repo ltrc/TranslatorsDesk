@@ -36,6 +36,7 @@ ContextMenuObjects .translators_desk_selected_text_menu = ContextMenuObjects.tra
 /**
  * Instantiates all available codemirror_blocks as CodeMirror instances
  */
+
 $(".codemirror_block").each(function(){
 	var editor = CodeMirror($(this)[0], {
 	  value: "",
@@ -44,7 +45,8 @@ $(".codemirror_block").each(function(){
 	  lineNumbers: true,
 	  lineWrapping: true,
 	  styleSelectedText: true,
-	  dragDrop: false
+	  dragDrop: false,
+	  extraKeys: {"Ctrl-Space": "translators_desk_aspell"}
 	});
 
 	/**
@@ -55,6 +57,35 @@ $(".codemirror_block").each(function(){
 	};
 	editors.push(editor);
 })
+
+/**
+ * Instantiates Translators Desk Word Suggesstion 
+ */
+CodeMirror.commands.translators_desk_aspell = function(editor) {
+	if(editor.currentWord && editor.currentWord.trim().length>3){
+		//Only consider words of length more than 3
+		socket.emit("translanslators_desk_get_word_suggesstion", 
+					{
+						data: editor.currentWord, 
+						lang: get_editor_language_menu(editors[0]).val()
+					})
+
+		var socket_response_listener = function(data){	
+			// TODO : The removelistener code is not working now
+			// Fix this
+			// Remove corresponding event listener
+			socket.removeListener("translanslators_desk_get_word_suggesstion_"+$.md5(editor.currentWord.toLowerCase()), socket_response_listener )
+
+			//Display the hint
+			editor.showHint({
+								hint: CodeMirror.hint.translators_desk_aspell,
+								translators_desk_aspell_suggesstions: JSON.parse(data)
+							});
+		}	
+		socket.on("translanslators_desk_get_word_suggesstion_"+$.md5(editor.currentWord.toLowerCase()), socket_response_listener);
+	}
+}
+
 
 /**
  * Gets the editor_id corresponding to a translators desk menu item
@@ -331,6 +362,20 @@ function setupInputMethods(editor, options){
 	}
 }
 
+function updateCurrentWord(editor){
+	editor.currentWordRange = editor.findWordAt(editor.getCursor());
+	editor.currentWord = editor.getRange(editor.currentWordRange.anchor, editor.currentWordRange.head);
+}
+
+function setupCodeMirroContentChangeEventHandlers(){
+	$(editors).each(function(){
+		$(this).get(0).on("change", function(editor){
+			updateCurrentWord(editor);
+			CodeMirror.commands.translators_desk_aspell(editor);
+		})
+	})
+}
+
 /**
  * Sets up Socket IO Event Handlers
  */
@@ -340,11 +385,6 @@ function setupSocketEventHandlers(){
     socket.on('translanslators_desk_echo_response', function(msg) {
         console.log('Received: ' + msg.data );
     });
-	//Debug socket.io emitter which emits garbage data at fixed intervals
-	//TODO : Remove this
-	setInterval(function(){
-		socket.emit("translanslators_desk_echo", {data:"asdkjhasjkhdkjasdakjsdhkjashjkdhjakddkjashdkajshds"});
-	}, 1000);
 }
 
 /**
@@ -365,6 +405,7 @@ $(document).ready(function(){
 	setupTranslatorsDeskMenuItemHandlers();
 	intitContextualMenus();
 	setupTextSelectionHandlers();
+	setupCodeMirroContentChangeEventHandlers();
 	setupInputMethods(editors[0],
 								{
 									defaultLanguage: "hi",
