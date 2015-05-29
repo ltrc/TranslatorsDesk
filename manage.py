@@ -7,8 +7,9 @@ import os
 import sys
 import subprocess
 from flask import Flask, render_template, session, request
-from flask_script import Manager, Shell, Server
+from flask.ext.script import Manager, Shell, Server
 from flask_migrate import MigrateCommand
+
 from flask.ext.socketio import SocketIO, emit, join_room, leave_room, \
     close_room, disconnect
 from translatorsdesk.app import create_app
@@ -60,6 +61,20 @@ def test_connect():
 def test_disconnect():
     print('Client disconnected')
 
+def _make_context():
+    """Return context dict for a shell session so you can access
+    app, db, and the User model by default.
+    """
+    return {'app': app, 'db': db, 'User': User}    
+
+manager = Manager(app)
+
+@manager.command
+def run():
+    socketio.run(app, use_reloader=True)
+
+manager.add_command('shell', Shell(make_context=_make_context))
+manager.add_command('db', MigrateCommand)
 
 if __name__ == '__main__':
-    socketio.run(app, use_reloader=True)
+    manager.run()

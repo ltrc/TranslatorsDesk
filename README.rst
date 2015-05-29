@@ -51,7 +51,7 @@ Once you have installed your DBMS, run the following to create your app's databa
     python manage.py db init
     python manage.py db migrate
     python manage.py db upgrade
-    python manage.py server
+    python manage.py run
 
 
 
