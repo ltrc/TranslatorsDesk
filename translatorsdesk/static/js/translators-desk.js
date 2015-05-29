@@ -141,9 +141,7 @@ function get_editor_id(editor){
 }
 
 /**
- * [mark_selection_as_ner description]
- * @param  {CodeMirror} editor             [description]
- * @param  {boolean} snapWordBoundaries [description]
+ * Marks a selected range as NER
  */
 function mark_selection_as_ner(editor){
 	if(editor.somethingSelected() && editor.getSelection().trim() != "" ){
@@ -163,7 +161,9 @@ function mark_selection_as_ner(editor){
 			console.log("You have not selected text yet");
 	}
 }
-
+/**
+ * Removes ner-marks from a selection range
+ */
 function unmark_selection_as_ner(editor){
 	if(editor.somethingSelected() && editor.getSelection().trim() != ""){
 		var selected_range = editor.get_selected_range();
@@ -376,12 +376,16 @@ function setupInputMethods(editor, options){
 		}
 	}
 }
-
+/**
+ * Updates the internal data store with the latest word at the cursor
+ */
 function updateCurrentWord(editor){
 	editor.currentWordRange = editor.findWordAt(editor.getCursor());
 	editor.currentWord = editor.getRange(editor.currentWordRange.anchor, editor.currentWordRange.head);
 }
-
+/**
+ * Setups up Events Handlers for content change in the editor
+ */
 function setupCodeMirroContentChangeEventHandlers(){
 	$(editors).each(function(){
 		$(this).get(0).on("change", function(editor){
@@ -394,7 +398,6 @@ function setupCodeMirroContentChangeEventHandlers(){
 /**
  * Sets up Socket IO Event Handlers
  */
-
 function setupSocketEventHandlers(){
 	//Test Echo Event receiver
     socket.on('translanslators_desk_echo_response', function(msg) {
