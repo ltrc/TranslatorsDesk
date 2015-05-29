@@ -174,7 +174,9 @@ function unmark_selection_as_ner(editor){
 		 */
 		var marksInRange = editor.findMarks(selected_range.from, selected_range.to)
 		$(marksInRange).each(function(){
-			$(this).get(0).clear();
+			if( $(this).get(0).className == "translators-desk-marker-ner"){
+				$(this).get(0).clear();
+			}
 		})
 	}
 }

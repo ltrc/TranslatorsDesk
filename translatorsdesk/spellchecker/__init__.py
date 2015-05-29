@@ -15,4 +15,3 @@ dictionaries['hi'] = hi
 dictionaries['te'] = te
 dictionaries['ta'] = ta
 dictionaries['pa'] = pa
-
