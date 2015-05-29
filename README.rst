@@ -13,6 +13,10 @@ Soft Features
     * It maintains an edit history for the text, which gets collected and can be saved as extra meta-data for the piece of text being edited
 * Mark as NER   
     * Selecting a group of text and right clicking on it exposes a menu which lets the user add/clear NER markers
+* On the fly Word suggesstions and corrections
+    * Hindi, Telugu, Tamil, Punjabi and English now have on the fly word suggesstions. Hoping to have the save for Urdu soon
+
+
 
 Quickstart
 ----------
