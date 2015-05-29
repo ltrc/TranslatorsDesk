@@ -29,7 +29,7 @@ else:
 app.debug = True
 socketio = SocketIO(app)
 HERE = os.path.abspath(os.path.dirname(__file__))
-
+TEST_PATH = os.path.join(HERE, 'tests')
 
 """
     Handles Socket.IO events 
@@ -68,6 +68,13 @@ def _make_context():
     return {'app': app, 'db': db, 'User': User}    
 
 manager = Manager(app)
+
+@manager.command
+def test():
+    """Run the tests."""
+    import pytest
+    exit_code = pytest.main([TEST_PATH, '--verbose'])
+    return exit_code
 
 @manager.command
 def run():
