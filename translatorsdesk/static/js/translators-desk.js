@@ -218,7 +218,7 @@ function setupTranslatorsDeskMenuItemHandlers(){
 	 */
 	$(".td-menu-item-undo").click(function(d){
 		var editor = get_corresponding_editor_from_menu_item($(this));
-		editor.execCommand("undo");
+		editor.execCommand("undoSelection");
 	});
 
 	/**
@@ -226,7 +226,7 @@ function setupTranslatorsDeskMenuItemHandlers(){
 	 */
 	$(".td-menu-item-redo").click(function(d){
 		var editor = get_corresponding_editor_from_menu_item($(this));
-		editor.execCommand("redo");
+		editor.execCommand("redoSelection");
 	})
 }
 
@@ -386,9 +386,9 @@ function updateCurrentWord(editor){
 /**
  * Setups up Events Handlers for content change in the editor
  */
-function setupCodeMirroContentChangeEventHandlers(){
+function setupCodeMirrorInputReadEventHandlers(){
 	$(editors).each(function(){
-		$(this).get(0).on("change", function(editor){
+		$(this).get(0).on("inputRead", function(editor){
 			updateCurrentWord(editor);
 			CodeMirror.commands.translators_desk_aspell(editor);
 		})
@@ -423,7 +423,7 @@ $(document).ready(function(){
 	setupTranslatorsDeskMenuItemHandlers();
 	intitContextualMenus();
 	setupTextSelectionHandlers();
-	setupCodeMirroContentChangeEventHandlers();
+	setupCodeMirrorInputReadEventHandlers();
 	setupInputMethods(editors[0],
 								{
 									defaultLanguage: "hi",
