@@ -397,9 +397,9 @@ function setupInputMethods(editor, options){
  * Finds the word and word Range at a particular location
  */
 
-function getWordAt(editor, position){
-	var wordRange = editor.findWordAt(position);
-	var word = editor.getRange(wordRange.anchor, wordRange.head);
+CodeMirror.prototype.getWordAt =function(position){
+	var wordRange = this.findWordAt(position);
+	var word = this.getRange(wordRange.anchor, wordRange.head);
 	return {
 		word : word,
 		wordRange : wordRange
@@ -410,7 +410,7 @@ function getWordAt(editor, position){
  * Updates the internal data store with the latest word at the cursor
  */
 function updateCurrentWord(editor){
-	var currentWord = getWordAt(editor, editor.getCursor());
+	var currentWord = editor.getWordAt(editor.getCursor());
 	editor.currentWordRange = currentWord.wordRange;
 	editor.currentWord = currentWord.word;
 }
