@@ -75,6 +75,9 @@ var editor_word_length_query_threshold;
  */
 CodeMirror.commands.translators_desk_aspell = function(editor) {
 	editor_word_length_query_threshold = TranslatorsDeskGlobals.word_length_query_threshold[get_editor_language_menu(editor).val()]
+
+	editor.currentWord = editor.getCurrentWord();
+	editor.currentWordRange = editor.getCurrentWordRange();
 	if(editor.currentWord && editor_word_length_query_threshold && editor.currentWord.trim().length > editor_word_length_query_threshold ){
 		//Only consider words of length more than 3
 		socket.emit("translanslators_desk_get_word_suggesstion", 
@@ -99,6 +102,19 @@ CodeMirror.commands.translators_desk_aspell = function(editor) {
 	}
 }
 
+/**
+ * Returns the current wordRange of the editor
+ */
+CodeMirror.prototype.getCurrentWordRange = function(){
+	return this.findWordAt(this.getCursor());
+}
+/**
+ * Returns the current word the editor is at
+ */
+CodeMirror.prototype.getCurrentWord = function(){
+	var wordRange = this.getCurrentWordRange();
+	return  this.getRange(wordRange.anchor, wordRange.head);
+}
 
 /**
  * Gets the editor_id corresponding to a translators desk menu item
@@ -376,19 +392,31 @@ function setupInputMethods(editor, options){
 		}
 	}
 }
+
+/**
+ * Finds the word and word Range at a particular location
+ */
+
+function getWordAt(editor, position){
+	var wordRange = editor.findWordAt(position);
+	var word = editor.getRange(wordRange.anchor, wordRange.head);
+	return {
+		word : word,
+		wordRange : wordRange
+	}
+}
+
 /**
  * Updates the internal data store with the latest word at the cursor
  */
 function updateCurrentWord(editor){
-	editor.currentWordRange = editor.findWordAt(editor.getCursor());
-	editor.currentWord = editor.getRange(editor.currentWordRange.anchor, editor.currentWordRange.head);
+	var currentWord = getWordAt(editor, editor.getCursor());
+	editor.currentWordRange = currentWord.wordRange;
+	editor.currentWord = currentWord.word;
 }
 
 function setupCursorActivityHandlers(){
 	$(editors).each(function(){
-		var editor = $(this).get(0).on("cursorActivity", function(editor){
-			updateCurrentWord(editor);
-		})
 	});
 }
 /**
