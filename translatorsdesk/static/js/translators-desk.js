@@ -383,13 +383,20 @@ function updateCurrentWord(editor){
 	editor.currentWordRange = editor.findWordAt(editor.getCursor());
 	editor.currentWord = editor.getRange(editor.currentWordRange.anchor, editor.currentWordRange.head);
 }
+
+function setupCursorActivityHandlers(){
+	$(editors).each(function(){
+		var editor = $(this).get(0).on("cursorActivity", function(editor){
+			updateCurrentWord(editor);
+		})
+	});
+}
 /**
  * Setups up Events Handlers for content change in the editor
  */
 function setupCodeMirrorInputReadEventHandlers(){
 	$(editors).each(function(){
 		$(this).get(0).on("inputRead", function(editor){
-			updateCurrentWord(editor);
 			CodeMirror.commands.translators_desk_aspell(editor);
 		})
 	})
@@ -423,6 +430,7 @@ $(document).ready(function(){
 	setupTranslatorsDeskMenuItemHandlers();
 	intitContextualMenus();
 	setupTextSelectionHandlers();
+	setupCursorActivityHandlers();
 	setupCodeMirrorInputReadEventHandlers();
 	setupInputMethods(editors[0],
 								{
