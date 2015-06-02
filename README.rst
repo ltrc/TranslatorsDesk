@@ -18,6 +18,16 @@ Soft Features
     * You should see suggesstions as you type, but you can also manually query for suggesstions by using the key combination `Ctrl + space`
 * Spell Check for Hindi, Telugu, Tamil, Punjabi and English
     * TODO : Add on the fly spell check
+* Find Replace
+    * Added support for Find / Replace via Key Bindings
+    * This also supports searching using regular expressions
+    * Key Binding :   
+        *  `Ctrl - F` / `Cmd - F`    :: Start Searching
+        *  `Ctrl-G` / `Cmd-G` :: Find Next
+        *  `Shift-Ctrl-G` / `Shift-Cmd-G` :: Find Previous
+        *  `Shift-Ctrl-F` / `Cmd-Option-F` :: Replace
+        *  `Shift-Ctrl-R` / `Shift-Cmd-Option-F` :: Replace All
+    * TODO : Add  icons for the individual functions to the menubar
 
 Quickstart
 ----------
