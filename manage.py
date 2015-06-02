@@ -17,7 +17,7 @@ from translatorsdesk.user.models import User
 from translatorsdesk.settings import DevConfig, ProdConfig
 from translatorsdesk.database import db
 from translatorsdesk.spellchecker import dictionaries as spellcheckers
-import random, hashlib, json
+import random, hashlib, json, base64
 
 import logging
 logging.basicConfig()
@@ -50,6 +50,18 @@ def translanslators_desk_get_word_suggesstion(message):
             + hashlib.md5(word.lower()).hexdigest(), \
             json.dumps(suggestions))
 
+@socketio.on('spell_check_cache_query', namespace='/td')
+def spell_check_cache_query(message):
+    word_list = message['data']
+    lang = message['lang']
+    word_list = json.loads(word_list)
+    error_list = []
+    for word in word_list:
+        word = word.encode('utf-8')
+        word = word.strip()
+        if not spellcheckers[lang].check(word):
+            error_list.append(word)
+    emit("spell_check_cache_query_response", json.dumps(error_list));
 
 @socketio.on('connect', namespace='/td')
 def test_connect():

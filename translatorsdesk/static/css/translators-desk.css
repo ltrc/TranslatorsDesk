@@ -28,10 +28,19 @@
 	-webkit-border-radius: 5px;
 }
 
+.translators-desk-marker-spell-error {
+  text-decoration: none;
+  border-bottom: 2px dashed red;
+}
+
 .translators_desk_context_menu_header {
 	color: grey;
 	padding-left: 10px;
 	font-size: 10px;
+}
+
+.td-menu-item-spell-check-selected {
+	color : #2e6da4;
 }
 
 /**

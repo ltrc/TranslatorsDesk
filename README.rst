@@ -16,7 +16,8 @@ Soft Features
 * On the fly Word suggesstions and corrections
     * Hindi, Telugu, Tamil, Punjabi and English now have on the fly word suggesstions. Hoping to have the save for Urdu soon.
     * You should see suggesstions as you type, but you can also manually query for suggesstions by using the key combination `Ctrl + space`
-
+* Spell Check for Hindi, Telugu, Tamil, Punjabi and English
+    * TODO : Add on the fly spell check
 
 Quickstart
 ----------

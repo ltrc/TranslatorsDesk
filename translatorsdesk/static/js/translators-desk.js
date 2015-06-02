@@ -117,6 +117,22 @@ CodeMirror.prototype.getCurrentWord = function(){
 }
 
 /**
+ * Returns the beginning of the document as Codemirror.Pos object
+ * @return {[type]} [description]
+ */
+CodeMirror.prototype.getDocBeginning = function(){
+	return CodeMirror.Pos(0,0)
+}
+
+/**
+ * Returns the end of the document as Codemirror.Pos object
+ * @return {[type]} [description]
+ */
+CodeMirror.prototype.getDocEnd = function(){
+	return CodeMirror.Pos(this.lastLine(),this.getLine(this.lastLine()).length)
+}
+
+/**
  * Gets the editor_id corresponding to a translators desk menu item
  * @param  menu_item jquery_selector_object
  * @return int
@@ -223,6 +239,15 @@ function collectTextMetaDataBeforeSave(editor){
 	}
 }
 
+CodeMirror.prototype.disable = function(){
+	this.setOption("readOnly", true);
+	this.setOption("cursorHeight", 0);
+}
+
+CodeMirror.prototype.enable = function(){
+	this.setOption("readOnly", false);
+	this.setOption("cursorHeight", 1);
+}
 
 /**
  * Sets up Translators Desk MenuItem Handlers
@@ -244,7 +269,126 @@ function setupTranslatorsDeskMenuItemHandlers(){
 		var editor = get_corresponding_editor_from_menu_item($(this));
 		editor.execCommand("redoSelection");
 	})
+
+
+	$(".td-menu-item-spell-check").click(function(d){
+		var editor = get_corresponding_editor_from_menu_item($(this));
+
+		if($(this).hasClass("td-menu-item-spell-check-selected")){
+			$(this).removeClass("td-menu-item-spell-check-selected");
+			editor.spellCheckMode = false;
+
+			//Clear Spelling Mistake Markers
+			var marksInRange = editor.findMarks(editor.getDocBeginning(), editor.getDocEnd());
+			$(marksInRange).each(function(){
+				if( $(this).get(0).className == "translators-desk-marker-spell-error"){
+					$(this).get(0).clear();
+				}
+			})
+
+			editor.enable();
+
+		}else{
+			editor.disable();
+			$(this).addClass("td-menu-item-spell-check-selected");
+			editor.spellCheckMode = true;
+			editor.markSpellingMistakes();
+		}
+	})
 }
+
+function getCodeMirrorPosObjectFromLineMatchesAndStringMatches(lineMatches, stringMatches){
+	var result = []
+	for(var x=0; x<stringMatches.length; x++){
+		for(var y=0; y < lineMatches.length; y++){
+			if(lineMatches[y] > stringMatches[x] ){
+				break
+			}
+		}
+		if(y!=0){
+			result.push(CodeMirror.Pos(y, stringMatches[x] - lineMatches[y-1]))
+		}else{
+			result.push(CodeMirror.Pos(y, stringMatches[x]))
+		}
+	}
+	return result;
+}
+
+/**
+ * Returns list of index values where the substring occurs in the string
+ */
+function getIndicesOfMatches(string, word){
+	var re = new RegExp(word, "ig");
+	var result = []
+	while ((match = re.exec(string)) != null) {
+	    result.push(match.index);
+	}
+
+	return result;
+}
+
+/**
+ * Given a word, it returns a list of ranges in the document where it occurs
+ */
+CodeMirror.prototype.getMatchRangesFromWord = function(word){
+	var lineMatches = getIndicesOfMatches(this.getValue(), "\n");
+	var stringMatches = getIndicesOfMatches(this.getValue(), word);
+
+	var PosListOfMatches = getCodeMirrorPosObjectFromLineMatchesAndStringMatches(lineMatches, stringMatches);
+	var RangeList = []
+	for(var i=0;i<PosListOfMatches.length; i++){
+		RangeList.push(this.findWordAt(PosListOfMatches[i]));
+	}
+
+	return RangeList;
+}
+
+/**
+ * Divides the document into separate words, and
+ * emits the spell check query
+ * TODO :: maintain an inhouse cache
+ * TODO :: not the most efficient implementation, should be replaced
+ * by a smart on the fly spell check
+ */
+CodeMirror.prototype.markSpellingMistakes = function(){
+	var words = this.getValue();
+	var punctuation_regex = /([\.,!":\?।|])+/g;
+	words = words.replace(punctuation_regex, " ");
+	words = words.match(/\S+\s*/g);
+	socket.emit('spell_check_cache_query', {
+		data : JSON.stringify(words),
+		lang: get_editor_language_menu(this).val()
+	});
+}
+
+/**
+ * Marks the list of words as error in the document
+ */
+CodeMirror.prototype.markWordsAsSpellingMistake = function(words){
+	for(var i=0;i < words.length; i++){
+		//Find All instances of the word
+		var ranges = this.getMatchRangesFromWord(words[i]);
+
+		for(var j=0; j<ranges.length; j++){
+			this.markText(ranges[j].anchor, ranges[j].head, {
+				className : "translators-desk-marker-spell-error",
+				addToHistory : false,
+			});
+		}
+	}
+}
+
+
+function setupSpellCheck(){
+	$(editors).each(function(){
+		var editor = $(this).get(0);
+		socket.on('spell_check_cache_query_response', function(words){
+			// Mark all instances of the words in this list as spelling mistake
+			editor.markWordsAsSpellingMistake(JSON.parse(words));
+		})
+	})
+}
+
 
 function intitContextualMenus(){
 	context.init({
@@ -417,6 +561,19 @@ function updateCurrentWord(editor){
 
 function setupCursorActivityHandlers(){
 	$(editors).each(function(){
+		$(this).get(0).on('cursorActivity', function(editor){
+
+
+			if(editor.spellCheckMode){
+				var marksAtPosition = editor.findMarksAt(editor.getCursor());
+				$(marksAtPosition).each(function(){
+					if( $(this).get(0).className == "translators-desk-marker-spell-error"){
+						//Initiate the autocomplete form on cursorActivity on wrongly spelled word
+						CodeMirror.commands.translators_desk_aspell(editor);
+					}
+				})
+			}
+		});
 	});
 }
 /**
@@ -426,6 +583,13 @@ function setupCodeMirrorInputReadEventHandlers(){
 	$(editors).each(function(){
 		$(this).get(0).on("inputRead", function(editor){
 			CodeMirror.commands.translators_desk_aspell(editor);
+		})
+	})
+}
+
+function setupChangeHandlers(){
+	$(editors).each(function(){
+		$(this).get(0).on('beforeChange', function(editor, change){
 		})
 	})
 }
@@ -459,7 +623,9 @@ $(document).ready(function(){
 	intitContextualMenus();
 	setupTextSelectionHandlers();
 	setupCursorActivityHandlers();
+	setupChangeHandlers();
 	setupCodeMirrorInputReadEventHandlers();
+	setupSpellCheck();
 	setupInputMethods(editors[0],
 								{
 									defaultLanguage: "hi",
