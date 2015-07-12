@@ -54,7 +54,7 @@ Then run the following commands to bootstrap your environment.
     #Note aspell dictionary for Urdu is not yet available
 
     pip install -r requirements.txt
-    python manage.py server
+    python manage.py runserver
 
 You will see a pretty welcome screen.
 
