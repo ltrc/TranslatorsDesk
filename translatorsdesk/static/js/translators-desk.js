@@ -470,7 +470,9 @@ function get_editor_language_menu(editor){
 	return $("#codemirror_menu_"+editor_id).find(".translators_desk_language_list");
 }
 
-
+/**
+ * Returns the TARGET language list select object 
+ */
 function get_target_language(editor){
 	var editor_id = get_editor_id(editor);
 	return $("#codemirror_menu_"+editor_id).find(".translators_desk_language_list_target");
@@ -487,22 +489,21 @@ function build_language_list_menu(editor, options){
 			//If a default list of languages is submitted, then render only those
 			if(options.languages.indexOf(key) != -1){
 				$('<option>').val(key).text(value.autonym).appendTo(get_editor_language_menu(editor));
-				// $('<option>').val(key).text(value.autonym).appendTo(get_target_language(editor));
+				// $('<option>').val(key).text(value.autonym).appendTo(get_target_language(editor)); TODO: Use this to populate target language select
 
 			} 
 		}else{
 			//If a default list of languages is not submitted, then render all the available languages
 			$('<option>').val(key).text(value.autonym).appendTo(get_editor_language_menu(editor));
-			// $('<option>').val(key).text(value.autonym).appendTo(get_target_language(editor));
+			// $('<option>').val(key).text(value.autonym).appendTo(get_target_language(editor)); TODO: See last^
 
 		}
 	})
 	$(".translators_desk_language_list").change(function(){
 		console.log($(this).val());
-
 		set_editor_language(get_corresponding_editor_from_menu_item($(this)), $(this).val());
 	});
-	// $(".translators_desk_language_list_target").change(function(){
+	// $(".translators_desk_language_list_target").change(function(){	TODO: Use this to change the language in editor 2, the target language editor.
 	// 	console.log($(this).val());
 	// 	set_editor_language(editors[1], $(this).val());
 	// });
@@ -637,6 +638,9 @@ function setupSocketIO(){
     setupSocketEventHandlers();
 }
 
+/**
+ * Generates the target sentence using final wordgenerator module output from the pipeline. 
+ */
 function generateResultSentence(result) {
     var worgGenOut = result["wordgenerator-" + Object.keys(result).length].split('\n');
     var tgt_txt = "";
@@ -648,19 +652,22 @@ function generateResultSentence(result) {
     }
     console.log(tgt_txt);
     editors[1].replaceRange(tgt_txt+"\n", {line: Infinity});
-
 }
 
-
+/**
+ * Fetches the translation for one particular sentence using socket.
+ */
 function fetchTranslation(sentence, src, tgt, start, end, callback) {
 	socket.emit("translators_desk_get_translation_query", {
 			data: sentence,
 			src: get_editor_language_menu(editors[0]).val(),
 			tgt: get_target_language(editors[0]).val() // TODO: Fix this hardcoded value. 
-		})
-	
+	})
 }
 
+/**
+ * Splits the source text into sentences so they can be translated one by one by fetchTranslation.
+ */
 function getSourceSentences(editor) {
     var sentences = editor.getValue().replace(/(\r\n|\n|\r)/gm,"").split('।');
 	editors[0].setValue("");
@@ -674,6 +681,9 @@ function getSourceSentences(editor) {
     }
 }
 
+/**
+ * Clears the value in all editor instances. 
+ */
 function clearAllEditors() {
 	for (var i=1; i<editors.length; i++) {
 		editors[i].setValue("");
