@@ -8,6 +8,12 @@
   -khtml-user-select: none;
   -webkit-user-select: none;
   user-select: none;  
+  max-width: 100%;
+
+}
+.codemirror_block {
+	width: 48%;
+	display: inline-block;
 }
 .codemirror_menu .container-fluid div ul li a {
   padding-right: 1px;
