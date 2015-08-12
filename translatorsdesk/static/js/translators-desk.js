@@ -171,7 +171,6 @@ function get_corresponding_editor(codemirror_element){
 function get_editor_id(editor){
 	return $(editor.getWrapperElement()).parents(".codemirror_block").attr("td-editor-id");
 }
-
 /**
  * Marks a selected range as NER
  */
@@ -472,6 +471,11 @@ function get_editor_language_menu(editor){
 }
 
 
+function get_target_language(editor){
+	var editor_id = get_editor_id(editor);
+	return $("#codemirror_menu_"+editor_id).find(".translators_desk_language_list_target");
+}
+
 /**
  * builds and renders the language list corresponding to an editor instance and the given options
  */
@@ -483,15 +487,25 @@ function build_language_list_menu(editor, options){
 			//If a default list of languages is submitted, then render only those
 			if(options.languages.indexOf(key) != -1){
 				$('<option>').val(key).text(value.autonym).appendTo(get_editor_language_menu(editor));
+				// $('<option>').val(key).text(value.autonym).appendTo(get_target_language(editor));
+
 			} 
 		}else{
 			//If a default list of languages is not submitted, then render all the available languages
 			$('<option>').val(key).text(value.autonym).appendTo(get_editor_language_menu(editor));
+			// $('<option>').val(key).text(value.autonym).appendTo(get_target_language(editor));
+
 		}
 	})
 	$(".translators_desk_language_list").change(function(){
+		console.log($(this).val());
+
 		set_editor_language(get_corresponding_editor_from_menu_item($(this)), $(this).val());
 	});
+	// $(".translators_desk_language_list_target").change(function(){
+	// 	console.log($(this).val());
+	// 	set_editor_language(editors[1], $(this).val());
+	// });
 }
 
 /**
@@ -602,6 +616,12 @@ function setupSocketEventHandlers(){
     socket.on('translanslators_desk_echo_response', function(msg) {
         console.log('Received: ' + msg.data );
     });
+	socket.on('translators_desk_get_translation_response', function(msg) {
+   		var response = JSON.parse(msg);
+   		generateResultSentence(response);
+	    editors[2].replaceRange(JSON.stringify(response)+"\n", {line: Infinity});
+    	console.log(response);
+    });
 }
 
 /**
@@ -615,6 +635,49 @@ function setupSocketIO(){
                 console.log("Translators Desk Socket Connected !!");
             });	
     setupSocketEventHandlers();
+}
+
+function generateResultSentence(result) {
+    var worgGenOut = result["wordgenerator-" + Object.keys(result).length].split('\n');
+    var tgt_txt = "";
+    for (var i in worgGenOut) {
+        var ssf = worgGenOut[i].split("\t")
+        if (ssf[0].match(/\d+.\d+/)) {
+            tgt_txt += ssf[1] + " ";
+        }
+    }
+    console.log(tgt_txt);
+    editors[1].replaceRange(tgt_txt+"\n", {line: Infinity});
+
+}
+
+
+function fetchTranslation(sentence, src, tgt, start, end, callback) {
+	socket.emit("translators_desk_get_translation_query", {
+			data: sentence,
+			src: get_editor_language_menu(editors[0]).val(),
+			tgt: get_target_language(editors[0]).val() // TODO: Fix this hardcoded value. 
+		})
+	
+}
+
+function getSourceSentences(editor) {
+    var sentences = editor.getValue().replace(/(\r\n|\n|\r)/gm,"").split('।');
+	editors[0].setValue("");
+
+    for (i = 0; i < sentences.length; i++) {
+        sentences[i] = sentences[i].trim();
+        if (sentences[i].length > 0) {
+    		editors[0].replaceRange(sentences[i]+"\n", {line: Infinity});
+            fetchTranslation(sentences[i], "hin", "pan", 1, 23, generateResultSentence); //TODO: Fix this hardcoded value. 
+        }
+    }
+}
+
+function clearAllEditors() {
+	for (var i=1; i<editors.length; i++) {
+		editors[i].setValue("");
+	}
 }
 
 $(document).ready(function(){
@@ -633,10 +696,19 @@ $(document).ready(function(){
 									languages: ['en','hi','pa', 'te', 'ta', 'ur']
 								}
 		);
+	setupInputMethods(editors[1],
+								{
+									defaultLanguage: "pa",
+									defaultIM: "hi-phonetic",
+									languages: ['en','hi','pa', 'te', 'ta', 'ur']
+								}
+		);
 
 	$("#translators_desk_translate_btn").click(function(){
 		var editor = get_corresponding_editor_from_menu_item($(this));
+		clearAllEditors();
 		//Meta data about the text collected and ready to be saved
 		console.log(collectTextMetaDataBeforeSave(editor));
+		getSourceSentences(editor);
 	});
 })
