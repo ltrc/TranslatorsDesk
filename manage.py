@@ -18,7 +18,8 @@ from translatorsdesk.settings import DevConfig, ProdConfig
 from translatorsdesk.database import db
 from translatorsdesk.spellchecker import dictionaries as spellcheckers
 import random, hashlib, json, base64
-
+import urllib, urllib2
+import json
 import logging
 logging.basicConfig()
 
@@ -35,6 +36,19 @@ TEST_PATH = os.path.join(HERE, 'tests')
     Handles Socket.IO events 
     TODO : Move this block of code to a more appropriate location
 """
+
+@socketio.on('translators_desk_get_translation_query', namespace='/td')
+def translators_desk_get_translation_query(message):
+    print message
+    # url = 'http://pipeline.ilmt.iiit.ac.in/'+message["src"]+'/'+message["tgt"]+'/1/23/'
+    url = 'http://pipeline.ilmt.iiit.ac.in/hin/pan/1/23/' # TODO: Hardcoded languages. Fix either the values in ILMT pipeline or the values in Translators Desk.
+    values = {'input' : message["data"].encode('utf-8')}
+    data = urllib.urlencode(values)
+    req = urllib2.Request(url, data)
+    response = urllib2.urlopen(req)
+    the_page = response.read()
+    emit('translators_desk_get_translation_response', the_page)
+
 @socketio.on('translanslators_desk_echo', namespace='/td')
 def test_message(message):
     emit('translanslators_desk_echo_response', message)
