@@ -84,6 +84,14 @@
 	overflow-y: hidden;
 }
 #output_selector {
-	max-height: 100%;
+	vertical-align: top;
+	max-height: 50%;
 	overflow-y: scroll;
+	height: 50%;
+}
+#translators_desk_show_intermediates_btn {
+	display: none;
+}
+#intermediate_dialog {
+	overflow: hidden;
 }

@@ -768,7 +768,7 @@ function load_output_selectors(sentence_id) {
    //      var actualLineNumber = lineNumber - 1;
 
    //      //Select editor loaded in the DOM
-   //      var codeMirrorEditor = editors[editorID];
+   //      var codeMirrorEditor = editors[editorID].codeMirror;
             
    //      //Set line css class
    //      codeMirrorEditor.setLineClass(actualLineNumber, 'background', 'line-error');
@@ -801,18 +801,33 @@ $(document).ready(function(){
 									languages: ['en','hi','pa', 'te', 'ta', 'ur']
 								}
 		);
-	$('.selectpicker').selectpicker();
+
 	$('#intermediate_results #sentence_selector').change(function() {
 		load_output_selectors(this.value.split(':')[0]);
 	});
 	$('#translators_desk_play_from_intermediate_btn').click(function() {
 		console.log("THIS IS NUMBER"+GLOBAL_sentence_id);
+		$('#intermediate_dialog').dialog("close");
 		fetchTranslation(editors[2].getValue(), 'hin', 'pan', GLOBAL_intermediate_index, 23, "intermediate");
 	});
 	$('#translators_desk_show_intermediates_btn').click(function() {
-		$('#intermediate_results').slideToggle();
+		$('#intermediate_results').show();
+		$('#intermediate_dialog').dialog("open");
+		// highlightLine(1, 1);
+
 	});
+$('#intermediate_dialog').dialog({
+			height: $(window).height()/1.5,
+			width: $(window).width()/1.5,
+			show: { effect: "explode", duration: 500 },
+			hide: { effect: "explode", duration: 500 },
+			position: { my: "center", at: "center" },
+			autoOpen: false
+
+		});
+    // $( "#dialog" ).dialog();
 	$("#translators_desk_translate_btn").click(function(){
+		$('#translators_desk_show_intermediates_btn').show();
 		var editor = get_corresponding_editor_from_menu_item($(this));
 		clearAllEditors();
 		TranslationResults = {}
