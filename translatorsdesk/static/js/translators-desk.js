@@ -6,6 +6,11 @@ var editors = [];
 var currentEditor = null;
 var TranslatorsDeskGlobals = {}
 
+var TranslationResults = {}		// Stores the result obtained from translations done via the desk.
+var sentenceNumber = 1 			// Stores the ID of the sentence that has been translated via the full pipeline mode.
+var GLOBAL_sentence_id; 		// Stores the ID of the sentence that is currently being acted upon, by the intermediate pipeline run interface.
+var GLOBAL_intermediate_index; 	// Stores the index of the module that is currently selected in the intermediate pipeline run interface.
+								// TODO: Streamline the above variables. Debate whether globals are really required for doing this. 
 
 var currentContextMenuTargetEditor = null;
 var ContextMenuObjects = {};
@@ -619,10 +624,26 @@ function setupSocketEventHandlers(){
     });
 	socket.on('translators_desk_get_translation_response', function(msg) {
    		var response = JSON.parse(msg);
-   		generateResultSentence(response);
-	    editors[2].replaceRange(JSON.stringify(response)+"\n", {line: Infinity});
-    	console.log(response);
+   		var result = JSON.parse(response["result"]);
+    	TranslationResults[sentenceNumber] = result;
+   		if (response["type"] == "full") {
+   			generateResultSentence(result, Infinity);
+    		sentenceNumber += 1;
+   		}
+   		else if (response["type"] == "intermediate") {
+   			generateResultSentence(result, parseInt(response["sentence_id"]));
+   		}
     });
+}
+
+/**
+ * Sets up the intermediate output editor to show output from a particular module.
+ */
+function showIntermediateOutput(index, sentenceNumber) {
+	editors[2].setValue("");
+    editors[2].replaceRange(TranslationResults[sentenceNumber][index]+"\n", {line: Infinity});
+    GLOBAL_intermediate_index = index.split('-')[1];
+    GLOBAL_sentence_id = sentenceNumber;
 }
 
 /**
@@ -641,8 +662,8 @@ function setupSocketIO(){
 /**
  * Generates the target sentence using final wordgenerator module output from the pipeline. 
  */
-function generateResultSentence(result) {
-    var worgGenOut = result["wordgenerator-" + Object.keys(result).length].split('\n');
+function generateResultSentence(result, line_number) {
+    var worgGenOut = result["wordgenerator-23"].split('\n'); // FIX: has a hardcoded value of 23. Earlier code of Object.keys(result).length didnt work for intermediate outputs. 
     var tgt_txt = "";
     for (var i in worgGenOut) {
         var ssf = worgGenOut[i].split("\t")
@@ -651,18 +672,33 @@ function generateResultSentence(result) {
         }
     }
     console.log(tgt_txt);
-    editors[1].replaceRange(tgt_txt+"\n", {line: Infinity});
+    if (line_number != Infinity) {
+    	var existingLine = editors[1].getLine(line_number-1);
+	    editors[1].replaceRange(tgt_txt, {line: line_number-1, ch: 0}, {line:line_number-1, ch: existingLine.length-1});
+	}
+	else {
+	    editors[1].replaceRange(tgt_txt+"\n", {line: Infinity});
+	}
 }
+
 
 /**
  * Fetches the translation for one particular sentence using socket.
  */
-function fetchTranslation(sentence, src, tgt, start, end, callback) {
+function fetchTranslation(sentence, src, tgt, start, end, type) {
+	if (type == "full") {
+		$('#intermediate_results #sentence_selector').append("<option>"+GLOBAL_sentence_id+": "+sentence.substring(0,60)+" ...</option>");
+	}
+
 	socket.emit("translators_desk_get_translation_query", {
 			data: sentence,
 			src: get_editor_language_menu(editors[0]).val(),
-			tgt: get_target_language(editors[0]).val() // TODO: Fix this hardcoded value. 
-	})
+			tgt: get_target_language(editors[0]).val(), // TODO: Fix this hardcoded value. 
+			start: start, 
+			end: end,
+			type: type, 
+			sentence_id: GLOBAL_sentence_id
+	});
 }
 
 /**
@@ -676,10 +712,12 @@ function getSourceSentences(editor) {
         sentences[i] = sentences[i].trim();
         if (sentences[i].length > 0) {
     		editors[0].replaceRange(sentences[i]+"\n", {line: Infinity});
-            fetchTranslation(sentences[i], "hin", "pan", 1, 23, generateResultSentence); //TODO: Fix this hardcoded value. 
+    		GLOBAL_sentence_id = i;
+            fetchTranslation(sentences[i], "hin", "pan", 1, 23, "full"); //TODO: Fix this hardcoded value. 
         }
     }
 }
+
 
 /**
  * Clears the value in all editor instances. 
@@ -688,6 +726,19 @@ function clearAllEditors() {
 	for (var i=1; i<editors.length; i++) {
 		editors[i].setValue("");
 	}
+}
+
+/**
+ * Loads the list of modules whose output is available for display as intermediate module output.
+ */
+function load_output_selectors(sentence_id) {
+	sentence_details = TranslationResults[parseInt(sentence_id) + 1];
+	$('#intermediate_results #output_selector').html('');
+	$.each(sentence_details, function(index, value) {
+		var sentenceNumber = parseInt(sentence_id)+1;
+    	$('#intermediate_results #output_selector').append("<li onclick='showIntermediateOutput(\""+index+"\", \""+sentenceNumber+"\")'>"+index.split('-')[0]+"</li>");
+    });
+	editors[2].setValue("");
 }
 
 $(document).ready(function(){
@@ -706,17 +757,45 @@ $(document).ready(function(){
 									languages: ['en','hi','pa', 'te', 'ta', 'ur']
 								}
 		);
+
 	setupInputMethods(editors[1],
 								{
 									defaultLanguage: "pa",
-									defaultIM: "hi-phonetic",
+									defaultIM: "pa-phonetic",
 									languages: ['en','hi','pa', 'te', 'ta', 'ur']
 								}
 		);
 
+	$('#intermediate_results #sentence_selector').change(function() {
+		load_output_selectors(this.value.split(':')[0]);
+	});
+
+	$('#translators_desk_play_from_intermediate_btn').click(function() {
+		$('#intermediate_dialog').dialog("close");
+		fetchTranslation(editors[2].getValue(), 'hin', 'pan', GLOBAL_intermediate_index, 23, "intermediate");
+	});
+
+	$('#translators_desk_show_intermediates_btn').click(function() {
+		$('#intermediate_results').show();
+		$('#intermediate_dialog').dialog("open");
+	});
+
+	$('#intermediate_dialog').dialog({
+		height: $(window).height()/1.5,
+		width: $(window).width()/1.5,
+		show: { effect: "explode", duration: 500 },
+		hide: { effect: "explode", duration: 500 },
+		position: { my: "center", at: "center" },
+		autoOpen: false
+	});
+
 	$("#translators_desk_translate_btn").click(function(){
+		$('#translators_desk_show_intermediates_btn').show();
 		var editor = get_corresponding_editor_from_menu_item($(this));
 		clearAllEditors();
+		TranslationResults = {}
+		$('#intermediate_results #sentence_selector').html('<option>Select a sentence</option>');
+
 		//Meta data about the text collected and ready to be saved
 		console.log(collectTextMetaDataBeforeSave(editor));
 		getSourceSentences(editor);

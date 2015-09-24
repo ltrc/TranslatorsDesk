@@ -12,7 +12,7 @@
 
 }
 .codemirror_block {
-	width: 48%;
+	width: 45%;
 	display: inline-block;
 }
 .codemirror_menu .container-fluid div ul li a {
@@ -61,4 +61,37 @@
 }
 .ime-lang-title {
 	display:none;
+}
+#intermediate_results tr td {
+	text-align: center;
+}
+#output_display .codemirror_block {
+	width: 80%;
+}
+#output_selector li {
+	padding: 5px;
+	text-align: center;
+	width: 100%;
+}
+#output_selector li:hover {
+	background-color: rgba(0,0,0,0.9);
+	color: white;
+	cursor: pointer;
+}
+#intermediate_results {
+	display: none;
+	max-height: 30%;
+	overflow-y: hidden;
+}
+#output_selector {
+	vertical-align: top;
+	max-height: 50%;
+	overflow-y: scroll;
+	height: 50%;
+}
+#translators_desk_show_intermediates_btn {
+	display: none;
+}
+#intermediate_dialog {
+	overflow: hidden;
 }
