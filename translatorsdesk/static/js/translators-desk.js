@@ -5,10 +5,13 @@
 var editors = [];
 var currentEditor = null;
 var TranslatorsDeskGlobals = {}
-var TranslationResults = {}
-var sentenceNumber = 1
-var GLOBAL_sentence_id;
-var GLOBAL_intermediate_index;
+
+var TranslationResults = {}		// Stores the result obtained from translations done via the desk.
+var sentenceNumber = 1 			// Stores the ID of the sentence that has been translated via the full pipeline mode.
+var GLOBAL_sentence_id; 		// Stores the ID of the sentence that is currently being acted upon, by the intermediate pipeline run interface.
+var GLOBAL_intermediate_index; 	// Stores the index of the module that is currently selected in the intermediate pipeline run interface.
+								// TODO: Streamline the above variables. Debate whether globals are really required for doing this. 
+
 var currentContextMenuTargetEditor = null;
 var ContextMenuObjects = {};
 ContextMenuObjects.translators_desk_ner_submenu =
@@ -622,47 +625,27 @@ function setupSocketEventHandlers(){
 	socket.on('translators_desk_get_translation_response', function(msg) {
    		var response = JSON.parse(msg);
    		var result = JSON.parse(response["result"]);
-   		// console.log(response)
     	TranslationResults[sentenceNumber] = result;
    		if (response["type"] == "full") {
    			generateResultSentence(result, Infinity);
-    	sentenceNumber += 1;
-
+    		sentenceNumber += 1;
    		}
    		else if (response["type"] == "intermediate") {
-   			console.log("THIS IS SENT_ID:"+response["sentence_id"]);
-   			// generateAfterIntermediate(result);
    			generateResultSentence(result, parseInt(response["sentence_id"]));
    		}
-   		// console.log(result)
-   		// response["callback"](response["result"]);
-   		// var individualOutputs = "";
-   		// $.each(response, function(key, val) {
-   		// 	individualOutputs = individualOutputs + key + ":\n";
-   		// 	individualOutputs = individualOutputs + val + "\n---------------\n";
-   		// });
-	    // editors[2].replaceRange(individualOutputs+"\n", {line: Infinity});
-
-	    // $.each(response, function(index, value) {
-	    // 	$('#intermediate_results #output_selector').append("<li onclick='showIntermediateOutput(\""+index+"\", "+sentenceNumber+")'>"+index.split('-')[0]+"</li>");
-	    // });
-
-
-    	console.log(response);
     });
 }
-function htmlEntities(str) {
-    return String(str).replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;').replace(/"/g, '&quot;');
-}
-function showIntermediateOutput(index, sentenceNumber) {
-	// $('#intermediate_results #output_display').html("<pre>"+htmlEntities(TranslationResults[sentenceNumber][index])+"</pre>");
-	editors[2].setValue("");
 
-	    editors[2].replaceRange(TranslationResults[sentenceNumber][index]+"\n", {line: Infinity});
-	    console.log("INDEX: ", index );
-	    GLOBAL_intermediate_index = index.split('-')[1];
-	    GLOBAL_sentence_id = sentenceNumber;
+/**
+ * Sets up the intermediate output editor to show output from a particular module.
+ */
+function showIntermediateOutput(index, sentenceNumber) {
+	editors[2].setValue("");
+    editors[2].replaceRange(TranslationResults[sentenceNumber][index]+"\n", {line: Infinity});
+    GLOBAL_intermediate_index = index.split('-')[1];
+    GLOBAL_sentence_id = sentenceNumber;
 }
+
 /**
  * Sets up SocketIO connection
  */
@@ -680,8 +663,6 @@ function setupSocketIO(){
  * Generates the target sentence using final wordgenerator module output from the pipeline. 
  */
 function generateResultSentence(result, line_number) {
-	// console.log("This is result: ", result);
-	console.log("This is line number"+line_number);
     var worgGenOut = result["wordgenerator-23"].split('\n'); // FIX: has a hardcoded value of 23. Earlier code of Object.keys(result).length didnt work for intermediate outputs. 
     var tgt_txt = "";
     for (var i in worgGenOut) {
@@ -693,12 +674,10 @@ function generateResultSentence(result, line_number) {
     console.log(tgt_txt);
     if (line_number != Infinity) {
     	var existingLine = editors[1].getLine(line_number-1);
-    	console.log("THIS IS IT: "+existingLine);
 	    editors[1].replaceRange(tgt_txt, {line: line_number-1, ch: 0}, {line:line_number-1, ch: existingLine.length-1});
 	}
 	else {
 	    editors[1].replaceRange(tgt_txt+"\n", {line: Infinity});
-
 	}
 }
 
@@ -708,9 +687,9 @@ function generateResultSentence(result, line_number) {
  */
 function fetchTranslation(sentence, src, tgt, start, end, type) {
 	if (type == "full") {
-	$('#intermediate_results #sentence_selector').append("<option>"+GLOBAL_sentence_id+": "+sentence.substring(0,60)+" ...</option>");
+		$('#intermediate_results #sentence_selector').append("<option>"+GLOBAL_sentence_id+": "+sentence.substring(0,60)+" ...</option>");
 	}
-	console.log("SENTENCE_ID: "+GLOBAL_sentence_id)
+
 	socket.emit("translators_desk_get_translation_query", {
 			data: sentence,
 			src: get_editor_language_menu(editors[0]).val(),
@@ -719,7 +698,7 @@ function fetchTranslation(sentence, src, tgt, start, end, type) {
 			end: end,
 			type: type, 
 			sentence_id: GLOBAL_sentence_id
-	})
+	});
 }
 
 /**
@@ -749,36 +728,20 @@ function clearAllEditors() {
 	}
 }
 
+/**
+ * Loads the list of modules whose output is available for display as intermediate module output.
+ */
 function load_output_selectors(sentence_id) {
 	sentence_details = TranslationResults[parseInt(sentence_id) + 1];
-	// console.log(TranslationResults);
 	$('#intermediate_results #output_selector').html('');
 	$.each(sentence_details, function(index, value) {
-			var sentenceNumber = parseInt(sentence_id)+1;
-			console.log(sentenceNumber);
-	    	$('#intermediate_results #output_selector').append("<li onclick='showIntermediateOutput(\""+index+"\", \""+sentenceNumber+"\")'>"+index.split('-')[0]+"</li>");
-	    });
+		var sentenceNumber = parseInt(sentence_id)+1;
+    	$('#intermediate_results #output_selector').append("<li onclick='showIntermediateOutput(\""+index+"\", \""+sentenceNumber+"\")'>"+index.split('-')[0]+"</li>");
+    });
 	editors[2].setValue("");
-
 }
 
-   // function highlightLine(lineNumber, editorID) {
-
-   //      //Line number is zero based index
-   //      var actualLineNumber = lineNumber - 1;
-
-   //      //Select editor loaded in the DOM
-   //      var codeMirrorEditor = editors[editorID].codeMirror;
-            
-   //      //Set line css class
-   //      codeMirrorEditor.setLineClass(actualLineNumber, 'background', 'line-error');
-   //  }
-
-
 $(document).ready(function(){
-
-    // $( "#dialog" ).dialog();
-
 	setupSocketIO();
 	setupTranslatorsDeskMenuItemHandlers();
 	intitContextualMenus();
@@ -794,6 +757,7 @@ $(document).ready(function(){
 									languages: ['en','hi','pa', 'te', 'ta', 'ur']
 								}
 		);
+
 	setupInputMethods(editors[1],
 								{
 									defaultLanguage: "pa",
@@ -805,27 +769,26 @@ $(document).ready(function(){
 	$('#intermediate_results #sentence_selector').change(function() {
 		load_output_selectors(this.value.split(':')[0]);
 	});
+
 	$('#translators_desk_play_from_intermediate_btn').click(function() {
-		console.log("THIS IS NUMBER"+GLOBAL_sentence_id);
 		$('#intermediate_dialog').dialog("close");
 		fetchTranslation(editors[2].getValue(), 'hin', 'pan', GLOBAL_intermediate_index, 23, "intermediate");
 	});
+
 	$('#translators_desk_show_intermediates_btn').click(function() {
 		$('#intermediate_results').show();
 		$('#intermediate_dialog').dialog("open");
-		// highlightLine(1, 1);
-
 	});
-$('#intermediate_dialog').dialog({
-			height: $(window).height()/1.5,
-			width: $(window).width()/1.5,
-			show: { effect: "explode", duration: 500 },
-			hide: { effect: "explode", duration: 500 },
-			position: { my: "center", at: "center" },
-			autoOpen: false
 
-		});
-    // $( "#dialog" ).dialog();
+	$('#intermediate_dialog').dialog({
+		height: $(window).height()/1.5,
+		width: $(window).width()/1.5,
+		show: { effect: "explode", duration: 500 },
+		hide: { effect: "explode", duration: 500 },
+		position: { my: "center", at: "center" },
+		autoOpen: false
+	});
+
 	$("#translators_desk_translate_btn").click(function(){
 		$('#translators_desk_show_intermediates_btn').show();
 		var editor = get_corresponding_editor_from_menu_item($(this));

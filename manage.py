@@ -40,7 +40,6 @@ TEST_PATH = os.path.join(HERE, 'tests')
 @socketio.on('translators_desk_get_translation_query', namespace='/td')
 def translators_desk_get_translation_query(message):
     print message
-    # url = 'http://pipeline.ilmt.iiit.ac.in/'+message["src"]+'/'+message["tgt"]+'/1/23/'
     url = 'http://pipeline.ilmt.iiit.ac.in/hin/pan/'+str(message["start"])+'/'+str(message["end"])+'/' # TODO: Hardcoded languages. Fix either the values in ILMT pipeline or the values in Translators Desk.
     values = {'input' : message["data"].encode('utf-8')}
     data = urllib.urlencode(values)

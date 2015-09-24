@@ -14,32 +14,26 @@
   <div class="row">
     {% set codemirror_editor_id = 1 %}
     {% include "_codemirror/_codemirror.html" %}
-	<div id="codemirror_block_2" td-editor-id="2" class="codemirror_block"></div> <br />
+	
+  <div id="codemirror_block_2" td-editor-id="2" class="codemirror_block"></div> <br />
           <button id="translators_desk_show_intermediates_btn" type="submit" class="btn btn-primary">View Intermediate Outputs</button>
-
-<hr />
-<hr />
-<div id="intermediate_dialog" title="Intermediate Outputs from modules">
- 
-
-<table width="100%" id="intermediate_results">
-  <tr>
-    <td width="30%" style="vertical-align: top;">
-      <select id="sentence_selector" class="selectpicker">
-
-      </select>
-      <ul id="output_selector" style="list-style-type: none;">
-      </ul>
-    </td>
-    <td width="70%" id="output_display" style="vertical-align: top;">
-<div id="codemirror_block_3" td-editor-id="3" class="codemirror_block"></div> <br />
+  
+  <div id="intermediate_dialog" title="Intermediate Outputs from modules">
+    <table width="100%" id="intermediate_results">
+      <tr>
+        <td width="30%" style="vertical-align: top;">
+          <select id="sentence_selector" class="selectpicker">
+          </select>
+          <ul id="output_selector" style="list-style-type: none;">
+          </ul>
+        </td>
+        <td width="70%" id="output_display" style="vertical-align: top;">
+          <div id="codemirror_block_3" td-editor-id="3" class="codemirror_block"></div> <br />
           <button id="translators_desk_play_from_intermediate_btn" type="submit" class="btn btn-primary">Re-run translation from this module onwards</button>
-
-    </td>
-  </tr>
-</table>
-</div>
-	<!-- <div id="codemirror_block_3" td-editor-id="3" class="codemirror_block"></div>  -->
+        </td>
+      </tr>
+    </table>
+  </div>
 
   </div><!-- /.row -->
 
