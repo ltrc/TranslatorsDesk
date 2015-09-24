@@ -5,8 +5,10 @@
 var editors = [];
 var currentEditor = null;
 var TranslatorsDeskGlobals = {}
-
-
+var TranslationResults = {}
+var sentenceNumber = 1
+var GLOBAL_sentence_id;
+var GLOBAL_intermediate_index;
 var currentContextMenuTargetEditor = null;
 var ContextMenuObjects = {};
 ContextMenuObjects.translators_desk_ner_submenu =
@@ -619,12 +621,48 @@ function setupSocketEventHandlers(){
     });
 	socket.on('translators_desk_get_translation_response', function(msg) {
    		var response = JSON.parse(msg);
-   		generateResultSentence(response);
-	    editors[2].replaceRange(JSON.stringify(response)+"\n", {line: Infinity});
+   		var result = JSON.parse(response["result"]);
+   		// console.log(response)
+    	TranslationResults[sentenceNumber] = result;
+   		if (response["type"] == "full") {
+   			generateResultSentence(result, Infinity);
+    	sentenceNumber += 1;
+
+   		}
+   		else if (response["type"] == "intermediate") {
+   			console.log("THIS IS SENT_ID:"+response["sentence_id"]);
+   			// generateAfterIntermediate(result);
+   			generateResultSentence(result, parseInt(response["sentence_id"]));
+   		}
+   		// console.log(result)
+   		// response["callback"](response["result"]);
+   		// var individualOutputs = "";
+   		// $.each(response, function(key, val) {
+   		// 	individualOutputs = individualOutputs + key + ":\n";
+   		// 	individualOutputs = individualOutputs + val + "\n---------------\n";
+   		// });
+	    // editors[2].replaceRange(individualOutputs+"\n", {line: Infinity});
+
+	    // $.each(response, function(index, value) {
+	    // 	$('#intermediate_results #output_selector').append("<li onclick='showIntermediateOutput(\""+index+"\", "+sentenceNumber+")'>"+index.split('-')[0]+"</li>");
+	    // });
+
+
     	console.log(response);
     });
 }
+function htmlEntities(str) {
+    return String(str).replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;').replace(/"/g, '&quot;');
+}
+function showIntermediateOutput(index, sentenceNumber) {
+	// $('#intermediate_results #output_display').html("<pre>"+htmlEntities(TranslationResults[sentenceNumber][index])+"</pre>");
+	editors[2].setValue("");
 
+	    editors[2].replaceRange(TranslationResults[sentenceNumber][index]+"\n", {line: Infinity});
+	    console.log("INDEX: ", index );
+	    GLOBAL_intermediate_index = index.split('-')[1];
+	    GLOBAL_sentence_id = sentenceNumber;
+}
 /**
  * Sets up SocketIO connection
  */
@@ -641,8 +679,10 @@ function setupSocketIO(){
 /**
  * Generates the target sentence using final wordgenerator module output from the pipeline. 
  */
-function generateResultSentence(result) {
-    var worgGenOut = result["wordgenerator-" + Object.keys(result).length].split('\n');
+function generateResultSentence(result, line_number) {
+	// console.log("This is result: ", result);
+	console.log("This is line number"+line_number);
+    var worgGenOut = result["wordgenerator-23"].split('\n'); // FIX: has a hardcoded value of 23. Earlier code of Object.keys(result).length didnt work for intermediate outputs. 
     var tgt_txt = "";
     for (var i in worgGenOut) {
         var ssf = worgGenOut[i].split("\t")
@@ -651,17 +691,34 @@ function generateResultSentence(result) {
         }
     }
     console.log(tgt_txt);
-    editors[1].replaceRange(tgt_txt+"\n", {line: Infinity});
+    if (line_number != Infinity) {
+    	var existingLine = editors[1].getLine(line_number-1);
+    	console.log("THIS IS IT: "+existingLine);
+	    editors[1].replaceRange(tgt_txt, {line: line_number-1, ch: 0}, {line:line_number-1, ch: existingLine.length-1});
+	}
+	else {
+	    editors[1].replaceRange(tgt_txt+"\n", {line: Infinity});
+
+	}
 }
+
 
 /**
  * Fetches the translation for one particular sentence using socket.
  */
-function fetchTranslation(sentence, src, tgt, start, end, callback) {
+function fetchTranslation(sentence, src, tgt, start, end, type) {
+	if (type == "full") {
+	$('#intermediate_results #sentence_selector').append("<option>"+GLOBAL_sentence_id+": "+sentence.substring(0,60)+" ...</option>");
+	}
+	console.log("SENTENCE_ID: "+GLOBAL_sentence_id)
 	socket.emit("translators_desk_get_translation_query", {
 			data: sentence,
 			src: get_editor_language_menu(editors[0]).val(),
-			tgt: get_target_language(editors[0]).val() // TODO: Fix this hardcoded value. 
+			tgt: get_target_language(editors[0]).val(), // TODO: Fix this hardcoded value. 
+			start: start, 
+			end: end,
+			type: type, 
+			sentence_id: GLOBAL_sentence_id
 	})
 }
 
@@ -676,10 +733,12 @@ function getSourceSentences(editor) {
         sentences[i] = sentences[i].trim();
         if (sentences[i].length > 0) {
     		editors[0].replaceRange(sentences[i]+"\n", {line: Infinity});
-            fetchTranslation(sentences[i], "hin", "pan", 1, 23, generateResultSentence); //TODO: Fix this hardcoded value. 
+    		GLOBAL_sentence_id = i;
+            fetchTranslation(sentences[i], "hin", "pan", 1, 23, "full"); //TODO: Fix this hardcoded value. 
         }
     }
 }
+
 
 /**
  * Clears the value in all editor instances. 
@@ -690,7 +749,36 @@ function clearAllEditors() {
 	}
 }
 
+function load_output_selectors(sentence_id) {
+	sentence_details = TranslationResults[parseInt(sentence_id) + 1];
+	// console.log(TranslationResults);
+	$('#intermediate_results #output_selector').html('');
+	$.each(sentence_details, function(index, value) {
+			var sentenceNumber = parseInt(sentence_id)+1;
+			console.log(sentenceNumber);
+	    	$('#intermediate_results #output_selector').append("<li onclick='showIntermediateOutput(\""+index+"\", \""+sentenceNumber+"\")'>"+index.split('-')[0]+"</li>");
+	    });
+	editors[2].setValue("");
+
+}
+
+   // function highlightLine(lineNumber, editorID) {
+
+   //      //Line number is zero based index
+   //      var actualLineNumber = lineNumber - 1;
+
+   //      //Select editor loaded in the DOM
+   //      var codeMirrorEditor = editors[editorID];
+            
+   //      //Set line css class
+   //      codeMirrorEditor.setLineClass(actualLineNumber, 'background', 'line-error');
+   //  }
+
+
 $(document).ready(function(){
+
+    // $( "#dialog" ).dialog();
+
 	setupSocketIO();
 	setupTranslatorsDeskMenuItemHandlers();
 	intitContextualMenus();
@@ -709,14 +797,27 @@ $(document).ready(function(){
 	setupInputMethods(editors[1],
 								{
 									defaultLanguage: "pa",
-									defaultIM: "hi-phonetic",
+									defaultIM: "pa-phonetic",
 									languages: ['en','hi','pa', 'te', 'ta', 'ur']
 								}
 		);
-
+	$('.selectpicker').selectpicker();
+	$('#intermediate_results #sentence_selector').change(function() {
+		load_output_selectors(this.value.split(':')[0]);
+	});
+	$('#translators_desk_play_from_intermediate_btn').click(function() {
+		console.log("THIS IS NUMBER"+GLOBAL_sentence_id);
+		fetchTranslation(editors[2].getValue(), 'hin', 'pan', GLOBAL_intermediate_index, 23, "intermediate");
+	});
+	$('#translators_desk_show_intermediates_btn').click(function() {
+		$('#intermediate_results').slideToggle();
+	});
 	$("#translators_desk_translate_btn").click(function(){
 		var editor = get_corresponding_editor_from_menu_item($(this));
 		clearAllEditors();
+		TranslationResults = {}
+		$('#intermediate_results #sentence_selector').html('<option>Select a sentence</option>');
+
 		//Meta data about the text collected and ready to be saved
 		console.log(collectTextMetaDataBeforeSave(editor));
 		getSourceSentences(editor);
