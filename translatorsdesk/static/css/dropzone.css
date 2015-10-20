@@ -1,0 +1,21 @@
+
+#translators-desk-dropzone {
+  position: relative;
+  border: 2px dotted grey;
+  border-radius: 20px;
+  text-align: center;
+}
+
+#translators-desk-dropzone.hover {
+  border: 10px solid;
+}
+
+#translators-desk-dropzone [type="file"] {
+  cursor: pointer;
+  position: absolute;
+  opacity: 0;
+  top: 0;
+  right: 0;
+  bottom: 0;
+  left: 0;
+}

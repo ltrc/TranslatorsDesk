@@ -10,8 +10,10 @@ css = Bundle(
     "libs/CodeMirror/addon/hint/show-hint.css",    
     "libs/CodeMirror/addon/dialog/dialog.css",    
     "libs/CodeMirror/addon/search/matchesonscrollbar.css",    
+    "libs/dropzone/dist/dropzone.css",
     "css/style.css",
     "css/translators-desk.css",
+    "css/dropzone.css",
     filters="cssmin",
     output="public/css/common.css"
 )
@@ -34,10 +36,12 @@ js = Bundle(
     "libs/CodeMirror/addon/search/search.js",
     "libs/CodeMirror/addon/scroll/annotatescrollbar.js",
     "libs/CodeMirror/addon/search/matchesonscrollbar.js",
+    "libs/dropzone/dist/dropzone.js",
     "js/translators-desk-aspell-hint.js",
     "libs/CodeMirror/addon/display/panel.js",
     "libs/CodeMirror/addon/selection/mark-selection.js",
     "js/translators-desk.js",
+    "js/dropzone.js",    
     "js/plugins.js",
     filters='jsmin',
     output="public/js/common.js"

@@ -13,3 +13,9 @@
 [submodule "translatorsdesk/static/libs/jQuery-MD5"]
 	path = translatorsdesk/static/libs/jQuery-MD5
 	url = https://github.com/placemarker/jQuery-MD5.git
+[submodule "translatorsdesk/static/libs/jquery-filedrop"]
+	path = translatorsdesk/static/libs/jquery-filedrop
+	url = https://github.com/weixiyen/jquery-filedrop.git
+[submodule "translatorsdesk/static/libs/dropzone"]
+	path = translatorsdesk/static/libs/dropzone
+	url = https://github.com/enyo/dropzone.git
