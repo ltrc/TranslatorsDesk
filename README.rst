@@ -58,6 +58,10 @@ Then run the following commands to bootstrap your environment.
 
 You will see a pretty welcome screen.
 
+
+Now you should download the okapi stable distribution for your environment and make it available at : `./lib/okapi`   
+The stable distributions can be found at : https://bintray.com/okapi/Distribution/Okapi_Applications   
+
 Once you have installed your DBMS, run the following to create your app's database tables and perform the initial migration:
 
 ::
