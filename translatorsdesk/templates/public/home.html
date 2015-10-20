@@ -1,16 +1,56 @@
 
 {% extends "layout.html" %}
 {% block content %}
-
-<div class="container">
-  <center>
-  <h1>Welcome to Translators Desk</h1>
-  </center>
-</div><!-- /.jumbotron -->
-
 <div class="body-content">
-  <div class="row">
+    <div class="row">
+      <div class="container">
+        <center>
+        <h1>Welcome to Translators Desk</h1>
+        </center>
+      </div>
+    </div>
+    <br/>
+    <div class="row">
+      <div class="col-md-4">
+      </div>
+      <div class="col-md-4">
+        <div class="col-md-5">
+        <div class="dropdown">
+          <button class="btn btn-default dropdown-toggle" type="button" id="dropdownMenu1" data-toggle="dropdown" aria-haspopup="true" aria-expanded="true">
+            Source Language
+            <span class="caret"></span>
+          </button>
+          <ul class="dropdown-menu" aria-labelledby="dropdownMenu1">
+            <li><a href="#">Hindi</a></li>
+            <li><a href="#">Punjabi</a></li>
+            <li><a href="#">Urdu</a></li>
+          </ul>
+        </div>        
+        </div>
+        <div class="col-md-2">
+          <center>
+          <i class="fa fa-arrow-right fa-2x" style="margin-left:20px;"></i>
+          </center>
+        </div>
+        <div class="col-md-5">
+        <div class="dropdown">
+          <button class="btn btn-default dropdown-toggle" type="button" id="dropdownMenu1" data-toggle="dropdown" aria-haspopup="true" aria-expanded="true">
+            Target Language
+            <span class="caret"></span>
+          </button>
+          <ul class="dropdown-menu" aria-labelledby="dropdownMenu1">
+            <li><a href="#">Hindi</a></li>
+            <li><a href="#">Punjabi</a></li>
+            <li><a href="#">Urdu</a></li>
+          </ul>
+        </div>    
+        </div>
 
+      </div>
+      <div class="col-md-4">
+      </div>
+    </div>
+    <br/>
     <form id="translators-desk-dropzone" action="/upload-target" class="dropzone"></form>
     <br/>
     <div id="actions" class="row">
@@ -33,7 +73,6 @@
         </span>
       </div>
 
-    </div>
     </div>
 
   </div><!-- /.row -->

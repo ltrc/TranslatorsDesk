@@ -48,3 +48,6 @@ env/*
 
 #Rogue sqlite3 databases
 *.db
+
+#Uploaded content
+translatorsdesk/static/uploads/
