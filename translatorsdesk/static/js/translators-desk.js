@@ -743,61 +743,67 @@ function load_output_selectors(sentence_id) {
 
 $(document).ready(function(){
 	setupSocketIO();
-	setupTranslatorsDeskMenuItemHandlers();
-	intitContextualMenus();
-	setupTextSelectionHandlers();
-	setupCursorActivityHandlers();
-	setupChangeHandlers();
-	setupCodeMirrorInputReadEventHandlers();
-	setupSpellCheck();
-	setupInputMethods(editors[0],
-								{
-									defaultLanguage: "hi",
-									defaultIM: "hi-phonetic",
-									languages: ['en','hi','pa', 'te', 'ta', 'ur']
-								}
-		);
+	if(editors.length > 0){
+		setupTranslatorsDeskMenuItemHandlers();
+		intitContextualMenus();
+		setupTextSelectionHandlers();
+		setupCursorActivityHandlers();
+		setupChangeHandlers();
+		setupCodeMirrorInputReadEventHandlers();
+		setupSpellCheck();
+		setupInputMethods(editors[0],
+									{
+										defaultLanguage: "hi",
+										defaultIM: "hi-phonetic",
+										// languages: ['en','hi','pa', 'te', 'ta', 'ur']
+										languages: ['en','hi','pa', 'te', 'ta', 'ur']
+									}
+			);
 
-	setupInputMethods(editors[1],
-								{
-									defaultLanguage: "pa",
-									defaultIM: "pa-phonetic",
-									languages: ['en','hi','pa', 'te', 'ta', 'ur']
-								}
-		);
+		setupInputMethods(editors[1],
+									{
+										defaultLanguage: "pa",
+										defaultIM: "pa-phonetic",
+										// languages: ['en','hi','pa', 'te', 'ta', 'ur']
+										languages: ['en','hi','pa', 'te', 'ta', 'ur']
+									}
+			);
+	}
 
-	$('#intermediate_results #sentence_selector').change(function() {
-		load_output_selectors(this.value.split(':')[0]);
-	});
+	// TODO: This block ideally doesnt belong here, as it is 
+	// not specific to individual CodeMirror instances
+	// $('#intermediate_results #sentence_selector').change(function() {
+	// 	load_output_selectors(this.value.split(':')[0]);
+	// });
 
-	$('#translators_desk_play_from_intermediate_btn').click(function() {
-		$('#intermediate_dialog').dialog("close");
-		fetchTranslation(editors[2].getValue(), 'hin', 'pan', GLOBAL_intermediate_index, 23, "intermediate");
-	});
+	// $('#translators_desk_play_from_intermediate_btn').click(function() {
+	// 	$('#intermediate_dialog').dialog("close");
+	// 	fetchTranslation(editors[2].getValue(), 'hin', 'pan', GLOBAL_intermediate_index, 23, "intermediate");
+	// });
 
-	$('#translators_desk_show_intermediates_btn').click(function() {
-		$('#intermediate_results').show();
-		$('#intermediate_dialog').dialog("open");
-	});
+	// $('#translators_desk_show_intermediates_btn').click(function() {
+	// 	$('#intermediate_results').show();
+	// 	$('#intermediate_dialog').dialog("open");
+	// });
 
-	$('#intermediate_dialog').dialog({
-		height: $(window).height()/1.5,
-		width: $(window).width()/1.5,
-		show: { effect: "explode", duration: 500 },
-		hide: { effect: "explode", duration: 500 },
-		position: { my: "center", at: "center" },
-		autoOpen: false
-	});
+	// $('#intermediate_dialog').dialog({
+	// 	height: $(window).height()/1.5,
+	// 	width: $(window).width()/1.5,
+	// 	show: { effect: "explode", duration: 500 },
+	// 	hide: { effect: "explode", duration: 500 },
+	// 	position: { my: "center", at: "center" },
+	// 	autoOpen: false
+	// });
 
-	$("#translators_desk_translate_btn").click(function(){
-		$('#translators_desk_show_intermediates_btn').show();
-		var editor = get_corresponding_editor_from_menu_item($(this));
-		clearAllEditors();
-		TranslationResults = {}
-		$('#intermediate_results #sentence_selector').html('<option>Select a sentence</option>');
+	// $("#translators_desk_translate_btn").click(function(){
+	// 	$('#translators_desk_show_intermediates_btn').show();
+	// 	var editor = get_corresponding_editor_from_menu_item($(this));
+	// 	clearAllEditors();
+	// 	TranslationResults = {}
+	// 	$('#intermediate_results #sentence_selector').html('<option>Select a sentence</option>');
 
-		//Meta data about the text collected and ready to be saved
-		console.log(collectTextMetaDataBeforeSave(editor));
-		getSourceSentences(editor);
-	});
+	// 	//Meta data about the text collected and ready to be saved
+	// 	console.log(collectTextMetaDataBeforeSave(editor));
+	// 	getSourceSentences(editor);
+	// });
 })

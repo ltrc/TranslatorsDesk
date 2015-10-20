@@ -16,11 +16,6 @@ from translatorsdesk.extensions import (
 )
 from translatorsdesk import public, user
 
-
-# @socketio.on('connect')
-# def test_connect():
-#     emit('test_response', {'data': 'Connected', 'count': 0})
-
 def create_app(config_object=ProdConfig):
     '''An application factory, as explained here:
         http://flask.pocoo.org/docs/patterns/appfactories/
