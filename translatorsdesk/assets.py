@@ -43,7 +43,7 @@ js = Bundle(
     "js/translators-desk.js",
     "js/dropzone.js",    
     "js/plugins.js",
-    "js/xliffeditor.js",
+    "js/poeditor.js",
     filters='jsmin',
     output="public/js/common.js"
 )

@@ -89,3 +89,11 @@ footer .footer-nav {
   margin-right: 25px;
   list-style: none;
 }
+
+#po-container .row:nth-of-type(odd) {
+    background: #eee;
+}
+
+#po-container .row {
+  padding-top : 8px;
+}

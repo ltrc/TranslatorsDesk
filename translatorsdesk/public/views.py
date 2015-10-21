@@ -13,6 +13,7 @@ from translatorsdesk.utils import flash_errors
 from translatorsdesk.database import db
 import translatorsdesk.tikal_driver as tikal_driver
 
+import polib
 
 import datetime, uuid, os
 
@@ -142,9 +143,100 @@ def returnFileData(uid, fileName):
 def translate(uid, fileName):
     ##Check if the uid and filename exists
     if fileExists(uid, fileName):
-        return render_template('public/translate.html',\
+        if(fileExists(uid, fileName+".po")):
+
+            po = polib.pofile(os.path.join(current_app.config['UPLOAD_FOLDER'],  uid, fileName+".po"))
+            valid_entries = [e for e in po if not e.obsolete]
+            d = []
+            for entry in valid_entries:
+                if entry.msgid.strip() != "":
+                    d.append({"src":entry.msgid,"tgt":entry.msgstr})
+
+            return render_template('public/translate.html',\
                                 fileName=fileName,
                                 uid=uid,
+                                PO = {'po':True, 'data':d}
+                                )        
+        else:
+            return render_template('public/translate.html',\
+                                fileName=fileName,
+                                uid=uid,
+                                PO = False
                                 )
     else:
         return abort(404)
+
+
+import subprocess
+
+@blueprint.route('/preview', methods=['POST'])
+def preview():
+    data = request.json
+    fileName = data['fileName']
+    uid = data['uid']
+
+    po = polib.POFile()
+    for _d in data['data']:
+        _msgid = _d['src']
+        _msgstr = _d['tgt']
+
+        entry = polib.POEntry(
+            msgid=unicode(_msgid),
+            msgstr=unicode(_msgstr),
+        )
+        po.append(entry)
+
+    po.save(os.path.join(current_app.config['UPLOAD_FOLDER'],  uid, fileName+".po"))
+
+    def returnFullPath(fileName):
+        return os.path.join(current_app.config['UPLOAD_FOLDER'],  uid, fileName)
+
+    ##ConvertFile :: TO-DO : Move this to tinkal-driver 
+    cmd = ["pomerge", "-i", returnFullPath(fileName)+".po", "-t", returnFullPath(fileName)+".xlf", "-o", returnFullPath(fileName)+".xlf.new"]
+    p = subprocess.Popen(cmd, stdout = subprocess.PIPE,
+                            stderr=subprocess.PIPE,
+                            stdin=subprocess.PIPE)
+    out, err = p.communicate()
+    print cmd, out, err
+
+    cmd = ["mv", returnFullPath(fileName)+".xlf", returnFullPath(fileName)+".xlf.old"]
+    p = subprocess.Popen(cmd, stdout = subprocess.PIPE,
+                            stderr=subprocess.PIPE,
+                            stdin=subprocess.PIPE)
+    out, err = p.communicate()
+    print cmd, out, err
+
+    cmd = ["mv", returnFullPath(fileName)+".xlf.new", returnFullPath(fileName)+".xlf"]
+    p = subprocess.Popen(cmd, stdout = subprocess.PIPE,
+                            stderr=subprocess.PIPE,
+                            stdin=subprocess.PIPE)
+    out, err = p.communicate()
+    print cmd, out, err
+
+
+    newFileName = fileName.split(".")
+    extension = newFileName.pop(-1)
+    newFileName.append("out")
+    newFileName.append(extension)
+    newFileName = ".".join(newFileName)
+
+    newPath = returnFullPath(fileName)
+    newPath = newPath.split("/")[:-1]
+    newPath.append(newFileName)
+    newPath = "/".join(newPath)
+
+    cmd = ["rm", newPath]
+    p = subprocess.Popen(cmd, stdout = subprocess.PIPE,
+                            stderr=subprocess.PIPE,
+                            stdin=subprocess.PIPE)
+    out, err = p.communicate()
+    print cmd, out, err  
+
+    cmd = ["lib/okapi/tikal.sh", "-m", returnFullPath(fileName)+".xlf"]
+    p = subprocess.Popen(cmd, stdout = subprocess.PIPE,
+                            stderr=subprocess.PIPE,
+                            stdin=subprocess.PIPE)
+    out, err = p.communicate()
+    print cmd, out, err
+    newPath = "/" + "/".join(newPath.split("/")[1:])
+    return newPath;

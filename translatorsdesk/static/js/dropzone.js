@@ -40,10 +40,10 @@ $(function(){
               });
 
               this.on("success", function(response){
-                var _response = response.xhr.response;
-                console.log(_response);
-
-                alert("File Uploaded !!");
+                var _response = JSON.parse(response.xhr.response);
+                //TO-DO : Add error handling here
+                  document.location = "/translate/"+_response.uuid+"/"+_response.filename 
+                  console.log("/translate/"+_response.uuid+"/"+_response.filename ); 
               });
             }
           };

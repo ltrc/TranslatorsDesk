@@ -2,17 +2,49 @@
 {% extends "layout.html" %}
 {% block content %}
 <div class="container-fluid">
-    <center>
+  <div class="row">
+      <div class="col-md-2 col-md-offset-5">
         <h1>{{fileName}}</h1>
-    </center>
+      </div>
+      <div class="col-md-2 col-md-offset-3">
+        <center>
+        <button id="preview" class="btn btn-success" style="margin-top:20px">Preview</button>
+        </center>
+      </div>
+  </div>
+  {% if not PO %}
     <div id="loading-div" class="row">
         <center>
         <i class="fa fa-refresh fa-spin fa-5x" style="font-size: 20em;"></i>
         <br/>
         </center>
+        <script type="text/javascript">
+            setTimeout(function () { location.reload(1); }, 3000);
+        </script>
     </div>
-    <div id="content-div" class="row">
-    </div>
+  {% else %}
+      <script type="text/javascript">
+          var PO_DATA = '{{ PO | tojson }}';
+    </script>
+      <div id="po-container" class="container">
+      <div class="row">
+        <div class="col-md-6 text-center" style="height:40px">
+          <h4>
+          Source (Hindi)
+          </h4>
+        </div>
+        <div class="col-md-6 text-center" style="height:40px">
+          <h4>
+          Target (Panjabi)
+          </h4>
+        </div>        
+      </div>
+      </div>
+  {% endif %}
 </div>
+<script type="text/javascript">
+  window.uid = '{{uid}}';
+  window.fileName = '{{fileName}}';
+</script>
 {% endblock %}
 

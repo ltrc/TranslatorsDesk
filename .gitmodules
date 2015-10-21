@@ -19,3 +19,9 @@
 [submodule "translatorsdesk/static/libs/dropzone"]
 	path = translatorsdesk/static/libs/dropzone
 	url = https://github.com/enyo/dropzone.git
+[submodule "translatorsdesk/static/libs/webgettext"]
+	path = translatorsdesk/static/libs/webgettext
+	url = https://github.com/andris9/webgettext.git
+[submodule "translatorsdesk/static/libs/--force"]
+	path = translatorsdesk/static/libs/--force
+	url = https://github.com/andris9/webgettext.git
