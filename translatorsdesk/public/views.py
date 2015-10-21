@@ -11,10 +11,18 @@ from translatorsdesk.public.forms import LoginForm
 from translatorsdesk.user.forms import RegisterForm
 from translatorsdesk.utils import flash_errors
 from translatorsdesk.database import db
+import translatorsdesk.tikal_driver as tikal_driver
+
 
 import datetime, uuid, os
 
 blueprint = Blueprint('public', __name__, static_folder="../static")
+
+from rq import Queue
+from redis import Redis
+redis_conn = Redis()
+q = Queue(connection=redis_conn)
+
 
 @login_manager.user_loader
 def load_user(id):
@@ -64,6 +72,8 @@ def about():
 """
     Handles file uploads
 """
+
+
 @blueprint.route('/upload', methods=['POST'])
 def upload():
     if request.method == 'POST':
@@ -77,6 +87,9 @@ def upload():
                 if not os.path.exists(os.path.dirname(filepath)):
                     os.makedirs(os.path.dirname(filepath))
                 file.save(filepath)
+                ## Add Job to Queue
+                job = q.enqueue_call(func=tikal_driver.export, args=(filepath,))
+                ## Maybe mark job state in a redis-hash
 
                 return jsonify({"success":True, "filename":file.filename, "uuid": _uuid })
             else:
