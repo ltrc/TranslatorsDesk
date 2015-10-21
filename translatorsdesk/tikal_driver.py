@@ -6,6 +6,13 @@ def export(file):
 							stderr=subprocess.PIPE,
 							stdin=subprocess.PIPE)
 	out, err = p.communicate()
+
+	cmd = ["xliff2po", "-i", file+".xlf", "-o", file+".po"]
+	p = subprocess.Popen(cmd, stdout = subprocess.PIPE,
+							stderr=subprocess.PIPE,
+							stdin=subprocess.PIPE)
+	out, err = p.communicate()
+
 	return out
 
 def merge(xliff_file):

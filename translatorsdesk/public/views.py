@@ -142,31 +142,9 @@ def returnFileData(uid, fileName):
 def translate(uid, fileName):
     ##Check if the uid and filename exists
     if fileExists(uid, fileName):
-        ## Case : fileName is a XLIFF file
-        if fileName.endswith(".xlf"):
-            # return the xliff file as it is
-            data = returnFileData(uid, fileName)
-            if not data:
-                return abort(404)
-            return render_template('public/translate.html',\
-                                    fileName=fileName,
-                                    xliff={'data': unicode(data, "utf-8"), 'src':"hi", 'tgt':"pa"},\
-                                    isXLIFFFileItself=True \
-                                    )
-        elif not fileXLIFFExists(uid, fileName):
-            #Start a job for generation of XLIFF
-            flash("Still processing your document, please hold tight.....", "warning")
-            return render_template('public/translate.html',\
-                                    fileName=fileName,
-                                    xliff=False,\
-                                    isXLIFFFileItself=False)
-        else:
-            data = returnFileData(uid, fileName+".xlf")
-            if not data:
-                return abort(404)
-            return render_template('public/translate.html',\
-                                    fileName=fileName,
-                                    xliff={'data': unicode(data, "utf-8"), 'src':"hi", 'tgt':"pa"},\
-                                    isXLIFFFileItself=False)
+        return render_template('public/translate.html',\
+                                fileName=fileName,
+                                uid=uid,
+                                )
     else:
         return abort(404)
