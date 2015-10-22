@@ -78,6 +78,13 @@ Once you have installed your DBMS, run the following to create your app's databa
     python manage.py run
 
 
+Note : If you get this error ``RuntimeError: You need to use a gevent-socketio server.``, the follow the following steps
+::
+    cd translatorsdesk
+    cd libs
+    cd SocketIO
+    git checkout tags/0.9.16
+    
 
 Deployment
 ----------
