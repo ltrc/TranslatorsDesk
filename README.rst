@@ -50,7 +50,13 @@ Then run the following commands to bootstrap your environment.
 
     brew install aspell --with-lang-en --with-lang-hi --with-lang-te --with-lang-ta --with-lang-pa # on MAC OSx
     apt-get install libaspell-dev aspell aspell-en aspell-hi aspell-te aspell-ta aspell-pa #Debian distributions
-    yum install aspell aspell-en aspell-hi aspell-te aspell-ta aspell-pa # RHEL distributions
+    
+    ## < For RHEL Distributions ONLY > ##
+        yum install epel-release
+        yum install aspell aspell-devel aspell-en
+        bash rhel_install.sh
+    ## </ RHEL specific instructions end > ##
+    
     #Note aspell dictionary for Urdu is not yet available
 
     pip install -r requirements.txt
