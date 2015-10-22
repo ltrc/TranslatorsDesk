@@ -42,11 +42,13 @@ ContextMenuObjects .translators_desk_selected_text_menu = ContextMenuObjects.tra
  * Instantiates all available codemirror_blocks as CodeMirror instances
  */
 
+function get_editors_on_page() {
 $(".codemirror_block").each(function(){
 	var editor = CodeMirror($(this)[0], {
 	  value: "",
 	  mode: "simple",
 	  theme: 'eclipse',
+	  viewportMargin: Infinity,
 	  lineNumbers: true,
 	  lineWrapping: true,
 	  styleSelectedText: true,
@@ -62,6 +64,8 @@ $(".codemirror_block").each(function(){
 	};
 	editors.push(editor);
 })
+}
+
 
 /**
  * Configures Per-language auto-suggestion query thresholds
@@ -741,9 +745,13 @@ function load_output_selectors(sentence_id) {
 	editors[2].setValue("");
 }
 
-$(document).ready(function(){
-	setupSocketIO();
-	if(editors.length > 0){
+
+function init_editors(redoGetEditors) {
+		console.log('Preparing editors...');
+		if (redoGetEditors == true) {
+			get_editors_on_page();
+		}
+		console.log(editors);
 		setupTranslatorsDeskMenuItemHandlers();
 		intitContextualMenus();
 		setupTextSelectionHandlers();
@@ -751,24 +759,26 @@ $(document).ready(function(){
 		setupChangeHandlers();
 		setupCodeMirrorInputReadEventHandlers();
 		setupSpellCheck();
-		setupInputMethods(editors[0],
+		$.each(editors, function(index, editor) {
+		setupInputMethods(editor,
 									{
-										defaultLanguage: "hi",
-										defaultIM: "hi-phonetic",
-										// languages: ['en','hi','pa', 'te', 'ta', 'ur']
-										languages: ['en','hi','pa', 'te', 'ta', 'ur']
-									}
-			);
-
-		setupInputMethods(editors[1],
-									{
-										defaultLanguage: "pa",
+										defaultLanguage: "pa",			// TODO: Put target language here programatically. 
 										defaultIM: "pa-phonetic",
 										// languages: ['en','hi','pa', 'te', 'ta', 'ur']
 										languages: ['en','hi','pa', 'te', 'ta', 'ur']
 									}
 			);
+		});
+}
+
+$(document).ready(function(){
+	get_editors_on_page();
+	console.log('Initializing socket IO');
+	setupSocketIO();
+	if(editors.length > 0){
+		init_editors(false);
 	}
+
 
 	// TODO: This block ideally doesnt belong here, as it is 
 	// not specific to individual CodeMirror instances
