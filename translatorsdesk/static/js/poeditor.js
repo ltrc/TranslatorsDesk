@@ -25,21 +25,22 @@ $(document).ready(function(){
     var codemirror_editor = '<div id="codemirror_block_'+CODEMIRROR_EDITOR_ID+'" td-editor-id='+CODEMIRROR_EDITOR_ID+' class="codemirror_block"></div>';
       console.log(data)
 
-      $("#po-container").append('<div class="panel-row"><div class="panel-title"><span class="source-text col-md-6">\
-        '+data.src+'</span><span class="target-text col-md-6">'+data.tgt+'</span></div>\
+      $("#po-container").append('<div class="panel-row"><div class="panel-title"><span class="source-text">\
+        '+data.src+'</span><span class="target-text">'+data.tgt+'</span></div>\
         <div class="panel-body col-md-12">'+codemirror_menu+codemirror_editor+'</div></div>');
 
       // $("#po-container").append("<div class='row data-points'><div class='source col-md-6 text-center'>"+data.src+"</div><div class='col-md-6 text-center'><textarea style='width:100%' class='target expandableTextArea' spellcheck='false'>"+data.tgt+"</textarea></div></div>");
     }).promise().done(function(){
       init_editors(true);
       for(var i=0; i<editors.length; i++) {
-        editors[i].setValue(window.PO_DATA.data[i].tgt);
+        editors[i].setValue(window.PO_DATA.data[i].tgt + "\n\n");
       }
 
       $('.panel-title').siblings().hide();
 
       $('.panel-title').click(function() {
         console.log($(this).siblings());
+        $('.panel-body').slideUp();
         $(this).siblings().slideToggle();
         }); 
 

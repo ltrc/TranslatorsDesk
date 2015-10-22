@@ -47,7 +47,7 @@ $(".codemirror_block").each(function(){
 	var editor = CodeMirror($(this)[0], {
 	  value: "",
 	  mode: "simple",
-	  theme: 'eclipse',
+	  theme: 'ambiance',
 	  viewportMargin: Infinity,
 	  lineNumbers: true,
 	  lineWrapping: true,

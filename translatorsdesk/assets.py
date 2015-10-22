@@ -5,7 +5,7 @@ css = Bundle(
     "libs/bootstrap/dist/css/bootstrap.css",
     "libs/CodeMirror/lib/codemirror.css",
     "libs/jquery.ime/css/jquery.ime.css",
-    "libs/CodeMirror/theme/eclipse.css",
+    "libs/CodeMirror/theme/ambiance.css",
     "libs/Context.js/context.bootstrap.css",
     "libs/CodeMirror/addon/hint/show-hint.css",    
     "libs/CodeMirror/addon/dialog/dialog.css",    

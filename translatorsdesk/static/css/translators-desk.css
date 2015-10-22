@@ -101,22 +101,23 @@
 
 .panel-title:hover {
 	cursor: pointer;
-	background-color: rgba(0,0,0,1);
+	background-color: rgba(0,0,0,0.7);
+	color: white;
 }
 
 .panel-title .source-text {
-	/*display: block;*/
-	font-size: 1.2em;
+	display: block;
+	font-size: 0.8em;
 	/*font-weight: bolder;*/
 }
 
 .panel-title .target-text {
-	/*display: block;*/
-	font-size: 1.2em;
+	display: block;
+	font-size: 1.4em;
 }
 
 .panel-title {
-
+	padding: 10px;
 }
 .panel-body {
 	/*margin-top: 50px;*/
@@ -124,10 +125,15 @@
 
 .panel-row {
 	display: block;
+	border: 1px dashed rgba(0,0,0,0.7);
+	border-collapse: collapse;
+}
+.codemirror_menu {
+	display: none;
 }
 div.thead {
  background-color: rgba(0,0,0,0.8);
  color: white;
- border: 2px dashed white;
+ border: 2px solid white;
  margin-bottom: 30px;
 }
