@@ -11,7 +11,7 @@ from translatorsdesk.public.forms import LoginForm
 from translatorsdesk.user.forms import RegisterForm
 from translatorsdesk.utils import flash_errors
 from translatorsdesk.database import db
-import translatorsdesk.tikal_driver as tikal_driver
+import translatorsdesk.worker_functions as worker_functions
 
 import polib
 
@@ -89,8 +89,7 @@ def upload():
                     os.makedirs(os.path.dirname(filepath))
                 file.save(filepath)
                 ## Add Job to Queue
-                job = q.enqueue_call(func=tikal_driver.export, args=(filepath,))
-                ## Maybe mark job state in a redis-hash
+                job = q.enqueue_call(func=worker_functions.process_input_file, args=(filepath,))
 
                 return jsonify({"success":True, "filename":file.filename, "uuid": _uuid })
             else:
@@ -188,55 +187,58 @@ def preview():
 
     po.save(os.path.join(current_app.config['UPLOAD_FOLDER'],  uid, fileName+".po"))
 
-    def returnFullPath(fileName):
-        return os.path.join(current_app.config['UPLOAD_FOLDER'],  uid, fileName)
+    # def returnFullPath(fileName):
+    #     return os.path.join(current_app.config['UPLOAD_FOLDER'],  uid, fileName)
 
-    ##ConvertFile :: TO-DO : Move this to tinkal-driver 
-    cmd = ["pomerge", "-i", returnFullPath(fileName)+".po", "-t", returnFullPath(fileName)+".xlf", "-o", returnFullPath(fileName)+".xlf.new"]
-    p = subprocess.Popen(cmd, stdout = subprocess.PIPE,
-                            stderr=subprocess.PIPE,
-                            stdin=subprocess.PIPE)
-    out, err = p.communicate()
-    print cmd, out, err
+    # ##ConvertFile :: TO-DO : Move this to tinkal-driver 
+    # cmd = ["pomerge", "-i", returnFullPath(fileName)+".po", "-t", returnFullPath(fileName)+".xlf", "-o", returnFullPath(fileName)+".xlf.new"]
+    # p = subprocess.Popen(cmd, stdout = subprocess.PIPE,
+    #                         stderr=subprocess.PIPE,
+    #                         stdin=subprocess.PIPE)
+    # out, err = p.communicate()
+    # print cmd, out, err
 
-    cmd = ["mv", returnFullPath(fileName)+".xlf", returnFullPath(fileName)+".xlf.old"]
-    p = subprocess.Popen(cmd, stdout = subprocess.PIPE,
-                            stderr=subprocess.PIPE,
-                            stdin=subprocess.PIPE)
-    out, err = p.communicate()
-    print cmd, out, err
+    # cmd = ["mv", returnFullPath(fileName)+".xlf", returnFullPath(fileName)+".xlf.old"]
+    # p = subprocess.Popen(cmd, stdout = subprocess.PIPE,
+    #                         stderr=subprocess.PIPE,
+    #                         stdin=subprocess.PIPE)
+    # out, err = p.communicate()
+    # print cmd, out, err
 
-    cmd = ["mv", returnFullPath(fileName)+".xlf.new", returnFullPath(fileName)+".xlf"]
-    p = subprocess.Popen(cmd, stdout = subprocess.PIPE,
-                            stderr=subprocess.PIPE,
-                            stdin=subprocess.PIPE)
-    out, err = p.communicate()
-    print cmd, out, err
+    # cmd = ["mv", returnFullPath(fileName)+".xlf.new", returnFullPath(fileName)+".xlf"]
+    # p = subprocess.Popen(cmd, stdout = subprocess.PIPE,
+    #                         stderr=subprocess.PIPE,
+    #                         stdin=subprocess.PIPE)
+    # out, err = p.communicate()
+    # print cmd, out, err
 
 
-    newFileName = fileName.split(".")
-    extension = newFileName.pop(-1)
-    newFileName.append("out")
-    newFileName.append(extension)
-    newFileName = ".".join(newFileName)
+    # newFileName = fileName.split(".")
+    # extension = newFileName.pop(-1)
+    # newFileName.append("out")
+    # newFileName.append(extension)
+    # newFileName = ".".join(newFileName)
 
-    newPath = returnFullPath(fileName)
-    newPath = newPath.split("/")[:-1]
-    newPath.append(newFileName)
-    newPath = "/".join(newPath)
+    # newPath = returnFullPath(fileName)
+    # newPath = newPath.split("/")[:-1]
+    # newPath.append(newFileName)
+    # newPath = "/".join(newPath)
 
-    cmd = ["rm", newPath]
-    p = subprocess.Popen(cmd, stdout = subprocess.PIPE,
-                            stderr=subprocess.PIPE,
-                            stdin=subprocess.PIPE)
-    out, err = p.communicate()
-    print cmd, out, err  
+    # cmd = ["rm", newPath]
+    # p = subprocess.Popen(cmd, stdout = subprocess.PIPE,
+    #                         stderr=subprocess.PIPE,
+    #                         stdin=subprocess.PIPE)
+    # out, err = p.communicate()
+    # print cmd, out, err  
 
-    cmd = ["lib/okapi/tikal.sh", "-m", returnFullPath(fileName)+".xlf"]
-    p = subprocess.Popen(cmd, stdout = subprocess.PIPE,
-                            stderr=subprocess.PIPE,
-                            stdin=subprocess.PIPE)
-    out, err = p.communicate()
-    print cmd, out, err
-    newPath = "/" + "/".join(newPath.split("/")[1:])
-    return newPath;
+    # cmd = ["lib/okapi/tikal.sh", "-m", returnFullPath(fileName)+".xlf"]
+    # p = subprocess.Popen(cmd, stdout = subprocess.PIPE,
+    #                         stderr=subprocess.PIPE,
+    #                         stdin=subprocess.PIPE)
+    # out, err = p.communicate()
+    # print cmd, out, err
+    # newPath = "/" + "/".join(newPath.split("/")[1:])
+    filepath = os.path.join(current_app.config['UPLOAD_FOLDER'],  uid, fileName)
+    job = q.enqueue_call(func=worker_functions.generateOutputFile, args=(filepath,))
+
+    return "#";
