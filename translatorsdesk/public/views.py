@@ -21,6 +21,8 @@ blueprint = Blueprint('public', __name__, static_folder="../static")
 
 from rq import Queue
 from redis import Redis
+
+#TO-DO : Change this to a redis pool
 redis_conn = Redis()
 q = Queue(connection=redis_conn)
 
