@@ -90,8 +90,7 @@ $("#preview").click(function(){
       data: JSON.stringify(_D),
       complete: function (data) {
         // window.open(data.responseText);
-        alert(data.responseText);
-        downloadURI(data.responseText);
+       downloadURI(data.responseText);
       },
       dataType: "json"
     });
