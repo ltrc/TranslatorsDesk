@@ -2,6 +2,16 @@ import subprocess
 from rq import Queue
 from redis import Redis
 
+import urllib, urllib2
+import sys
+import json
+import re
+import polib
+
+reload(sys)
+sys.setdefaultencoding('utf8')
+
+
 #TO-DO : Change this to a redis pool
 redis_conn = Redis()
 q = Queue(connection=redis_conn)
@@ -40,14 +50,67 @@ def extract_po(file):
     out, err = p.communicate()	
     change_state(file,"EXTRACTING_PO:::COMPLETE")    
 
+def translate(sentence, src, target, module_start, module_end, last_module):
+  SERVER="http://pipeline.ilmt.iiit.ac.in"
+  URI=SERVER+"/"+src+"/"+target+"/"+module_start+"/"+module_end+"/"
+  values = {'input' : sentence.encode('utf-8'), 'params': {}}
+  data = urllib.urlencode(values)
+  req = urllib2.Request(URI, data)
+  response = urllib2.urlopen(req)
+  the_page = response.read()
+
+  d = json.loads(the_page)
+  sentence = []
+  for l in d[last_module].split("\n"):
+    _l = l.split("\t")
+    try:
+      if re.match('\d+.\d+', _l[0]):
+        sentence.append(_l[1])
+    except:
+      pass 
+  return " ".join(sentence)
+
+def translate_po(file, src, target):
+    po = polib.pofile(file+".po")
+    valid_entries = [e for e in po if not e.obsolete]
+    d = []
+    for entry in valid_entries:
+        if entry.msgid.strip() != "":
+            d.append({"src":entry.msgid,"tgt":entry.msgstr})    
+
+    change_state(file, "TRANSLATING_PO_FILE")
+    count = 1;
+    for _entry in d:
+        _entry['tgt'] = translate(_entry['src'],"hin","pan", "1", "23", "wordgenerator-23")
+        change_state(file, "TRANSLATING_PO_FILE:::PROGRESS:::"+str(count)+"/"+str(len(d)))
+        count += 1
+    change_state(file, "TRANSLATING_PO_FILE:::COMPLETE")
+
+    change_state(file, "GENERATING_TRANSLATED_PO_FILE")
+
+    po = polib.POFile()
+    for _d in d:
+        _msgid = _d['src']
+        _msgstr = _d['tgt']
+
+        entry = polib.POEntry(
+            msgid=unicode(_msgid),
+            msgstr=unicode(_msgstr),
+        )
+        po.append(entry)
+
+    po.save(file+".po")
+    change_state(file, "GENERATING_TRANSLATED_PO_FILE:::COMPLETE")    
 
 def process_input_file(file):
-	# redis_conn.set(file, "start")
-	extract_xliff(file)
-	extract_po(file)
-	# redis_conn.set(file, "done")
+    extract_xliff(file)
+    extract_po(file)
+    translate_po(file, "hin", "pan")
+
+
 
 #=================================================================
+
 #Generate Output file
 
 def newFilePath(fileName):

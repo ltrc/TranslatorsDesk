@@ -189,57 +189,6 @@ def preview():
 
     po.save(os.path.join(current_app.config['UPLOAD_FOLDER'],  uid, fileName+".po"))
 
-    # def returnFullPath(fileName):
-    #     return os.path.join(current_app.config['UPLOAD_FOLDER'],  uid, fileName)
-
-    # ##ConvertFile :: TO-DO : Move this to tinkal-driver 
-    # cmd = ["pomerge", "-i", returnFullPath(fileName)+".po", "-t", returnFullPath(fileName)+".xlf", "-o", returnFullPath(fileName)+".xlf.new"]
-    # p = subprocess.Popen(cmd, stdout = subprocess.PIPE,
-    #                         stderr=subprocess.PIPE,
-    #                         stdin=subprocess.PIPE)
-    # out, err = p.communicate()
-    # print cmd, out, err
-
-    # cmd = ["mv", returnFullPath(fileName)+".xlf", returnFullPath(fileName)+".xlf.old"]
-    # p = subprocess.Popen(cmd, stdout = subprocess.PIPE,
-    #                         stderr=subprocess.PIPE,
-    #                         stdin=subprocess.PIPE)
-    # out, err = p.communicate()
-    # print cmd, out, err
-
-    # cmd = ["mv", returnFullPath(fileName)+".xlf.new", returnFullPath(fileName)+".xlf"]
-    # p = subprocess.Popen(cmd, stdout = subprocess.PIPE,
-    #                         stderr=subprocess.PIPE,
-    #                         stdin=subprocess.PIPE)
-    # out, err = p.communicate()
-    # print cmd, out, err
-
-
-    # newFileName = fileName.split(".")
-    # extension = newFileName.pop(-1)
-    # newFileName.append("out")
-    # newFileName.append(extension)
-    # newFileName = ".".join(newFileName)
-
-    # newPath = returnFullPath(fileName)
-    # newPath = newPath.split("/")[:-1]
-    # newPath.append(newFileName)
-    # newPath = "/".join(newPath)
-
-    # cmd = ["rm", newPath]
-    # p = subprocess.Popen(cmd, stdout = subprocess.PIPE,
-    #                         stderr=subprocess.PIPE,
-    #                         stdin=subprocess.PIPE)
-    # out, err = p.communicate()
-    # print cmd, out, err  
-
-    # cmd = ["lib/okapi/tikal.sh", "-m", returnFullPath(fileName)+".xlf"]
-    # p = subprocess.Popen(cmd, stdout = subprocess.PIPE,
-    #                         stderr=subprocess.PIPE,
-    #                         stdin=subprocess.PIPE)
-    # out, err = p.communicate()
-    # print cmd, out, err
-    # newPath = "/" + "/".join(newPath.split("/")[1:])
     filepath = os.path.join(current_app.config['UPLOAD_FOLDER'],  uid, fileName)
     job = q.enqueue_call(func=worker_functions.generateOutputFile, args=(filepath,))
 
