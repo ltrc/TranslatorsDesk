@@ -103,7 +103,7 @@ def test():
 
 @manager.command
 def run():
-    socketio.run(app, host="0.0.0.0", port=6000, use_reloader=True)
+    socketio.run(app, host="0.0.0.0", port=6001, use_reloader=True)
 
 manager.add_command('shell', Shell(make_context=_make_context))
 manager.add_command('db', MigrateCommand)
