@@ -58,15 +58,23 @@ $(document).ready(function(){
   }
 })
 
+function OpenInNewTab(url) {
+      var win = window.open(url, '_blank');
+        win.focus();
+}
+
 function downloadURI(uri) 
 {
-    var link = document.createElement("a");
-    link.href = uri;
-    link.click();
+    console.log("Attempting to download URI")
+    //var link = document.createElement("a");
+    //link.href = uri;
+    //link.click();
+    OpenInNewTab(uri);
 }
 
 $("#preview").click(function(){
 
+  window.downloaded = false;
   var data = []
 
   editors[parseInt($("#po-container .panel-row .codemirror_block").attr("td-editor-id")) - 1]
@@ -97,9 +105,13 @@ $("#preview").click(function(){
 
     function checkForLink(){ 
       $.get("/status/"+_D.uid+"/"+_D.fileName, function(data){
+          console.log(data);
         if(data.fileReady){
+          if(!window.downloaded){
           downloadURI(data.file);
           window.clearInterval(window.downloadCheck);
+          window.downloaded = true;
+          }
         }
       })
     }
