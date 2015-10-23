@@ -13,7 +13,7 @@ class Config(object):
     DEBUG_TB_INTERCEPT_REDIRECTS = False
     CACHE_TYPE = 'simple'  # Can be "memcached", "redis", etc.
     UPLOAD_FOLDER = 'translatorsdesk/static/uploads/'
-    ALLOWED_FILE_EXTENSIONS = ['doc','docx','pptx','csv']
+    ALLOWED_FILE_EXTENSIONS = ['docx','pptx','csv']
 
 class ProdConfig(Config):
     """Production configuration."""
