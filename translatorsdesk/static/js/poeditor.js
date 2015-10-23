@@ -25,9 +25,9 @@ $(document).ready(function(){
     var codemirror_editor = '<div id="codemirror_block_'+CODEMIRROR_EDITOR_ID+'" td-editor-id='+CODEMIRROR_EDITOR_ID+' class="codemirror_block"></div>';
       console.log(data)
 
-      $("#po-container").append('<div class="panel-row"><div class="panel-title"><span class="source-text">\
+      $("#po-container").append('<div class="panel-row"><div class="panel-body col-md-12">'+codemirror_menu+codemirror_editor+'</div><div class="panel-title"><span class="source-text">\
         '+data.src+'</span><span class="target-text">'+data.tgt+'</span></div>\
-        <div class="panel-body col-md-12">'+codemirror_menu+codemirror_editor+'</div></div>');
+        </div>');
 
       // $("#po-container").append("<div class='row data-points'><div class='source col-md-6 text-center'>"+data.src+"</div><div class='col-md-6 text-center'><textarea style='width:100%' class='target expandableTextArea' spellcheck='false'>"+data.tgt+"</textarea></div></div>");
     }).promise().done(function(){
@@ -66,11 +66,13 @@ function downloadURI(uri)
 }
 
 $("#preview").click(function(){
-  
+
   var data = []
-  $("#po-container .row.data-points").each(function(){
-    var src = $(this).find(".source").html();
-    var tgt = $(this).find(".target").val();
+
+  editors[parseInt($("#po-container .panel-row .codemirror_block").attr("td-editor-id")) - 1]
+  $("#po-container .panel-row").each(function(){
+    var src = $(this).find(".source-text").html();
+    var tgt = editors[parseInt($(this).find(".codemirror_block").attr("td-editor-id")) - 1].getValue();
     data.push({"src":src, "tgt":tgt});
   }).promise().done(function(){
     //Data Collected !!
@@ -94,7 +96,15 @@ $("#preview").click(function(){
       dataType: "json"
     });
 
-
+    function checkForLink(){ 
+      $.get("/status/"+_D.uid+"/"+_D.fileName, function(data){
+        if(data.fileReady){
+          downloadURI(data.file);
+          window.clearInterval(window.downloadCheck);
+        }
+      })
+    }
+    window.downloadCheck = setInterval( checkForLink, 1000);
   })
 
 

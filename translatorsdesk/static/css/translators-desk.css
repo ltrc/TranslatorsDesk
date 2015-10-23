@@ -107,7 +107,7 @@
 
 .panel-title .source-text {
 	display: block;
-	font-size: 0.8em;
+	font-size: 1em;
 	/*font-weight: bolder;*/
 }
 
@@ -125,7 +125,7 @@
 
 .panel-row {
 	display: block;
-	border: 1px dashed rgba(0,0,0,0.7);
+	border-top: 1px dashed rgba(0,0,0,0.7);
 	border-collapse: collapse;
 }
 .codemirror_menu {
@@ -136,4 +136,11 @@ div.thead {
  color: white;
  border: 2px solid white;
  margin-bottom: 30px;
+}
+
+.source-text {
+  color:red;
+}
+.target-text {
+  color: green;
 }

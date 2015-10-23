@@ -30,9 +30,9 @@ def change_state(file, state):
 #=================================================================
 # Process Input File
 
-def extract_xliff(file):
+def extract_xliff(file, src, target):
     change_state(file,"EXTRACTING_XLIFF")
-    cmd = ["lib/okapi/tikal.sh", "-x", file]
+    cmd = ["lib/okapi/tikal.sh", "-x", file, "-sl", src, "-tl", target]
     p = subprocess.Popen(cmd, stdout = subprocess.PIPE,
 							stderr=subprocess.PIPE,
 							stdin=subprocess.PIPE)
@@ -103,7 +103,7 @@ def translate_po(file, src, target):
     change_state(file, "GENERATING_TRANSLATED_PO_FILE:::COMPLETE")    
 
 def process_input_file(file):
-    extract_xliff(file)
+    extract_xliff(file, "hi", "pa")
     extract_po(file)
     translate_po(file, "hin", "pan")
 
@@ -130,7 +130,7 @@ def newFilePath(fileName):
 def mergePOFileWithXLF(file):
     change_state(file,"MERGING_PO_WITH_XLIFF")    
 	#Merge PO file onto XLIFF File
-    cmd = ["pomerge", "-i", file+".po", "-t", file+".xlf", "-o", file+".xlf.new"]
+    cmd = ["pomerge", "-i", file+".updated.po", "-t", file+".xlf", "-o", file+".xlf.new"]
     p = subprocess.Popen(cmd, stdout = subprocess.PIPE,
                             stderr=subprocess.PIPE,
                             stdin=subprocess.PIPE)

@@ -136,6 +136,9 @@ def returnFileData(uid, fileName):
     f.close()
     return data
 
+def get_redis_connection():
+    return Redis()
+
 
 """
     Handles Computer Assisted Translation of a particular xliff file
@@ -143,30 +146,44 @@ def returnFileData(uid, fileName):
 @blueprint.route('/translate/<uid>/<fileName>/', methods=['GET'])
 def translate(uid, fileName):
     ##Check if the uid and filename exists
-    if fileExists(uid, fileName):
-        if(fileExists(uid, fileName+".po")):
+    r_conn = get_redis_connection()
+    _status = r_conn.lrange("state_"+uid+"/"+fileName, 0, -1)
 
-            po = polib.pofile(os.path.join(current_app.config['UPLOAD_FOLDER'],  uid, fileName+".po"))
-            valid_entries = [e for e in po if not e.obsolete]
-            d = []
-            for entry in valid_entries:
-                if entry.msgid.strip() != "":
-                    d.append({"src":entry.msgid,"tgt":entry.msgstr})
+    if len(_status) >0 and (_status[0]=="GENERATING_TRANSLATED_PO_FILE:::COMPLETE" or _status[0].startswith("OUTPUT_FILE_GENERATED") ) :
+        if fileExists(uid, fileName):
+            if(fileExists(uid, fileName+".po")):
 
-            return render_template('public/translate.html',\
-                                fileName=fileName,
-                                uid=uid,
-                                PO = {'po':True, 'data':d}
-                                )        
+                po = polib.pofile(os.path.join(current_app.config['UPLOAD_FOLDER'],  uid, fileName+".po"))
+                valid_entries = [e for e in po if not e.obsolete]
+                d = []
+                for entry in valid_entries:
+                    if entry.msgid.strip() != "":
+                        d.append({"src":entry.msgid,"tgt":entry.msgstr})
+
+                r_conn = get_redis_connection()
+                _status = r_conn.lrange("state_"+uid+"/"+fileName, 0, -1)
+
+                
+                return render_template('public/translate.html',\
+                                    fileName=fileName,
+                                    uid=uid,
+                                    status = _status,
+                                    PO = {'po':True, 'data':d}
+                                    )        
+            else:
+                return abort(404)
         else:
-            return render_template('public/translate.html',\
-                                fileName=fileName,
-                                uid=uid,
-                                PO = False
-                                )
+            return abort(404)
     else:
-        return abort(404)
+        r_conn = get_redis_connection()
+        _status = r_conn.lrange("state_"+uid+"/"+fileName, 0, -1)
 
+        return render_template('public/translate.html',\
+                            fileName=fileName,
+                            uid=uid,
+                            status=_status,
+                            PO = False
+                            )
 
 import subprocess
 
@@ -178,18 +195,29 @@ def preview():
 
     po = polib.POFile()
     for _d in data['data']:
-        _msgid = _d['src']
-        _msgstr = _d['tgt']
+        _msgid = _d['src'].strip()
+        _msgstr = _d['tgt'].strip()
 
         entry = polib.POEntry(
             msgid=unicode(_msgid),
             msgstr=unicode(_msgstr),
         )
         po.append(entry)
-
-    po.save(os.path.join(current_app.config['UPLOAD_FOLDER'],  uid, fileName+".po"))
+    print data
+    po.save(os.path.join(current_app.config['UPLOAD_FOLDER'],  uid, fileName+".updated.po"))
 
     filepath = os.path.join(current_app.config['UPLOAD_FOLDER'],  uid, fileName)
     job = q.enqueue_call(func=worker_functions.generateOutputFile, args=(filepath,))
 
     return "#";
+
+
+@blueprint.route('/status/<uid>/<fileName>', methods=['GET'])
+def status(uid, fileName):
+    r_conn = get_redis_connection()
+    _status = r_conn.lrange("state_"+uid+"/"+fileName, 0, -1)
+
+    if len(_status) > 0 and _status[0].startswith("OUTPUT_FILE_GENERATED"):
+        return jsonify({'file':_status[0].split(":::")[-1], 'fileReady':True})
+    else:
+        return jsonify({'fileReady':False})
