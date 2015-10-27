@@ -98,10 +98,17 @@
 }
 
 
+.panel-title .source-text {
+  color:red;
+}
+.panel-title .target-text {
+  color: green;
+}
 
 .panel-title:hover {
 	cursor: pointer;
-	background-color: rgba(0,0,0,0.7);
+	background-color: rgba(0,0,0,0.1);
+
 	color: white;
 }
 
@@ -136,11 +143,4 @@ div.thead {
  color: white;
  border: 2px solid white;
  margin-bottom: 30px;
-}
-
-.source-text {
-  color:red;
-}
-.target-text {
-  color: green;
 }

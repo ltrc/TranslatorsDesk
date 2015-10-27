@@ -25,8 +25,8 @@ $(document).ready(function(){
     var codemirror_editor = '<div id="codemirror_block_'+CODEMIRROR_EDITOR_ID+'" td-editor-id='+CODEMIRROR_EDITOR_ID+' class="codemirror_block"></div>';
       console.log(data)
 
-      $("#po-container").append('<div class="panel-row"><div class="panel-body col-md-12">'+codemirror_menu+codemirror_editor+'</div><div class="panel-title"><span class="source-text">\
-        '+data.src+'</span><span class="target-text">'+data.tgt+'</span></div>\
+      $("#po-container").append('<div class="panel-row"><div class="panel-title"><span class="source-text">\
+        '+data.src+'</span><span class="target-text">'+data.tgt+'</span></div><div class="panel-body col-md-12">'+codemirror_menu+codemirror_editor+'</div>\
         </div>');
 
       // $("#po-container").append("<div class='row data-points'><div class='source col-md-6 text-center'>"+data.src+"</div><div class='col-md-6 text-center'><textarea style='width:100%' class='target expandableTextArea' spellcheck='false'>"+data.tgt+"</textarea></div></div>");
@@ -39,8 +39,10 @@ $(document).ready(function(){
       $('.panel-title').siblings().hide();
 
       $('.panel-title').click(function() {
-        console.log($(this).siblings());
+        // console.log($(this).siblings());
         $('.panel-body').slideUp();
+        $('.target-text').slideDown();
+        $(this).find('.target-text').slideUp();
         $(this).siblings().slideToggle();
         }); 
 
@@ -72,7 +74,7 @@ function downloadURI(uri)
     OpenInNewTab(uri);
 }
 
-$("#preview").click(function(){
+$("#download").click(function(){
 
   window.downloaded = false;
   var data = []
@@ -119,4 +121,9 @@ $("#preview").click(function(){
   })
 
 
-})
+});
+
+$('#preview').click(function() {
+  $(this).fadeOut();
+  $('.source-text').slideUp();
+});
