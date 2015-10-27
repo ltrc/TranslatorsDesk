@@ -28,7 +28,9 @@ $(function(){
                 $("#total-progress .progress-bar").css("width" , progress + "%");
               });
 
-              this.on("sending", function(file) {
+              this.on("sending", function(file, xhr, data) {
+                data.append("src", $("#sourceLanguage").text());
+                data.append("tgt", $("#targetLanguage").text());
                 // Show the total progress bar when upload starts
                 $("#total-progress").css("opacity" , "1");
                 // And disable the start button

@@ -127,3 +127,15 @@ $('#preview').click(function() {
   $(this).fadeOut();
   $('.source-text').slideUp();
 });
+
+$("#src_selector li a").click(function(){
+  var selText = $(this).text();
+  console.log(selText);
+  $('#sourceLanguage').html(selText+'<span class="caret"></span>');
+});
+
+$("#tgt_selector li a").click(function(){
+  var selText = $(this).text();
+  console.log(selText);
+  $('#targetLanguage').html(selText+'<span class="caret"></span>');
+});
