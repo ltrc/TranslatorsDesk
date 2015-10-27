@@ -70,6 +70,10 @@ def translate(sentence, src, target, module_start, module_end, last_module):
       pass 
   return " ".join(sentence)
 
+def get_call_api(url):
+    response = urllib2.urlopen(url)
+    return response.read()
+
 def translate_po(file, src, target):
     po = polib.pofile(file+".po")
     valid_entries = [e for e in po if not e.obsolete]
@@ -81,7 +85,14 @@ def translate_po(file, src, target):
     change_state(file, "TRANSLATING_PO_FILE")
     count = 1;
     for _entry in d:
-        _entry['tgt'] = translate(_entry['src'],"hin","pan", "1", "23", "wordgenerator-23")
+        module_start = "1"
+        SERVER="http://api.ilmt.iiit.ac.in"
+        module_end = get_call_api(SERVER+"/"+src+"/"+target+"/")
+        last_module = get_call_api(SERVER+"/"+src+"/"+target+"/modules/")
+        last_module = last_module.strip('[').strip(']').split(',')
+        last_module = last_module[-1].strip('"') + '-' + str(len(last_module))
+        print last_module
+        _entry['tgt'] = translate(_entry['src'], src, target, module_start, module_end, last_module)
         change_state(file, "TRANSLATING_PO_FILE:::PROGRESS:::"+str(count)+"/"+str(len(d)))
         count += 1
     change_state(file, "TRANSLATING_PO_FILE:::COMPLETE")
@@ -102,10 +113,19 @@ def translate_po(file, src, target):
     po.save(file+".po")
     change_state(file, "GENERATING_TRANSLATED_PO_FILE:::COMPLETE")    
 
-def process_input_file(file):
-    extract_xliff(file, "hi", "pa")
+def process_input_file(file, src, tgt):
+    convert_html_namespace = {'Hindi' : 'hin', 'Panjabi' : 'pan', 'Urdu' : 'urd'}
+    src = convert_html_namespace[src]
+    tgt = convert_html_namespace[tgt]
+    convert_api_namespace = {'hin' : 'hi', 'pan' : 'pa', 'urd' : 'ur'}
+    src_conv = convert_api_namespace[src]
+    tgt_conv = convert_api_namespace[tgt]
+    print "*"*80
+    print src, tgt, src_conv, tgt_conv
+    print "="*80
+    extract_xliff(file, src_conv, tgt_conv)
     extract_po(file)
-    translate_po(file, "hin", "pan")
+    translate_po(file, src, tgt)
 
 
 

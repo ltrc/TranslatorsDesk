@@ -91,7 +91,13 @@ def upload():
                     os.makedirs(os.path.dirname(filepath))
                 file.save(filepath)
                 ## Add Job to Queue
-                job = q.enqueue_call(func=worker_functions.process_input_file, args=(filepath,))
+                src = request.values["src"]
+                tgt = request.values["tgt"]
+                #CLEAN SRC AND TGT VAR
+                src = src.strip('\n').strip('\r').strip()
+                tgt = tgt.strip('\n').strip('\r').strip()
+    
+                job = q.enqueue_call(func=worker_functions.process_input_file, args=(filepath, src, tgt))
 
                 return jsonify({"success":True, "filename":file.filename, "uuid": _uuid })
             else:
