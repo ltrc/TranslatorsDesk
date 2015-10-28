@@ -762,8 +762,8 @@ function init_editors(redoGetEditors) {
 		$.each(editors, function(index, editor) {
 		setupInputMethods(editor,
 									{
-										defaultLanguage: "pa",			// TODO: Put target language here programatically. 
-										defaultIM: "pa-phonetic",
+										defaultLanguage: "ur",			// TODO: Put target language here programatically. 
+										// defaultIM: "pa-phonetic",
 										// languages: ['en','hi','pa', 'te', 'ta', 'ur']
 										languages: ['en','hi','pa', 'te', 'ta', 'ur']
 									}

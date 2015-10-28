@@ -52,7 +52,7 @@ def extract_po(file):
     out, err = p.communicate()	
     change_state(file,"EXTRACTING_PO:::COMPLETE")    
 
-def translate(sentence, src, target, module_start, module_end, last_module):
+def translate(sentence, src, target, module_start, module_end, last_module, chunker_module):
   SERVER="http://pipeline.ilmt.iiit.ac.in"
   URI=SERVER+"/"+src+"/"+target+"/"+module_start+"/"+module_end+"/"
   values = {'input' : sentence.encode('utf-8'), 'params': {}}
@@ -65,29 +65,61 @@ def translate(sentence, src, target, module_start, module_end, last_module):
   ssf_data = ssfapi.Document(d[last_module])
   words_dict = {}
   sentence = []
-  for tree in ssf_data.nodeList:
-    for chunk in tree.nodeList:
-        for node in chunk.nodeList:
-            words_dict[node.lex] = node.name
-            sentence.append(node.lex)
-  sentence = " ".join(sentence)
+  try:
+      print ssf_data.nodeList
+      for tree in ssf_data.nodeList:
+        print tree.printSSFValue()
+        print "OK"
+        for chunk in tree.nodeList:
+            print chunk.printValue()
+            print type(chunk)
+            for node in chunk.nodeList:
+                words_dict[node.lex] = node.name
+                sentence.append(node.lex)
+      sentence = " ".join(sentence)
+  except:
+    sentence = []
+    for l in d[last_module].split("\n"):
+        _l = l.split("\t")
+        try:
+            if re.match('\d+.\d+', _l[0]):
+                if _l[1]!='((':
+                    sentence.append(_l[1])
+                    print "APPENDING "+_l[1]
+                    words_dict[_l[0]] = [_l[1]]
+        except:
+            pass 
+    sentence = " ".join(sentence)
+    print d.keys()
+    for l in d[chunker_module].split("\n"):
+        _l = l.split("\t")
+        try:
+            if re.match('\d+.\d+', _l[0]):
+                words_dict[_l[0]].append(_l[1])
+        except:
+            pass
+  print "THIS:" 
+  print words_dict  
+  words = {}
+
+  for each in words_dict.keys():
+    try:                # FIX THIS
+        print each, words_dict[each]
+        words[words_dict[each][0]] = words_dict[each][1]
+    except:
+        pass
+
+  print words
+  print "====="
   response = {}
   response['sentence'] = sentence
-  response['words'] = words_dict
+  response['words'] = words
   response = json.dumps(response)
   response = response.replace('"', '\\"')     # Wah. 
   print response
   return response
 
-  # sentence = []
-  # for l in d[last_module].split("\n"):
-  #   _l = l.split("\t")
-  #   try:
-  #     if re.match('\d+.\d+', _l[0]):
-  #       sentence.append(_l[1])
-  #   except:
-  #     pass 
-  # return " ".join(sentence)
+
 
 def get_call_api(url):
     response = urllib2.urlopen(url)
@@ -107,11 +139,14 @@ def translate_po(file, src, target):
         module_start = "1"
         SERVER="http://api.ilmt.iiit.ac.in"
         module_end = get_call_api(SERVER+"/"+src+"/"+target+"/")
-        last_module = get_call_api(SERVER+"/"+src+"/"+target+"/modules/")
-        last_module = last_module.strip('[').strip(']').split(',')
-        last_module = last_module[-1].strip('"') + '-' + str(len(last_module))
+        modules = get_call_api(SERVER+"/"+src+"/"+target+"/modules/")
+        modules = modules.strip('[').strip(']').split(',')
+        print modules
+        last_module = modules[-1].strip('"') + '-' + str(len(modules))
+        chunker_index = modules.index("\"chunker\"")
+        chunker_module = modules[chunker_index].strip('"')  + '-' + str(chunker_index+1)
         print last_module
-        _entry['tgt'] = translate(_entry['src'], src, target, module_start, module_end, last_module)
+        _entry['tgt'] = translate(_entry['src'], src, target, module_start, module_end, last_module, chunker_module)
         change_state(file, "TRANSLATING_PO_FILE:::PROGRESS:::"+str(count)+"/"+str(len(d)))
         count += 1
     change_state(file, "TRANSLATING_PO_FILE:::COMPLETE")
