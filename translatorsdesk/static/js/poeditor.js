@@ -1,11 +1,16 @@
 $(document).ready(function(){
   if(window.PO_DATA){
+    console.log(window.PO_DATA)     // fix this 'tgt' key. 
     window.PO_DATA = JSON.parse(window.PO_DATA);
     console.log(window.PO_DATA);
+    window.PO_DATA_WORDS1 = {}
+    window.PO_DATA_WORDS2 = {}  // Source to target and vice versa
 
     $(window.PO_DATA.data).each(function(idx, data){
 
+    console.log("Helo");
 
+    data.tgt = JSON.parse(data.tgt);
     var CODEMIRROR_EDITOR_ID = idx+1;
 
     var codemirror_menu = '<nav id="codemirror_menu_'+CODEMIRROR_EDITOR_ID+'" td-editor-id='+CODEMIRROR_EDITOR_ID+' class="navbar navbar-default codemirror_menu">\
@@ -25,15 +30,31 @@ $(document).ready(function(){
     var codemirror_editor = '<div id="codemirror_block_'+CODEMIRROR_EDITOR_ID+'" td-editor-id='+CODEMIRROR_EDITOR_ID+' class="codemirror_block"></div>';
       console.log(data)
 
+      var tgt_str_to_show = "";
+      var src_str_to_show = "";
+
+      $.each(data.tgt.sentence.split(' '), function(index, val) {
+        tgt_str_to_show += "<span id='"+val+"' class='tgt_word'>"+val+"</span> ";
+      });
+
+      $.each(data.src.split(' '), function(index, val) {
+        src_str_to_show += "<span id='"+val+"' class='src_word'>"+val+"</span> ";
+      });
+
+      $.each(data.tgt.words, function(index, val) {
+        window.PO_DATA_WORDS1[index] = val;
+        window.PO_DATA_WORDS2[val] = index;
+      });
+
       $("#po-container").append('<div class="panel-row"><div class="panel-title"><span class="source-text">\
-        '+data.src+'</span><span class="target-text">'+data.tgt+'</span></div><div class="panel-body col-md-12">'+codemirror_menu+codemirror_editor+'</div>\
+        '+src_str_to_show+'</span><span class="target-text">'+tgt_str_to_show+'</span></div><div class="panel-body col-md-12">'+codemirror_menu+codemirror_editor+'</div>\
         </div>');
 
       // $("#po-container").append("<div class='row data-points'><div class='source col-md-6 text-center'>"+data.src+"</div><div class='col-md-6 text-center'><textarea style='width:100%' class='target expandableTextArea' spellcheck='false'>"+data.tgt+"</textarea></div></div>");
     }).promise().done(function(){
       init_editors(true);
       for(var i=0; i<editors.length; i++) {
-        editors[i].setValue(window.PO_DATA.data[i].tgt + "\n\n");
+        editors[i].setValue(window.PO_DATA.data[i].tgt.sentence + "\n\n");
       }
 
       $('.panel-title').siblings().hide();
@@ -45,6 +66,33 @@ $(document).ready(function(){
         $(this).find('.target-text').slideUp();
         $(this).siblings().slideToggle();
         }); 
+
+      $('.tgt_word').mouseover(function() {
+        // console.log(this.innerHTML);
+        var word = this.innerHTML;
+        var otherword = window.PO_DATA_WORDS1[word];
+        // console.log(otherword);
+        $('.src_word').removeClass("highlight");
+        $('.source-text #'+otherword).addClass("highlight");
+      });
+
+      $('.tgt_word').mouseout(function() {
+        $('.src_word').removeClass("highlight");
+      });
+
+      $('.src_word').mouseover(function() {
+        // console.log(this.innerHTML);
+        var word = this.innerHTML;
+        var otherword = window.PO_DATA_WORDS2[word];
+        // console.log(otherword);
+        $('.tgt_word').removeClass("highlight");
+        $('.target-text #'+otherword).addClass("highlight");
+      });
+
+      $('.src_word').mouseout(function() {
+        $('.tgt_word').removeClass("highlight");
+      });
+
 
       // Not needed anymore: 
     // var elements = document.getElementsByClassName('expandableTextArea');
@@ -139,3 +187,5 @@ $("#tgt_selector li a").click(function(){
   console.log(selText);
   $('#targetLanguage').html(selText+'<span class="caret"></span>');
 });
+
+

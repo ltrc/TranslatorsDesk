@@ -144,3 +144,9 @@ div.thead {
  border: 2px solid white;
  margin-bottom: 30px;
 }
+.src_text, .tgt_text {
+	padding: 2px;
+}
+.highlight {
+	border-bottom: 2px solid black;
+}

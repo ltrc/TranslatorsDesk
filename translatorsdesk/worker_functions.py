@@ -8,6 +8,8 @@ import json
 import re
 import polib
 
+import ssfapi
+
 reload(sys)
 sys.setdefaultencoding('utf8')
 
@@ -60,15 +62,32 @@ def translate(sentence, src, target, module_start, module_end, last_module):
   the_page = response.read()
 
   d = json.loads(the_page)
+  ssf_data = ssfapi.Document(d[last_module])
+  words_dict = {}
   sentence = []
-  for l in d[last_module].split("\n"):
-    _l = l.split("\t")
-    try:
-      if re.match('\d+.\d+', _l[0]):
-        sentence.append(_l[1])
-    except:
-      pass 
-  return " ".join(sentence)
+  for tree in ssf_data.nodeList:
+    for chunk in tree.nodeList:
+        for node in chunk.nodeList:
+            words_dict[node.lex] = node.name
+            sentence.append(node.lex)
+  sentence = " ".join(sentence)
+  response = {}
+  response['sentence'] = sentence
+  response['words'] = words_dict
+  response = json.dumps(response)
+  response = response.replace('"', '\\"')     # Wah. 
+  print response
+  return response
+
+  # sentence = []
+  # for l in d[last_module].split("\n"):
+  #   _l = l.split("\t")
+  #   try:
+  #     if re.match('\d+.\d+', _l[0]):
+  #       sentence.append(_l[1])
+  #   except:
+  #     pass 
+  # return " ".join(sentence)
 
 def get_call_api(url):
     response = urllib2.urlopen(url)
