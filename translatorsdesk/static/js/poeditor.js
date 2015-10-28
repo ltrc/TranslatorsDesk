@@ -110,7 +110,7 @@ $(document).ready(function(){
 
 function OpenInNewTab(url) {
       var win = window.open(url, '_blank');
-        win.focus();
+      win.focus();
 }
 
 function downloadURI(uri) 
@@ -119,11 +119,13 @@ function downloadURI(uri)
     //var link = document.createElement("a");
     //link.href = uri;
     //link.click();
-    OpenInNewTab(uri);
+    
+    // OpenInNewTab(uri);
+    window.location = uri;
 }
 
 $("#download").click(function(){
-
+  alert("down");
   window.downloaded = false;
   var data = []
 

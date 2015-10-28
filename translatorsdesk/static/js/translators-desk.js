@@ -746,7 +746,7 @@ function load_output_selectors(sentence_id) {
 }
 
 
-function init_editors(redoGetEditors) {
+function init_editors(redoGetEditors, lang) {
 		console.log('Preparing editors...');
 		if (redoGetEditors == true) {
 			get_editors_on_page();
