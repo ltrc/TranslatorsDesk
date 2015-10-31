@@ -6,7 +6,7 @@ $(function(){
     //TO-DO : Add better error handling
 
     if($("#translators-desk-dropzone")){
-          var supported_files = ".docx,.pptx,.csv";
+          var supported_files = ".docx,.pptx,.csv,.txt";
           Dropzone.options.translatorsDeskDropzone = {
             dictDefaultMessage : "<b>Drag and Drop the files that you want to translate</b> <br/> Only <i>"+supported_files+"</i> are supported at the moment.",
             maxFilesize: 100, // MB
