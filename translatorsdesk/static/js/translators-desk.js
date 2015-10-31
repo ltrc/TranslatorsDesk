@@ -760,10 +760,11 @@ function init_editors(redoGetEditors, lang) {
 		setupCodeMirrorInputReadEventHandlers();
 		setupSpellCheck();
 		$.each(editors, function(index, editor) {
+			console.log(index);
 		setupInputMethods(editor,
 									{
 										defaultLanguage: "ur",			// TODO: Put target language here programatically. 
-										// defaultIM: "pa-phonetic",
+										defaultIM: "ur-phonetic",
 										// languages: ['en','hi','pa', 'te', 'ta', 'ur']
 										languages: ['en','hi','pa', 'te', 'ta', 'ur']
 									}

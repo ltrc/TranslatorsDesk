@@ -125,7 +125,7 @@ function downloadURI(uri)
 }
 
 $("#download").click(function(){
-  alert("down");
+  // alert("down");
   window.downloaded = false;
   var data = []
 
