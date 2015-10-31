@@ -51,18 +51,21 @@
       </div>
     </div>
     <br/>
-    <form id="translators-desk-dropzone" action="/upload-target" class="dropzone"></form>
+    <form id="translators-desk-dropzone" action="/upload-target" class="dropzone file-group"></form>
     <br/>
-    <div id="actions" class="row">
+    <div id="actions" class="row file-group">
         <!-- The fileinput-button span is used to style the file input field as button -->
         <center>
         <span id="add-files" class="btn btn-success fileinput-button">
             <i class="glyphicon glyphicon-plus"></i>
-            <span>Add files...</span>
+            <span>Upload files</span>
         </span>
+        <button class="btn btn-primary" id="switch_mode">Switch to text mode</button>
+
         </center>
     </div>
-
+<textarea id="raw_text" style="width: 100%;" class="raw-group">Paste the text you want to translate here.</textarea>
+<br /><br /><center><button id="submit_raw" class="btn btn-success btn-primary raw-group">Translate this text</button></center>
     <br/>
     <div class="row">
         <!-- The global file processing state -->

@@ -31,6 +31,7 @@ $(function(){
               this.on("sending", function(file, xhr, data) {
                 data.append("src", $("#sourceLanguage").text());
                 data.append("tgt", $("#targetLanguage").text());
+                data.append("raw_text", $('#raw_text').text());
                 // Show the total progress bar when upload starts
                 $("#total-progress").css("opacity" , "1");
                 // And disable the start button
@@ -51,7 +52,27 @@ $(function(){
           };
       }
 
+      $('#submit_raw').click(function() {
+        console.log("HI");
+        console.log(document.getElementById('raw_text').value);
+        $.ajax({
+          url: "/upload",
+          method: "POST",
+          data: { raw_text: $('#raw_text').val(), src: $("#sourceLanguage").text(), tgt: $("#targetLanguage").text()  },
+          async: true, 
+          success: function(_response) {
+            console.log(_response);
+                //TO-DO : Add error handling here
+            document.location = "/translate/"+_response.uuid+"/"+_response.filename 
+            console.log("/translate/"+_response.uuid+"/"+_response.filename ); 
+          }
+        });
+      });
+
+      $('#switch_mode').click(function() {
+        $('.file-group').slideUp(function() {
+        $('.raw-group').slideDown();
+        });
+      });
   })
-
-
 });

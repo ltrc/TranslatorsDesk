@@ -80,7 +80,10 @@ def about():
 @blueprint.route('/upload', methods=['POST'])
 def upload():
     if request.method == 'POST':
-        file = request.files['file']
+        file = request.files.get('file', None)
+        raw_text = request.values.get("raw_text", None)
+        print file
+        print raw_text
         if file:
             if _allowed_file(file.filename):
                 _uuid = str(uuid.uuid4())
@@ -90,20 +93,38 @@ def upload():
                 if not os.path.exists(os.path.dirname(filepath)):
                     os.makedirs(os.path.dirname(filepath))
                 file.save(filepath)
-                ## Add Job to Queue
-                src = request.values["src"]
-                tgt = request.values["tgt"]
-                #CLEAN SRC AND TGT VAR
-                src = src.strip('\n').strip('\r').strip()
-                tgt = tgt.strip('\n').strip('\r').strip()
-    
-                job = q.enqueue_call(func=worker_functions.process_input_file, args=(filepath, src, tgt))
-
-                return jsonify({"success":True, "filename":file.filename, "uuid": _uuid })
             else:
                 return jsonify({"success": False, "message": "File Type not supported yet!!"})
+
+        elif raw_text:
+            print "I am in raw_text"
+            _uuid = str(uuid.uuid4())
+            secure_filename = "raw_text.txt"
+            filepath = os.path.join(current_app.config['UPLOAD_FOLDER'],  _uuid, secure_filename)
+            if not os.path.exists(os.path.dirname(filepath)):
+                os.makedirs(os.path.dirname(filepath))
+            print "Made dir"
+            f = open(filepath, 'w')
+            f.write(raw_text)
+            f.close()
+            print "made file"
+        
+        if file or raw_text:
+            ## Add Job to Queue
+            src = request.values.get("src", None)
+            tgt = request.values.get("tgt", None)
+            print src, tgt
+            if not (src and tgt):
+                return jsonify({"success": False, "message": "Source and Target Languages not specified!!"})
+            #CLEAN SRC AND TGT VAR
+            src = src.strip('\n').strip('\r').strip()
+            tgt = tgt.strip('\n').strip('\r').strip()
+
+            job = q.enqueue_call(func=worker_functions.process_input_file, args=(filepath, src, tgt))
+
+            return jsonify({"success":True, "filename":secure_filename, "uuid": _uuid })       
         else:
-            return jsonify({"success": False, "message": "Corrupt File :( "})
+            return jsonify({"success": False, "message": "Corrupt File"})
 
 
 def _allowed_file(filename):
