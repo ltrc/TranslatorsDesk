@@ -11,8 +11,7 @@ $(document).ready(function(){
     console.log("Helo");
 
     data.tgt = JSON.parse(data.tgt);
-    var CODEMIRROR_EDITOR_ID = idx+1;
-
+    var CODEMIRROR_EDITOR_ID = idx+1;    
     var codemirror_menu = '<nav id="codemirror_menu_'+CODEMIRROR_EDITOR_ID+'" td-editor-id='+CODEMIRROR_EDITOR_ID+' class="navbar navbar-default codemirror_menu">\
                             <div class="container-fluid"><div class="collapse navbar-collapse" id="bs-example-navbar-collapse-1">\
                               <ul class="nav navbar-nav">\
@@ -32,7 +31,7 @@ $(document).ready(function(){
 
       var tgt_str_to_show = "";
       var src_str_to_show = "";
-
+      window.tgt_lang = data.tgt_lang;
       $.each(data.tgt.sentence.split(' '), function(index, val) {
         tgt_str_to_show += "<span id='"+val+"' class='tgt_word'>"+val+"</span> ";
       });
@@ -52,7 +51,9 @@ $(document).ready(function(){
 
       // $("#po-container").append("<div class='row data-points'><div class='source col-md-6 text-center'>"+data.src+"</div><div class='col-md-6 text-center'><textarea style='width:100%' class='target expandableTextArea' spellcheck='false'>"+data.tgt+"</textarea></div></div>");
     }).promise().done(function(){
-      init_editors(true);
+      var tgtLang = window.tgt_lang; // For the editor language
+      console.log("Target Editor Language: " + tgtLang);
+      init_editors(true, tgtLang);
       for(var i=0; i<editors.length; i++) {
         editors[i].setValue(window.PO_DATA.data[i].tgt.sentence + "\n\n");
       }

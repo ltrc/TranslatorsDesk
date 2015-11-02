@@ -763,8 +763,8 @@ function init_editors(redoGetEditors, lang) {
 			console.log(index);
 		setupInputMethods(editor,
 									{
-										defaultLanguage: "ur",			// TODO: Put target language here programatically. 
-										defaultIM: "ur-phonetic",
+										defaultLanguage: lang,			// TODO: Put target language here programatically. 
+										// defaultIM: "ur-phonetic",
 										// languages: ['en','hi','pa', 'te', 'ta', 'ur']
 										languages: ['en','hi','pa', 'te', 'ta', 'ur']
 									}
@@ -777,7 +777,7 @@ $(document).ready(function(){
 	console.log('Initializing socket IO');
 	setupSocketIO();
 	if(editors.length > 0){
-		init_editors(false);
+		init_editors(false, "pa");
 	}
 
 
