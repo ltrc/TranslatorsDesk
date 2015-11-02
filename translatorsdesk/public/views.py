@@ -185,7 +185,8 @@ def translate(uid, fileName):
                 d = []
                 for entry in valid_entries:
                     if entry.msgid.strip() != "":
-                        d.append({"src":entry.msgid,"tgt":entry.msgstr})
+                        _tgt_lang = r_conn.lrange("lang_"+uid+"/"+fileName, 0, -1)
+                        d.append({"src":entry.msgid,"tgt":entry.msgstr,"tgt_lang":_tgt_lang[0]})
 
                 r_conn = get_redis_connection()
                 _status = r_conn.lrange("state_"+uid+"/"+fileName, 0, -1)

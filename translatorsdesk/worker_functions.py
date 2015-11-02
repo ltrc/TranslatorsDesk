@@ -29,11 +29,19 @@ def change_state(file, state):
 
     r_conn.lpush("state_"+u_file, state)
 
+def store_lang(file, tgt_lang):
+    print "="*80, tgt_lang
+    r_conn = get_redis_connection()
+    u_file = "/".join(file.split("/")[-2:])
+
+    r_conn.lpush("lang_"+u_file, tgt_lang)
+
 #=================================================================
 # Process Input File
 
 def extract_xliff(file, src, target):
     change_state(file,"EXTRACTING_XLIFF")
+    store_lang(file, target)
     cmd = ["lib/okapi/tikal.sh", "-x", file, "-sl", src, "-tl", target]
     p = subprocess.Popen(cmd, stdout = subprocess.PIPE,
 							stderr=subprocess.PIPE,
