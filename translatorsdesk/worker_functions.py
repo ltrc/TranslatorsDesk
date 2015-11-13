@@ -60,7 +60,31 @@ def extract_po(file):
     out, err = p.communicate()	
     change_state(file,"EXTRACTING_PO:::COMPLETE")    
 
+
+def tokenize(sentence, src, target):
+  '''
+    WARNING: THIS CHANGES THE INPUT FILE
+    PARAGRAPHS ARE LOST!!!
+    tokenize sentences using the first module
+  '''
+  SERVER="http://pipeline.ilmt.iiit.ac.in"
+  TOKENIZER_URI = SERVER+"/"+src+"/"+target+"/1/1/"
+  values = {'input' : sentence.encode('utf-8'), 'params': {}}
+  data = urllib.urlencode(values)
+  req = urllib2.Request(TOKENIZER_URI, data)
+  response = urllib2.urlopen(req)
+  the_page = response.read()
+  js = json.loads(the_page)
+  ssf_data = ssfapi.Document(js['tokenizer-1'])
+  sentences = []
+  for tree in ssf_data.nodeList:
+    sentences.append(tree.generateSentence())
+  return sentences
+
+
+
 def translate(sentence, src, target, module_start, module_end, last_module, chunker_module):
+  tokenize(sentence, src, target)
   SERVER="http://pipeline.ilmt.iiit.ac.in"
   URI=SERVER+"/"+src+"/"+target+"/"+module_start+"/"+module_end+"/"
   values = {'input' : sentence.encode('utf-8'), 'params': {}}
@@ -76,11 +100,7 @@ def translate(sentence, src, target, module_start, module_end, last_module, chun
   try:
       print ssf_data.nodeList
       for tree in ssf_data.nodeList:
-        print tree.printSSFValue()
-        print "OK"
         for chunk in tree.nodeList:
-            print chunk.printValue()
-            print type(chunk)
             for node in chunk.nodeList:
                 words_dict[node.lex] = node.name
                 sentence.append(node.lex)
@@ -154,7 +174,10 @@ def translate_po(file, src, target):
         chunker_index = modules.index("\"chunker\"")
         chunker_module = modules[chunker_index].strip('"')  + '-' + str(chunker_index+1)
         print last_module
+
+
         _entry['tgt'] = translate(_entry['src'], src, target, module_start, module_end, last_module, chunker_module)
+        
         change_state(file, "TRANSLATING_PO_FILE:::PROGRESS:::"+str(count)+"/"+str(len(d)))
         count += 1
     change_state(file, "TRANSLATING_PO_FILE:::COMPLETE")
@@ -185,6 +208,17 @@ def process_input_file(file, src, tgt):
     print "*"*80
     print src, tgt, src_conv, tgt_conv
     print "="*80
+
+    #TOKENIZE FILE IF TXT
+    if file.split('.')[-1] == 'txt':
+        f = open(file, 'r')
+        data = f.read()
+        f.close()
+        tokenized_data = '\n'.join(tokenize(data, src, tgt))
+        f = open(file, 'w')
+        f.write(tokenized_data)
+        f.close()
+
     extract_xliff(file, src_conv, tgt_conv)
     extract_po(file)
     translate_po(file, src, tgt)

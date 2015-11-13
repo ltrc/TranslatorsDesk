@@ -89,7 +89,6 @@ def upload():
                 _uuid = str(uuid.uuid4())
                 secure_filename = file.filename.replace('/', "_").replace('\\', '_')
                 filepath = os.path.join(current_app.config['UPLOAD_FOLDER'],  _uuid, secure_filename)
-                
                 if not os.path.exists(os.path.dirname(filepath)):
                     os.makedirs(os.path.dirname(filepath))
                 file.save(filepath)
