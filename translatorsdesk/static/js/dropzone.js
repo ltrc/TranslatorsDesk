@@ -69,10 +69,10 @@ $(function(){
         });
       });
 
-      $('#switch_mode').click(function() {
-        $('.file-group').slideUp(function() {
-        $('.raw-group').slideDown();
-        });
-      });
+      // $('#switch_mode').click(function() {
+      //   $('.file-group').slideUp(function() {
+      //   $('.raw-group').slideDown();
+      //   });
+      // });
   })
 });

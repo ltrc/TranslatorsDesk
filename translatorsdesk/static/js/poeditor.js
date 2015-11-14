@@ -64,9 +64,15 @@ $(document).ready(function(){
         // console.log($(this).siblings());
         $('.panel-body').slideUp();
         $('.target-text').slideDown();
-        $(this).find('.target-text').slideUp();
+        $(this).find('.target-text').slideToggle();
         $(this).siblings().slideToggle();
+        $(this).addClass("active-title");
         }); 
+
+      $(document).click(function() {
+        $('.panel-body').slideUp();
+        $('.target-text').slideDown();
+      });
 
       $('.tgt_word').mouseover(function() {
         // console.log(this.innerHTML);

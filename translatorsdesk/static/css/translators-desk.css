@@ -151,9 +151,12 @@ div.thead {
 	border-bottom: 2px solid black;
 }
 .raw-group {
-	display: none;
+	/*display: none;*/
 }
 #raw_text {
 	height: 200px;
 	font-size: 1.3em;
+}
+#translators-desk-dropzone {
+	display: none;
 }
