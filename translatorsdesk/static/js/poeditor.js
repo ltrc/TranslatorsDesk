@@ -139,7 +139,7 @@ $("#download").click(function(){
   editors[parseInt($("#po-container .panel-row .codemirror_block").attr("td-editor-id")) - 1]
   $("#po-container .panel-row").each(function(){
     var src = $(this).find(".source-text").html();
-    var tgt = editors[parseInt($(this).find(".codemirror_block").attr("td-editor-id")) - 1].getValue();
+    var tgt = editors[parseInt($(this).find(".codemirror_block").attr("td-editor-id")) - 1].getValue(); // Fix this. send without span html tags
     data.push({"src":src, "tgt":tgt});
   }).promise().done(function(){
     //Data Collected !!
@@ -185,16 +185,6 @@ $('#preview').click(function() {
   $('.source-text').slideUp();
 });
 
-$("#src_selector li a").click(function(){
-  var selText = $(this).text();
-  console.log(selText);
-  $('#sourceLanguage').html(selText+'<span class="caret"></span>');
-});
 
-$("#tgt_selector li a").click(function(){
-  var selText = $(this).text();
-  console.log(selText);
-  $('#targetLanguage').html(selText+'<span class="caret"></span>');
-});
 
 

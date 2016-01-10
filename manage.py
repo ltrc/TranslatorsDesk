@@ -37,6 +37,17 @@ TEST_PATH = os.path.join(HERE, 'tests')
     TODO : Move this block of code to a more appropriate location
 """
 
+@socketio.on('translators_desk_get_lang_pairs', namespace='/td')
+def translators_desk_get_lang_pairs():
+    url = 'http://api.ilmt.iiit.ac.in/langpairs'
+    req = urllib2.Request(url)
+    response = urllib2.urlopen(req)
+    result = response.read()
+    print result
+    emit('translators_desk_get_lang_pairs_response', result)
+
+
+# The following function is probably outdated and not required anymore. Confirm and take necessary action. 
 @socketio.on('translators_desk_get_translation_query', namespace='/td')
 def translators_desk_get_translation_query(message):
     print message

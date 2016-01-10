@@ -5,6 +5,12 @@
 var editors = [];
 var currentEditor = null;
 var TranslatorsDeskGlobals = {}
+var LangPairs = {}
+var LangFormatMapping = {
+	"hin": "Hindi", 
+	"pan": "Panjabi",
+	"urd": "Urdu"
+}
 
 var TranslationResults = {}		// Stores the result obtained from translations done via the desk.
 var sentenceNumber = 1 			// Stores the ID of the sentence that has been translated via the full pipeline mode.
@@ -772,6 +778,36 @@ function init_editors(redoGetEditors, lang) {
 		});
 }
 
+function getLangPairs(response) {
+	response = JSON.parse(response);
+	console.log(response);
+	$.each(response, function(key, val) {
+		LangPairs[LangFormatMapping[key]] = val;
+	});
+	$.each(LangPairs, function(key, val) {
+		$('#src_selector').append("<li><a href='#'>"+key+"</a></li>");
+	});
+			$("#src_selector li a").click(function(){
+		  var selText = $(this).text();
+		  // selText = LangFormatMapping[selText];
+		  console.log(selText);
+		  $('#sourceLanguage').html(selText+'<span class="caret"></span>');
+		  $('#tgt_selector').html("");
+
+		  $.each(LangPairs[selText], function(key, val) {
+		    $('#tgt_selector').append("<li><a href='#'>"+LangFormatMapping[val]+"</a></li>");
+		  });
+		  
+		  $("#tgt_selector li a").click(function(){
+		  var selText = $(this).text();
+		  console.log(selText);
+		  $('#targetLanguage').html(selText+'<span class="caret"></span>');
+		});
+		});
+
+		
+}
+
 $(document).ready(function(){
 	get_editors_on_page();
 	console.log('Initializing socket IO');
@@ -779,7 +815,8 @@ $(document).ready(function(){
 	if(editors.length > 0){
 		init_editors(false, "pa");
 	}
-
+	socket.emit("translators_desk_get_lang_pairs");
+	socket.on("translators_desk_get_lang_pairs_response", getLangPairs);
 
 	// TODO: This block ideally doesnt belong here, as it is 
 	// not specific to individual CodeMirror instances
