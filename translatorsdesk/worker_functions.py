@@ -29,19 +29,12 @@ def change_state(file, state):
 
     r_conn.lpush("state_"+u_file, state)
 
-def store_lang(file, tgt_lang):
-    print "="*80, tgt_lang
-    r_conn = get_redis_connection()
-    u_file = "/".join(file.split("/")[-2:])
-
-    r_conn.lpush("lang_"+u_file, tgt_lang)
-
 #=================================================================
 # Process Input File
 
 def extract_xliff(file, src, target):
     change_state(file,"EXTRACTING_XLIFF")
-    store_lang(file, target)
+
     cmd = ["lib/okapi/tikal.sh", "-x", file, "-sl", src, "-tl", target]
     p = subprocess.Popen(cmd, stdout = subprocess.PIPE,
 							stderr=subprocess.PIPE,
@@ -140,11 +133,11 @@ def translate(sentence, src, target, module_start, module_end, last_module, chun
   print words
   print "====="
   response = {}
-  response['sentence'] = sentence
+  response['tgt'] = sentence
   response['words'] = words
-  response = json.dumps(response)
-  response = response.replace('"', '\\"')     # Wah. 
-  print response
+  # response = json.dumps(response)
+  # response = response.replace('"', '\\"')     # Wah. 
+  # print response
   return response
 
 
@@ -154,12 +147,21 @@ def get_call_api(url):
     return response.read()
 
 def translate_po(file, src, target):
+
+    #STORE META INFO
+    meta = {}
+    meta['src_lang'] = src
+    meta['tgt_lang'] = target
+    meta['entries'] = []
+
     po = polib.pofile(file+".po")
     valid_entries = [e for e in po if not e.obsolete]
     d = []
     for entry in valid_entries:
         if entry.msgid.strip() != "":
             d.append({"src":entry.msgid,"tgt":entry.msgstr})    
+
+
 
     change_state(file, "TRANSLATING_PO_FILE")
     count = 1;
@@ -174,15 +176,22 @@ def translate_po(file, src, target):
         chunker_index = modules.index("\"chunker\"")
         chunker_module = modules[chunker_index].strip('"')  + '-' + str(chunker_index+1)
         print last_module
-
-
-        _entry['tgt'] = translate(_entry['src'], src, target, module_start, module_end, last_module, chunker_module)
+        
+        response = translate(_entry['src'], src, target, module_start, module_end, last_module, chunker_module)
+        response['src'] = _entry['src']
+        meta['entries'].append(response)
+        _entry['tgt'] = response['tgt']
         
         change_state(file, "TRANSLATING_PO_FILE:::PROGRESS:::"+str(count)+"/"+str(len(d)))
         count += 1
     change_state(file, "TRANSLATING_PO_FILE:::COMPLETE")
 
     change_state(file, "GENERATING_TRANSLATED_PO_FILE")
+
+    #SAVE META FILE
+    meta_file = open(file+'.meta', 'w')
+    meta_file.write(json.dumps(meta))
+    meta_file.close()
 
     po = polib.POFile()
     for _d in d:
@@ -199,25 +208,25 @@ def translate_po(file, src, target):
     change_state(file, "GENERATING_TRANSLATED_PO_FILE:::COMPLETE")    
 
 def process_input_file(file, src, tgt):
-    convert_html_namespace = {'Hindi' : 'hin', 'Panjabi' : 'pan', 'Urdu' : 'urd'}
-    src = convert_html_namespace[src]
-    tgt = convert_html_namespace[tgt]
-    convert_api_namespace = {'hin' : 'hi', 'pan' : 'pa', 'urd' : 'ur'}
-    src_conv = convert_api_namespace[src]
-    tgt_conv = convert_api_namespace[tgt]
+    #convert_html_namespace = {'Hindi' : 'hin', 'Panjabi' : 'pan', 'Urdu' : 'urd'}
+    src = src[:3].lower()
+    tgt = tgt[:3].lower()
+    #convert_api_namespace = {'hin' : 'hi', 'pan' : 'pa', 'urd' : 'ur'}
+    src_conv = src[:2]
+    tgt_conv = src[:2]
     print "*"*80
     print src, tgt, src_conv, tgt_conv
     print "="*80
 
-    #TOKENIZE FILE IF TXT
-    if file.split('.')[-1] == 'txt':
-        f = open(file, 'r')
-        data = f.read()
-        f.close()
-        tokenized_data = '\n'.join(tokenize(data, src, tgt))
-        f = open(file, 'w')
-        f.write(tokenized_data)
-        f.close()
+    # #TOKENIZE FILE IF TXT
+    # if file.split('.')[-1] == 'txt':
+    #     f = open(file, 'r')
+    #     data = f.read()
+    #     f.close()
+    #     tokenized_data = '\n'.join(tokenize(data, src, tgt))
+    #     f = open(file, 'w')
+    #     f.write(tokenized_data)
+    #     f.close()
 
     extract_xliff(file, src_conv, tgt_conv)
     extract_po(file)

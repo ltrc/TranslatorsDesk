@@ -5,12 +5,13 @@ $(document).ready(function(){
     console.log(window.PO_DATA);
     window.PO_DATA_WORDS1 = {}
     window.PO_DATA_WORDS2 = {}  // Source to target and vice versa
+    window.tgt_lang = PO_DATA.data.tgt_lang;
 
-    $(window.PO_DATA.data).each(function(idx, data){
+    $(window.PO_DATA.data.entries).each(function(idx, data){
 
     console.log("Helo");
 
-    data.tgt = JSON.parse(data.tgt);
+
     var CODEMIRROR_EDITOR_ID = idx+1;    
     var codemirror_menu = '<nav id="codemirror_menu_'+CODEMIRROR_EDITOR_ID+'" td-editor-id='+CODEMIRROR_EDITOR_ID+' class="navbar navbar-default codemirror_menu">\
                             <div class="container-fluid"><div class="collapse navbar-collapse" id="bs-example-navbar-collapse-1">\
@@ -31,8 +32,7 @@ $(document).ready(function(){
 
       var tgt_str_to_show = "";
       var src_str_to_show = "";
-      window.tgt_lang = data.tgt_lang;
-      $.each(data.tgt.sentence.split(' '), function(index, val) {
+      $.each(data.tgt.split(' '), function(index, val) {
         tgt_str_to_show += "<span id='"+val+"' class='tgt_word'>"+val+"</span> ";
       });
 
@@ -40,7 +40,7 @@ $(document).ready(function(){
         src_str_to_show += "<span id='"+val+"' class='src_word'>"+val+"</span> ";
       });
 
-      $.each(data.tgt.words, function(index, val) {
+      $.each(data.words, function(index, val) {
         window.PO_DATA_WORDS1[index] = val;
         window.PO_DATA_WORDS2[val] = index;
       });
@@ -55,7 +55,7 @@ $(document).ready(function(){
       console.log("Target Editor Language: " + tgtLang);
       init_editors(true, tgtLang);
       for(var i=0; i<editors.length; i++) {
-        editors[i].setValue(window.PO_DATA.data[i].tgt.sentence + "\n\n");
+        editors[i].setValue(window.PO_DATA.data.entries[i].tgt + "\n\n");
       }
 
       $('.panel-title').siblings().hide();
@@ -64,15 +64,9 @@ $(document).ready(function(){
         // console.log($(this).siblings());
         $('.panel-body').slideUp();
         $('.target-text').slideDown();
-        $(this).find('.target-text').slideToggle();
+        $(this).find('.target-text').slideUp();
         $(this).siblings().slideToggle();
-        $(this).addClass("active-title");
         }); 
-
-      $(document).click(function() {
-        $('.panel-body').slideUp();
-        $('.target-text').slideDown();
-      });
 
       $('.tgt_word').mouseover(function() {
         // console.log(this.innerHTML);
@@ -139,7 +133,7 @@ $("#download").click(function(){
   editors[parseInt($("#po-container .panel-row .codemirror_block").attr("td-editor-id")) - 1]
   $("#po-container .panel-row").each(function(){
     var src = $(this).find(".source-text").html();
-    var tgt = editors[parseInt($(this).find(".codemirror_block").attr("td-editor-id")) - 1].getValue(); // Fix this. send without span html tags
+    var tgt = editors[parseInt($(this).find(".codemirror_block").attr("td-editor-id")) - 1].getValue();
     data.push({"src":src, "tgt":tgt});
   }).promise().done(function(){
     //Data Collected !!
@@ -184,7 +178,5 @@ $('#preview').click(function() {
   $(this).fadeOut();
   $('.source-text').slideUp();
 });
-
-
 
 

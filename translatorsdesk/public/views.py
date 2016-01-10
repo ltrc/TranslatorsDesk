@@ -14,7 +14,7 @@ from translatorsdesk.database import db
 import translatorsdesk.worker_functions as worker_functions
 
 import polib
-
+import json
 import datetime, uuid, os
 
 blueprint = Blueprint('public', __name__, static_folder="../static")
@@ -96,7 +96,6 @@ def upload():
                 return jsonify({"success": False, "message": "File Type not supported yet!!"})
 
         elif raw_text:
-            print "I am in raw_text"
             _uuid = str(uuid.uuid4())
             secure_filename = "raw_text.txt"
             filepath = os.path.join(current_app.config['UPLOAD_FOLDER'],  _uuid, secure_filename)
@@ -179,23 +178,24 @@ def translate(uid, fileName):
         if fileExists(uid, fileName):
             if(fileExists(uid, fileName+".po")):
 
-                po = polib.pofile(os.path.join(current_app.config['UPLOAD_FOLDER'],  uid, fileName+".po"))
-                valid_entries = [e for e in po if not e.obsolete]
-                d = []
-                for entry in valid_entries:
-                    if entry.msgid.strip() != "":
-                        _tgt_lang = r_conn.lrange("lang_"+uid+"/"+fileName, 0, -1)
-                        d.append({"src":entry.msgid,"tgt":entry.msgstr,"tgt_lang":_tgt_lang[0]})
+                # po = polib.pofile(os.path.join(current_app.config['UPLOAD_FOLDER'],  uid, fileName+".po"))
+                # valid_entries = [e for e in po if not e.obsolete]
+                # d = []
+                # for entry in valid_entries:
+                #     if entry.msgid.strip() != "":
+                #         _tgt_lang = r_conn.lrange("lang_"+uid+"/"+fileName, 0, -1)
+                #         d.append({"src":entry.msgid,"tgt":entry.msgstr,"tgt_lang":_tgt_lang[0]})
 
-                r_conn = get_redis_connection()
+                filepath = os.path.join(current_app.config['UPLOAD_FOLDER'],  uid, fileName+".meta")
+                meta_file = open(filepath, 'r')
+                meta = json.loads(meta_file.read())
                 _status = r_conn.lrange("state_"+uid+"/"+fileName, 0, -1)
-
                 
                 return render_template('public/translate.html',\
                                     fileName=fileName,
                                     uid=uid,
                                     status = _status,
-                                    PO = {'po':True, 'data':d}
+                                    PO = {'po':True, 'data':meta}
                                     )        
             else:
                 return abort(404)
