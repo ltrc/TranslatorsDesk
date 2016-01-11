@@ -32,17 +32,17 @@ $(document).ready(function(){
 
                 var tgt_str_to_show = "";
                 var src_str_to_show = "";
-                $.each(data.tgt.split(' '), function(index, val) {
-                  tgt_str_to_show += "<span id='"+val+"' class='tgt_word'>"+val+"</span> ";
-                });
-
-                $.each(data.src.split(' '), function(index, val) {
-                  src_str_to_show += "<span id='"+val+"' class='src_word'>"+val+"</span> ";
+                $.each(data.words, function(index, val) {
+                  tgt_str_to_show += "<span id='"+val[1]+"_"+idx+"_"+index+"' class='tgt_word'>"+val[1]+"</span> ";
                 });
 
                 $.each(data.words, function(index, val) {
-                  window.PO_DATA_WORDS1[index] = val;
-                  window.PO_DATA_WORDS2[val] = index;
+                  src_str_to_show += "<span id='"+val[0]+"_"+idx+"_"+index+"' class='src_word'>"+val[0]+"</span> ";
+                });
+
+                $.each(data.words, function(index, val) {
+                  window.PO_DATA_WORDS1[val[0]+"_"+idx+"_"+index] = val[1]+"_"+idx+"_"+index;
+                  window.PO_DATA_WORDS2[val[1]+"_"+idx+"_"+index] = val[0]+"_"+idx+"_"+index;
                 });
 
                 $("#po-container").append('<div class="panel-row"><div class="panel-title"><span class="source-text">\
@@ -70,8 +70,10 @@ $(document).ready(function(){
 
                   $('.tgt_word').mouseover(function() {
                     // console.log(this.innerHTML);
-                    var word = this.innerHTML;
-                    var otherword = window.PO_DATA_WORDS1[word];
+                    var word = this.id;
+                    var otherword = window.PO_DATA_WORDS2[word];
+                    // console.log(word);
+                    // console.log(otherword);
                     // console.log(otherword);
                     $('.src_word').removeClass("highlight");
                     $('.source-text #'+otherword).addClass("highlight");
@@ -83,8 +85,10 @@ $(document).ready(function(){
 
                   $('.src_word').mouseover(function() {
                     // console.log(this.innerHTML);
-                    var word = this.innerHTML;
-                    var otherword = window.PO_DATA_WORDS2[word];
+                    var word = this.id;
+                    var otherword = window.PO_DATA_WORDS1[word];
+                    // console.log(word);
+                    // console.log(otherword);
                     // console.log(otherword);
                     $('.tgt_word').removeClass("highlight");
                     $('.target-text #'+otherword).addClass("highlight");
