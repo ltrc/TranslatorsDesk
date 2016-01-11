@@ -4,7 +4,7 @@ from redis import Redis
 
 import urllib, urllib2
 import sys
-import json
+from flask import json, jsonify
 import re
 import polib
 
@@ -77,67 +77,43 @@ def tokenize(sentence, src, target):
 
 
 def translate(sentence, src, target, module_start, module_end, last_module, chunker_module):
-  tokenize(sentence, src, target)
+
+  print "TRANSLATE ENTERED"
   SERVER="http://pipeline.ilmt.iiit.ac.in"
   URI=SERVER+"/"+src+"/"+target+"/"+module_start+"/"+module_end+"/"
+  print URI
   values = {'input' : sentence.encode('utf-8'), 'params': {}}
+  print sentence
+  print sentence.encode('utf-8')
+
   data = urllib.urlencode(values)
+  print data
   req = urllib2.Request(URI, data)
   response = urllib2.urlopen(req)
   the_page = response.read()
+  print the_page
 
   d = json.loads(the_page)
   ssf_data = ssfapi.Document(d[last_module])
-  words_dict = {}
-  sentence = []
-  try:
-      print ssf_data.nodeList
-      for tree in ssf_data.nodeList:
-        for chunk in tree.nodeList:
-            for node in chunk.nodeList:
-                words_dict[node.lex] = node.name
-                sentence.append(node.lex)
-      sentence = " ".join(sentence)
-  except:
-    sentence = []
-    for l in d[last_module].split("\n"):
-        _l = l.split("\t")
-        try:
-            if re.match('\d+.\d+', _l[0]):
-                if _l[1]!='((':
-                    sentence.append(_l[1])
-                    print "APPENDING "+_l[1]
-                    words_dict[_l[0]] = [_l[1]]
-        except:
-            pass 
-    sentence = " ".join(sentence)
-    print d.keys()
-    for l in d[chunker_module].split("\n"):
-        _l = l.split("\t")
-        try:
-            if re.match('\d+.\d+', _l[0]):
-                words_dict[_l[0]].append(_l[1])
-        except:
-            pass
-  print "THIS:" 
-  print words_dict  
+  sentence = ssf_data.nodeList[0].generateSentence()
   words = {}
-
-  for each in words_dict.keys():
-    try:                # FIX THIS
-        print each, words_dict[each]
-        words[words_dict[each][0]] = words_dict[each][1]
-    except:
-        pass
+  print sentence
+  for tree in ssf_data.nodeList:
+    for chunk in tree.nodeList:
+        for node in chunk.nodeList:
+          if type(node) is ssfapi.Node:
+            node.expand_af()
+            words[node.getAttribute('name').replace('"', '\\"')] = node.lex.replace('"', '\\"')
+          else:
+            for n in node.nodeList:
+              n.expand_af()
+              words[n.getAttribute('name').replace('"', '\\"')] = n.lex.replace('"', '\\"')
 
   print words
-  print "====="
   response = {}
-  response['tgt'] = sentence
+  response['tgt'] = sentence.replace('"', '\\"')
   response['words'] = words
-  # response = json.dumps(response)
-  # response = response.replace('"', '\\"')     # Wah. 
-  # print response
+
   return response
 
 
@@ -159,9 +135,7 @@ def translate_po(file, src, target):
     d = []
     for entry in valid_entries:
         if entry.msgid.strip() != "":
-            d.append({"src":entry.msgid,"tgt":entry.msgstr})    
-
-
+            d.append({"src":entry.msgid,"tgt":entry.msgstr})
 
     change_state(file, "TRANSLATING_PO_FILE")
     count = 1;
@@ -175,10 +149,10 @@ def translate_po(file, src, target):
         last_module = modules[-1].strip('"') + '-' + str(len(modules))
         chunker_index = modules.index("\"chunker\"")
         chunker_module = modules[chunker_index].strip('"')  + '-' + str(chunker_index+1)
-        print last_module
-        
+        print _entry['src']
         response = translate(_entry['src'], src, target, module_start, module_end, last_module, chunker_module)
-        response['src'] = _entry['src']
+        print "DONE"
+        response['src'] = _entry['src'].replace('"', '\\"')
         meta['entries'].append(response)
         _entry['tgt'] = response['tgt']
         
@@ -218,15 +192,15 @@ def process_input_file(file, src, tgt):
     print src, tgt, src_conv, tgt_conv
     print "="*80
 
-    # #TOKENIZE FILE IF TXT
-    # if file.split('.')[-1] == 'txt':
-    #     f = open(file, 'r')
-    #     data = f.read()
-    #     f.close()
-    #     tokenized_data = '\n'.join(tokenize(data, src, tgt))
-    #     f = open(file, 'w')
-    #     f.write(tokenized_data)
-    #     f.close()
+    #TOKENIZE FILE IF TXT
+    if file.split('.')[-1] == 'txt':
+        f = open(file, 'r')
+        data = f.read()
+        f.close()
+        tokenized_data = '\n'.join(tokenize(data, src, tgt))
+        f = open(file, 'w')
+        f.write(tokenized_data)
+        f.close()
 
     extract_xliff(file, src_conv, tgt_conv)
     extract_po(file)
