@@ -83,6 +83,7 @@ def translanslators_desk_get_word_suggesstion(message):
     lang = message['lang']
     # Check if its a supported language
     if lang in ['hi', 'en', 'te', 'ta', 'pa']:
+        print spellcheckers
         suggestions = spellcheckers[lang].suggest(word)
         emit("translanslators_desk_get_word_suggesstion_" \
             + hashlib.md5(word.lower()).hexdigest(), \
