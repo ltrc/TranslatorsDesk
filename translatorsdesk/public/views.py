@@ -209,14 +209,22 @@ def preview():
     uid = data['uid']
     meta = data['data']
 
+    file = os.path.join(current_app.config['UPLOAD_FOLDER'],  uid, fileName)
+    po = polib.pofile(file+".po")
+    valid_entries = [e for e in po if not e.obsolete]
+    d = []
+    for entry in valid_entries:
+        if entry.msgid.strip() != "":
+            d.append({"src":entry.msgid,"tgt":entry.msgstr})
+
     po = polib.POFile()
-    for para in meta['entries']:
-        source = []
+    i = 0
+    while i in xrange(len(meta['entries'])):
         target = []
-        for sent in para:
-            source.append(sent['src'])
+        for sent in meta['entries'][i]:
             target.append(sent['tgt'])
-        _msgid = ' '.join(source)
+
+        _msgid = d[i]['src']
         _msgstr = ' '.join(target)
 
         entry = polib.POEntry(
@@ -224,11 +232,11 @@ def preview():
             msgstr=unicode(_msgstr),
         )
         po.append(entry)
-    print data
-    po.save(os.path.join(current_app.config['UPLOAD_FOLDER'],  uid, fileName+".updated.po"))
+        i += 1
 
-    filepath = os.path.join(current_app.config['UPLOAD_FOLDER'],  uid, fileName)
-    job = q.enqueue_call(func=worker_functions.generateOutputFile, args=(filepath, meta))
+    po.save(file+".updated.po")
+
+    job = q.enqueue_call(func=worker_functions.generateOutputFile, args=(file, meta))
 
     return "#";
 

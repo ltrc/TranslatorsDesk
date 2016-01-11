@@ -155,7 +155,9 @@ $("#download").click(function(){
     var _D = {};
     _D.uid = window.uid;
     _D.fileName = window.fileName;
-    _D.data = data;
+    // _D.data = data;
+    _D.data = window.PO_DATA["data"];
+
     console.log(data);
     $.ajax({
       type: "POST",
@@ -164,7 +166,7 @@ $("#download").click(function(){
       data: JSON.stringify(_D),
       complete: function (data) {
         // window.open(data.responseText);
-       // downloadURI(data.responseText);
+       downloadURI(data.responseText);
       },
       dataType: "json"
     });

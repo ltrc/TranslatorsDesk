@@ -1,10 +1,10 @@
 import subprocess
 from rq import Queue
 from redis import Redis
+from flask import json, jsonify
 
 import urllib, urllib2
 import sys
-from flask import json, jsonify
 import re
 import polib
 import os
@@ -36,9 +36,8 @@ def change_state(file, state):
 
 def save_text_file(file, data):
     change_state(file,"SAVING_TEXT_FILE")
-    
-    f = open(filepath, 'w')
-    f.write(raw_text)
+    f = open(file, 'w')
+    f.write(data)
     f.close()
     change_state(file,"SAVING_TEXT_FILE:::COMPLETE")
 
@@ -65,11 +64,6 @@ def extract_po(file):
 
 
 def tokenize(sentence, src, target):
-  '''
-    WARNING: THIS CHANGES THE INPUT FILE
-    PARAGRAPHS ARE LOST!!!
-    tokenize sentences using the first module
-  '''
   SERVER="http://api.ilmt.iiit.ac.in"
   TOKENIZER_URI = SERVER+"/"+src+"/"+target+"/1/1/"
   values = {'input' : sentence.encode('utf-8'), 'params': {}}
@@ -193,7 +187,7 @@ def process_input_file(file, src, tgt):
     tgt = tgt[:3].lower()
     #convert_api_namespace = {'hin' : 'hi', 'pan' : 'pa', 'urd' : 'ur'}
     src_conv = src[:2]
-    tgt_conv = src[:2]
+    tgt_conv = tgt[:2]
     print "*"*80
     print src, tgt, src_conv, tgt_conv
     print "="*80
@@ -225,7 +219,7 @@ def newFilePath(fileName):
 def mergePOFileWithXLF(file):
     change_state(file,"MERGING_PO_WITH_XLIFF")    
 	#Merge PO file onto XLIFF File
-    cmd = ["pomerge", "-i", file+".updated.po", "-t", file+".xlf", "-o", file+".xlf.new"]
+    cmd = ["pomerge", "-i"+file+".updated.po", "-t"+file+".xlf", "-o"+file+".xlf.new"]
     p = subprocess.Popen(cmd, stdout = subprocess.PIPE,
                             stderr=subprocess.PIPE,
                             stdin=subprocess.PIPE)
@@ -292,7 +286,7 @@ def generateOutputFile(file, meta):
     f = open(file+'.meta', 'w')
     f.write(json.dumps(meta))
     f.close()
-    
+
     mergePOFileWithXLF(file)
     takeBackupOfOldXLFFile(file)
     moveNewXLFToCorrectLocation(file)
