@@ -4,12 +4,18 @@
 
 /* universal */
 
+@font-face {
+  font-family: myriadL;
+  src: url('../fonts/fonts/myriadpro.ttf');
+}
+
 html {
   overflow-y: scroll;
 }
 
 body {
   padding-top: 60px;
+  font-family: myriadL;
 }
 
 section {
@@ -56,18 +62,19 @@ div {
 
 footer {
   margin-top: 45px;
-  padding-top: 5px;
-  border-top: 1px solid #eaeaea;
-  color: #999999;
+  padding-top: 10px;
+  border-top: 2px solid black;
+  color: black;
   position: fixed;
   bottom: 0px;
   width: 100%;
   z-index: 99;
+  font-size: 1.2em;
   background-color: white;
 }
 
 footer a {
-  color: #999999;
+  color: black;
 }
 
 footer p {
@@ -86,12 +93,12 @@ footer ul li {
 
 footer .company {
   float: left;
-  margin-left: 25px;
+  margin-left: 5%;
 }
 
 footer .footer-nav {
   float: right;
-  margin-right: 25px;
+  margin-right: 5%;
   list-style: none;
 }
 
@@ -101,4 +108,8 @@ footer .footer-nav {
 
 #po-container .row {
   padding-top : 8px;
+}
+
+p {
+  font-size: 1.4em;
 }
