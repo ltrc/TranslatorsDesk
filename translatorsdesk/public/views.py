@@ -101,11 +101,7 @@ def upload():
             filepath = os.path.join(current_app.config['UPLOAD_FOLDER'],  _uuid, secure_filename)
             if not os.path.exists(os.path.dirname(filepath)):
                 os.makedirs(os.path.dirname(filepath))
-            print "Made dir"
-            f = open(filepath, 'w')
-            f.write(raw_text)
-            f.close()
-            print "made file"
+            job = q.enqueue_call(func=worker_functions.save_text_file, args=(filepath, raw_text))
         
         if file or raw_text:
             ## Add Job to Queue
@@ -178,14 +174,6 @@ def translate(uid, fileName):
         if fileExists(uid, fileName):
             if(fileExists(uid, fileName+".po")):
 
-                # po = polib.pofile(os.path.join(current_app.config['UPLOAD_FOLDER'],  uid, fileName+".po"))
-                # valid_entries = [e for e in po if not e.obsolete]
-                # d = []
-                # for entry in valid_entries:
-                #     if entry.msgid.strip() != "":
-                #         _tgt_lang = r_conn.lrange("lang_"+uid+"/"+fileName, 0, -1)
-                #         d.append({"src":entry.msgid,"tgt":entry.msgstr,"tgt_lang":_tgt_lang[0]})
-
                 filepath = os.path.join(current_app.config['UPLOAD_FOLDER'],  uid, fileName+".meta")
                 meta_file = open(filepath, 'r')
                 meta = json.loads(meta_file.read())
@@ -219,11 +207,17 @@ def preview():
     data = request.json
     fileName = data['fileName']
     uid = data['uid']
+    meta = data['data']
 
     po = polib.POFile()
-    for _d in data['data']:
-        _msgid = _d['src'].strip()
-        _msgstr = _d['tgt'].strip()
+    for para in meta['entries']:
+        source = []
+        target = []
+        for sent in para:
+            source.append(sent['src'])
+            target.append(sent['tgt'])
+        _msgid = ' '.join(source)
+        _msgstr = ' '.join(target)
 
         entry = polib.POEntry(
             msgid=unicode(_msgid),
@@ -234,7 +228,7 @@ def preview():
     po.save(os.path.join(current_app.config['UPLOAD_FOLDER'],  uid, fileName+".updated.po"))
 
     filepath = os.path.join(current_app.config['UPLOAD_FOLDER'],  uid, fileName)
-    job = q.enqueue_call(func=worker_functions.generateOutputFile, args=(filepath,))
+    job = q.enqueue_call(func=worker_functions.generateOutputFile, args=(filepath, meta))
 
     return "#";
 

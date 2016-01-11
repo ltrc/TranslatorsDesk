@@ -34,6 +34,14 @@ def change_state(file, state):
 #=================================================================
 # Process Input File
 
+def save_text_file(file, data):
+    change_state(file,"SAVING_TEXT_FILE")
+    
+    f = open(filepath, 'w')
+    f.write(raw_text)
+    f.close()
+    change_state(file,"SAVING_TEXT_FILE:::COMPLETE")
+
 def extract_xliff(file, src, target):
     change_state(file,"EXTRACTING_XLIFF")
 
@@ -76,30 +84,22 @@ def tokenize(sentence, src, target):
     sentences.append(tree.generateSentence())
   return sentences
 
-
-
 def translate(sentence, src, target, module_start, module_end, last_module, chunker_module):
 
   print "TRANSLATE ENTERED"
   SERVER="http://api.ilmt.iiit.ac.in"
   URI=SERVER+"/"+src+"/"+target+"/"+module_start+"/"+module_end+"/"
-  print URI
   values = {'input' : sentence.encode('utf-8'), 'params': {}}
-  print sentence
-  print sentence.encode('utf-8')
 
   data = urllib.urlencode(values)
-  print data
   req = urllib2.Request(URI, data)
   response = urllib2.urlopen(req)
   the_page = response.read()
-  print the_page
 
   d = json.loads(the_page)
   ssf_data = ssfapi.Document(d[last_module])
   sentence = ssf_data.nodeList[0].generateSentence()
   words = []
-  print sentence
   for tree in ssf_data.nodeList:
     for chunk in tree.nodeList:
         for node in chunk.nodeList:
@@ -111,7 +111,6 @@ def translate(sentence, src, target, module_start, module_end, last_module, chun
               n.expand_af()
               words.append([n.getAttribute('name').replace('"', '\\"'), n.lex.replace('"', '\\"')])
 
-  print words
   response = {}
   response['tgt'] = sentence.replace('"', '\\"')
   response['words'] = words
@@ -147,19 +146,24 @@ def translate_po(file, src, target):
         module_end = get_call_api(SERVER+"/"+src+"/"+target+"/")
         modules = get_call_api(SERVER+"/"+src+"/"+target+"/modules/")
         modules = modules.strip('[').strip(']').split(',')
-        print modules
         last_module = modules[-1].strip('"') + '-' + str(len(modules))
         chunker_index = modules.index("\"chunker\"")
         chunker_module = modules[chunker_index].strip('"')  + '-' + str(chunker_index+1)
-        print _entry['src']
-        response = translate(_entry['src'], src, target, module_start, module_end, last_module, chunker_module)
-        print "DONE"
-        response['src'] = _entry['src'].replace('"', '\\"')
-        meta['entries'].append(response)
-        _entry['tgt'] = response['tgt']
+
+        sents = tokenize(_entry['src'], src, target)
+        para = []
+        final = []
+        for sent in sents:
+          response = translate(sent, src, target, module_start, module_end, last_module, chunker_module)
+          response['src'] = sent.replace('"', '\\"')
+          para.append(response)
+          final.append(response['tgt'])
+        meta['entries'].append(para)
+        _entry['tgt'] = ' '.join(final)
         
         change_state(file, "TRANSLATING_PO_FILE:::PROGRESS:::"+str(count)+"/"+str(len(d)))
         count += 1
+
     change_state(file, "TRANSLATING_PO_FILE:::COMPLETE")
 
     change_state(file, "GENERATING_TRANSLATED_PO_FILE")
@@ -193,16 +197,6 @@ def process_input_file(file, src, tgt):
     print "*"*80
     print src, tgt, src_conv, tgt_conv
     print "="*80
-
-    #TOKENIZE FILE IF TXT
-    if file.split('.')[-1] == 'txt':
-        f = open(file, 'r')
-        data = f.read()
-        f.close()
-        tokenized_data = '\n'.join(tokenize(data, src, tgt))
-        f = open(file, 'w')
-        f.write(tokenized_data)
-        f.close()
 
     extract_xliff(file, src_conv, tgt_conv)
     extract_po(file)
@@ -290,11 +284,15 @@ def mergeTranslatedXLFFileWithDocument(file):
     change_state(file,"MERGE_TRANSLATED_XLIFF_FILE:::COMPLETE")
 
 
-def generateOutputFile(file): 
+def generateOutputFile(file, meta): 
 	# file : fullpath of the file
 
     change_state(file, "BEGIN_PROCESSING_OF_FILE")
 
+    f = open(file+'.meta', 'w')
+    f.write(json.dumps(meta))
+    f.close()
+    
     mergePOFileWithXLF(file)
     takeBackupOfOldXLFFile(file)
     moveNewXLFToCorrectLocation(file)
