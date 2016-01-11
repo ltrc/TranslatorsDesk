@@ -67,7 +67,7 @@ class Node(object):
         if key in self.__attributes:
             return self.__attributes[key]
         else:
-            return None
+            return ''
 
     def addAttribute(self, key, value):
         self.__attributes[key] = value

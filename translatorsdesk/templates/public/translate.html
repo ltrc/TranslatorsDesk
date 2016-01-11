@@ -38,7 +38,7 @@
     </div>
   {% else %}
       <script type="text/javascript">
-          var PO_DATA = '{{ PO | tojson }}';
+          var PO_DATA = '{{ PO | tojson | safe }}';
     </script>
       <div id="po-container" class="container">
      <!--  <div class="row thead" style="background-color: rgba(0,0,0,0.8);">
