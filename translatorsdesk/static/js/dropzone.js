@@ -53,12 +53,12 @@ $(function(){
       }
 
       $('#submit_raw').click(function() {
-        console.log("HI");
-        console.log(document.getElementById('raw_text').value);
+        console.log(editors[0].getValue());
+        console.log(editors[0].getValue());
         $.ajax({
           url: "/upload",
           method: "POST",
-          data: { raw_text: $('#raw_text').val(), src: $("#sourceLanguage").text(), tgt: $("#targetLanguage").text()  },
+          data: { raw_text: editors[0].getValue(), src: $("#sourceLanguage").text(), tgt: $("#targetLanguage").text()  },
           async: true, 
           success: function(_response) {
             console.log(_response);

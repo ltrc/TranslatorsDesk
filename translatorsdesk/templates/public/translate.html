@@ -18,17 +18,22 @@
   {% if not (status.__len__() >0 and (status[0]=="GENERATING_TRANSLATED_PO_FILE:::COMPLETE" or status[0].startswith("OUTPUT_FILE_GENERATED") )) %}
     <div id="loading-div" class="row">
         <center>
-        <i class="fa fa-refresh fa-spin fa-5x" style="font-size: 20em;"></i>
-        <br/>
+        <!-- <i class="fa fa-refresh fa-spin fa-5x" style="font-size: 20em;"></i> -->
+        <br />
+        <br />
+        <br />
+        <div class="circle"></div>
+        <br/><br /><br />
+        <h2 id="translation_status"></h2>
         </center>
         
-          <ul>
+          <!-- <ul>
           {% for _item in status: %}
             <li>{{_item}}</li>
           {% endfor %}
-          </ul>
+          </ul> -->
         <script type="text/javascript">
-            setTimeout(function () { location.reload(1); }, 2000);
+            // setTimeout(function () { location.reload(1); }, 2000);
         </script>
     </div>
   {% else %}
@@ -54,6 +59,7 @@
 <script type="text/javascript">
   window.uid = '{{uid}}';
   window.fileName = '{{fileName}}';
+  window.translationStatus = '{{status[0]}}';
 </script>
 {% endblock %}
 

@@ -1,6 +1,10 @@
 .CodeMirror {
   font-size: 16px;
-  height: auto;
+  /*height: auto;*/
+  border: 2px solid black;
+}
+.raw_text {
+	height: 200px;
 }
 .codemirror_menu {
   margin-bottom: 0px;
@@ -99,10 +103,10 @@
 
 
 .panel-title .source-text {
-  color:red;
+  color:rgba(0,0,0,0.5);
 }
 .panel-title .target-text {
-  color: green;
+  color: rgba(0,0,0,1);
 }
 
 .panel-title:hover {
@@ -120,7 +124,7 @@
 
 .panel-title .target-text {
 	display: block;
-	font-size: 1.4em;
+	font-size: 1.3em;
 }
 
 .panel-title {

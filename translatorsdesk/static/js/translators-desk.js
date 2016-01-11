@@ -6,6 +6,7 @@ var editors = [];
 var currentEditor = null;
 var TranslatorsDeskGlobals = {}
 var LangPairs = {}
+var currentTranslationStatus = "";
 var LangFormatMapping = {
 	"hin": "Hindi", 
 	"pan": "Panjabi",
@@ -53,8 +54,7 @@ $(".codemirror_block").each(function(){
 	var editor = CodeMirror($(this)[0], {
 	  value: "",
 	  mode: "simple",
-	  theme: 'ambiance',
-	  viewportMargin: Infinity,
+	  viewportMargin: 10,
 	  lineNumbers: true,
 	  lineWrapping: true,
 	  styleSelectedText: true,
@@ -482,7 +482,11 @@ function set_editor_input_method(editor, input_method){
  */
 function get_editor_language_menu(editor){
 	var editor_id = get_editor_id(editor);
+	// if (editor_id == 0) {
+		// return $('#src_selector');
+	// }
 	return $("#codemirror_menu_"+editor_id).find(".translators_desk_language_list");
+
 }
 
 /**
@@ -770,7 +774,7 @@ function init_editors(redoGetEditors, lang) {
 		setupInputMethods(editor,
 									{
 										defaultLanguage: lang,			// TODO: Put target language here programatically. 
-										// defaultIM: "ur-phonetic",
+										defaultIM: "hi-phonetic",
 										// languages: ['en','hi','pa', 'te', 'ta', 'ur']
 										languages: ['en','hi','pa', 'te', 'ta', 'ur']
 									}
@@ -792,6 +796,9 @@ function getLangPairs(response) {
 		  // selText = LangFormatMapping[selText];
 		  console.log(selText);
 		  $('#sourceLanguage').html(selText+'<span class="caret"></span>');
+			// set_editor_language(editors[0], selText[0].toLowerCase()+selText[1]);
+
+
 		  $('#tgt_selector').html("");
 
 		  $.each(LangPairs[selText], function(key, val) {
@@ -808,16 +815,47 @@ function getLangPairs(response) {
 		
 }
 
+function verifyFileStateChange(result) {
+	if (window.translationStatus!='GENERATING_TRANSLATED_PO_FILE:::COMPLETE' && !window.translationStatus.startsWith('OUTPUT_FILE_GENERATED')) {
+		fileStateChange(result);
+	}
+}
+
+function fileStateChange(result) {
+	console.log(result[0]);
+	
+	// if (currentTranslationStatus!=result[0]) {
+		currentTranslationStatus = result[0];
+		$('#translation_status').text(currentTranslationStatus);
+	// }
+
+	if (result[0]!='GENERATING_TRANSLATED_PO_FILE:::COMPLETE' && !result[0].startsWith('OUTPUT_FILE_GENERATED')) {
+	    socket.emit('translators_desk_check_file_state', {uid: window.uid, fileName: window.fileName});	
+	}
+	else {
+		window.location.reload();
+	}
+}
+
+
 $(document).ready(function(){
+    $('<div id="codemirror_block_1" td-editor-id=1 class="codemirror_block raw_text"></div>').insertAfter('#translators-desk-dropzone');
 	get_editors_on_page();
 	console.log('Initializing socket IO');
 	setupSocketIO();
 	if(editors.length > 0){
-		init_editors(false, "pa");
+		init_editors(false, "hi");
 	}
 	socket.emit("translators_desk_get_lang_pairs");
 	socket.on("translators_desk_get_lang_pairs_response", getLangPairs);
 
+	if (window.uid) {
+	    socket.emit('translators_desk_check_file_state', {uid: window.uid, fileName: window.fileName});
+	    socket.on('translators_desk_file_state_change', verifyFileStateChange);		
+	}
+
+	// get_editor_textarea(editors[0]).attr("placeholder", "Type your answer here");
+	// editors[0].setPlaceholder("hi");
 	// TODO: This block ideally doesnt belong here, as it is 
 	// not specific to individual CodeMirror instances
 	// $('#intermediate_results #sentence_selector').change(function() {
