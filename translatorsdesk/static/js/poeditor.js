@@ -169,6 +169,8 @@ $("#download").click(function(){
       })
     }
     window.downloadCheck = setInterval( checkForLink, 1000);
+
+
   })
 
 

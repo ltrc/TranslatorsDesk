@@ -6,7 +6,9 @@
       <div class="container">
         <center>
         <h1>Welcome to Translators Desk</h1>
+        <p class="subheading">An opensource tool to help translators be more efficient at what they do.</p>
         </center>
+        <br />
       </div>
     </div>
     <br/>
@@ -14,7 +16,7 @@
       <div class="col-md-4">
       </div>
       <div class="col-md-4">
-        <div class="col-md-5">
+        <div class="col-xs-4" style="text-align: right;">
         <div class="dropdown">
           <button class="btn btn-default dropdown-toggle" type="button" id="sourceLanguage" data-toggle="dropdown" aria-haspopup="true" aria-expanded="true">
             Source Language
@@ -24,12 +26,13 @@
           </ul>
         </div>        
         </div>
-        <div class="col-md-2">
+        <div class="col-xs-4">
           <center>
-          <i class="fa fa-arrow-right fa-2x" style="margin-left:20px;"></i>
+          <!-- <i class="fa fa-arrow-right fa-2x" style="margin-left:20px; display: inline-block;"></i> -->
+          <i class="fa fa-long-arrow-right fa-4x" style="margin-left:20px; padding-left: 20px; padding-right: 20px; margin-right: 20px;"></i>
           </center>
         </div>
-        <div class="col-md-5">
+        <div class="col-xs-4" style="text-align: left;">
         <div class="dropdown">
           <button class="btn btn-default dropdown-toggle" type="button" id="targetLanguage" data-toggle="dropdown" aria-haspopup="true" aria-expanded="true">
             Target Language
@@ -41,12 +44,12 @@
         </div>
 
       </div>
-      <div class="col-md-4">
+      <div class="col-md-6">
       </div>
     </div>
     <br/>
     <form id="translators-desk-dropzone" action="/upload-target" class="dropzone file-group"></form>
-    <textarea id="raw_text" style="width: 100%;" class="raw-group" placeholder="Paste the text you want to translate here."></textarea>
+    <!-- <textarea id="raw_text" style="width: 100%;" class="raw-group" placeholder="Paste the text you want to translate here."></textarea> -->
 
     <div id="actions" class="row file-group">
         <!-- The fileinput-button span is used to style the file input field as button -->

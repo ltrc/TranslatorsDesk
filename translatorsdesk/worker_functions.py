@@ -7,9 +7,10 @@ import sys
 from flask import json, jsonify
 import re
 import polib
-
+import os
 import ssfapi
-
+from flask.ext.socketio import SocketIO, emit, join_room, leave_room, \
+    close_room, disconnect
 reload(sys)
 sys.setdefaultencoding('utf8')
 
@@ -18,16 +19,17 @@ sys.setdefaultencoding('utf8')
 redis_conn = Redis()
 q = Queue(connection=redis_conn)
 
-
 def get_redis_connection():
     return Redis()
 
 def change_state(file, state):
     print "="*80, state
+
     r_conn = get_redis_connection()
     u_file = "/".join(file.split("/")[-2:])
 
     r_conn.lpush("state_"+u_file, state)
+
 
 #=================================================================
 # Process Input File

@@ -22,6 +22,8 @@ import urllib, urllib2
 import json
 import logging
 logging.basicConfig()
+from rq import Queue
+from redis import Redis
 
 if os.environ.get("TRANSLATORSDESK_ENV") == 'prod':
     app = create_app(ProdConfig)
@@ -32,10 +34,21 @@ socketio = SocketIO(app)
 HERE = os.path.abspath(os.path.dirname(__file__))
 TEST_PATH = os.path.join(HERE, 'tests')
 
+
+
+
 """
     Handles Socket.IO events 
     TODO : Move this block of code to a more appropriate location
 """
+
+@socketio.on('translators_desk_check_file_state', namespace='/td')
+def translators_desk_check_file_state(message):
+    r_conn = Redis()
+    uid = message["uid"]
+    fileName = message["fileName"]
+    _status = r_conn.lrange("state_"+uid+"/"+fileName, 0, -1)
+    emit('translators_desk_file_state_change', _status)
 
 @socketio.on('translators_desk_get_lang_pairs', namespace='/td')
 def translators_desk_get_lang_pairs():
@@ -70,6 +83,7 @@ def translanslators_desk_get_word_suggesstion(message):
     lang = message['lang']
     # Check if its a supported language
     if lang in ['hi', 'en', 'te', 'ta', 'pa']:
+        print spellcheckers
         suggestions = spellcheckers[lang].suggest(word)
         emit("translanslators_desk_get_word_suggesstion_" \
             + hashlib.md5(word.lower()).hexdigest(), \

@@ -4,12 +4,19 @@
 
 /* universal */
 
+@font-face {
+  font-family: myriadL;
+  src: url('../fonts/myriadpro.ttf');
+}
+
 html {
   overflow-y: scroll;
 }
 
 body {
   padding-top: 60px;
+  font-family: myriadL;
+  background: url('../img/bgtile.png');
 }
 
 section {
@@ -56,18 +63,19 @@ div {
 
 footer {
   margin-top: 45px;
-  padding-top: 5px;
-  border-top: 1px solid #eaeaea;
-  color: #999999;
+  padding-top: 10px;
+  border-top: 2px solid black;
+  color: black;
   position: fixed;
   bottom: 0px;
   width: 100%;
   z-index: 99;
+  font-size: 1.2em;
   background-color: white;
 }
 
 footer a {
-  color: #999999;
+  color: black;
 }
 
 footer p {
@@ -86,12 +94,12 @@ footer ul li {
 
 footer .company {
   float: left;
-  margin-left: 25px;
+  margin-left: 5%;
 }
 
 footer .footer-nav {
   float: right;
-  margin-right: 25px;
+  margin-right: 5%;
   list-style: none;
 }
 
@@ -102,3 +110,93 @@ footer .footer-nav {
 #po-container .row {
   padding-top : 8px;
 }
+
+p.subheading {
+  font-size: 1.2em;
+  color: rgba(0,0,0,0.5);
+}
+
+.dropdown {
+   display: inline-block;
+}
+
+.fa {
+    display:inline-block;
+    line-height: 40px;
+    text-align: center;
+    vertical-align: bottom;
+}
+
+/* Animation for translate page begins */
+
+.circle {
+    background-color: rgba(255,255,255,1);
+    border: 3px solid rgba(0,0,0,0.9);
+    border-right: 3px solid rgba(0,0,0,0);
+    border-left: 3px solid rgba(0,0,0,0);
+    border-radius: 50px;
+    box-shadow: 0 0 10px black;
+    width: 150px;
+    height: 150px;
+    margin: 0 auto;
+    -moz-animation: spinPulse 1s infinite ease-in-out;
+    -webkit-animation: spinPulse 1s infinite linear;
+}
+
+@-moz-keyframes spinPulse {
+    0% {
+        -moz-transform: rotate(160deg);
+        opacity: 0;
+        box-shadow: 0 0 1px black;
+    }
+
+    50% {
+        -moz-transform: rotate(145deg);
+        opacity: 1;
+    }
+
+    100% {
+        -moz-transform: rotate(-320deg);
+        opacity: 0;
+    };
+}
+
+@-moz-keyframes spinoffPulse {
+    0% {
+        -moz-transform: rotate(0deg);
+    }
+
+    100% {
+        -moz-transform: rotate(360deg);
+    };
+}
+
+@-webkit-keyframes spinPulse {
+    0% {
+        -webkit-transform: rotate(160deg);
+        opacity: 0;
+        box-shadow: 0 0 1px black;
+    }
+
+    50% {
+        -webkit-transform: rotate(145deg);
+        opacity: 1;
+    }
+
+    100% {
+        -webkit-transform: rotate(-320deg);
+        opacity: 0;
+    };
+}
+
+@-webkit-keyframes spinoffPulse {
+    0% {
+        -webkit-transform: rotate(0deg);
+    }
+
+    100% {
+        -webkit-transform: rotate(360deg);
+    };
+}
+
+/* Animation for translate page ends */

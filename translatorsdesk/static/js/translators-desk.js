@@ -6,6 +6,7 @@ var editors = [];
 var currentEditor = null;
 var TranslatorsDeskGlobals = {}
 var LangPairs = {}
+var currentTranslationStatus = "";
 var LangFormatMapping = {
 	"hin": "Hindi", 
 	"pan": "Panjabi",
@@ -53,8 +54,7 @@ $(".codemirror_block").each(function(){
 	var editor = CodeMirror($(this)[0], {
 	  value: "",
 	  mode: "simple",
-	  theme: 'ambiance',
-	  viewportMargin: Infinity,
+	  viewportMargin: 10,
 	  lineNumbers: true,
 	  lineWrapping: true,
 	  styleSelectedText: true,
@@ -89,7 +89,7 @@ var editor_word_length_query_threshold;
  * Instantiates Translators Desk Word Suggesstion 
  */
 CodeMirror.commands.translators_desk_aspell = function(editor) {
-	editor_word_length_query_threshold = TranslatorsDeskGlobals.word_length_query_threshold[get_editor_language_menu(editor).val()]
+	editor_word_length_query_threshold = TranslatorsDeskGlobals.word_length_query_threshold[get_editor_language(editor)]
 
 	editor.currentWord = editor.getCurrentWord();
 	editor.currentWordRange = editor.getCurrentWordRange();
@@ -98,7 +98,7 @@ CodeMirror.commands.translators_desk_aspell = function(editor) {
 		socket.emit("translanslators_desk_get_word_suggesstion", 
 					{
 						data: editor.currentWord, 
-						lang: get_editor_language_menu(editors[0]).val()
+						lang: get_editor_language(editor)
 					})
 
 		var socket_response_listener = function(data){	
@@ -371,7 +371,7 @@ CodeMirror.prototype.markSpellingMistakes = function(){
 	words = words.match(/\S+\s*/g);
 	socket.emit('spell_check_cache_query', {
 		data : JSON.stringify(words),
-		lang: get_editor_language_menu(this).val()
+		lang: get_editor_language(this)
 	});
 }
 
@@ -477,52 +477,61 @@ function set_editor_input_method(editor, input_method){
 	get_editor_ime_selector(editor).selectIM(input_method);
 }
 
-/**
- * Returns the language list select object
- */
-function get_editor_language_menu(editor){
-	var editor_id = get_editor_id(editor);
-	return $("#codemirror_menu_"+editor_id).find(".translators_desk_language_list");
+// /**
+//  * Returns the language list select object
+//  */
+// function get_editor_language_menu(editor){
+// 	var editor_id = get_editor_id(editor);
+// 	// if (editor_id == 0) {
+// 		// return $('#src_selector');
+// 	// }
+// 	return $("#codemirror_menu_"+editor_id).find(".translators_desk_language_list");
+
+// }
+
+
+function get_editor_language(editor) {
+	return $('#sourceLanguage').text()[0].toLowerCase()+$('#sourceLanguage').text()[1];
 }
 
-/**
- * Returns the TARGET language list select object 
- */
-function get_target_language(editor){
-	var editor_id = get_editor_id(editor);
-	return $("#codemirror_menu_"+editor_id).find(".translators_desk_language_list_target");
-}
+// /**
+//  * Returns the TARGET language list select object 
+//  */
+// function get_target_language(editor){
+// 	var editor_id = get_editor_id(editor);
+// 	return $("#codemirror_menu_"+editor_id).find(".translators_desk_language_list_target");
+// }
 
 /**
  * builds and renders the language list corresponding to an editor instance and the given options
  */
-function build_language_list_menu(editor, options){
-	console.log("Building language list menu");
+// function build_language_list_menu(editor, options){
+// 	console.log("Building language list menu");
 
-	$.each($.ime.languages, function(key, value){
-		if(options.languages){
-			//If a default list of languages is submitted, then render only those
-			if(options.languages.indexOf(key) != -1){
-				$('<option>').val(key).text(value.autonym).appendTo(get_editor_language_menu(editor));
-				// $('<option>').val(key).text(value.autonym).appendTo(get_target_language(editor)); TODO: Use this to populate target language select
+// 	$.each($.ime.languages, function(key, value){
+// 		if(options.languages){
+// 			//If a default list of languages is submitted, then render only those
+// 			if(options.languages.indexOf(key) != -1){
+// 				$('<option>').val(key).text(value.autonym).appendTo(get_editor_language_menu(editor));
+// 				// $('<option>').val(key).text(value.autonym).appendTo(get_target_language(editor)); TODO: Use this to populate target language select
 
-			} 
-		}else{
-			//If a default list of languages is not submitted, then render all the available languages
-			$('<option>').val(key).text(value.autonym).appendTo(get_editor_language_menu(editor));
-			// $('<option>').val(key).text(value.autonym).appendTo(get_target_language(editor)); TODO: See last^
+// 			} 
+// 		}else{
+// 			//If a default list of languages is not submitted, then render all the available languages
+// 			$('<option>').val(key).text(value.autonym).appendTo(get_editor_language_menu(editor));
+// 			// $('<option>').val(key).text(value.autonym).appendTo(get_target_language(editor)); TODO: See last^
 
-		}
-	})
-	$(".translators_desk_language_list").change(function(){
-		console.log($(this).val());
-		set_editor_language(get_corresponding_editor_from_menu_item($(this)), $(this).val());
-	});
-	// $(".translators_desk_language_list_target").change(function(){	TODO: Use this to change the language in editor 2, the target language editor.
-	// 	console.log($(this).val());
-	// 	set_editor_language(editors[1], $(this).val());
-	// });
-}
+// 		}
+// 	})
+// 	$(".translators_desk_language_list").change(function(){
+// 		console.log($(this).val());
+// 		set_editor_language(get_corresponding_editor_from_menu_item($(this)), $(this).val());
+// 	});
+// 	// $(".translators_desk_language_list_target").change(function(){	TODO: Use this to change the language in editor 2, the target language editor.
+// 	// 	console.log($(this).val());
+// 	// 	set_editor_language(editors[1], $(this).val());
+// 	// });
+// }
 
 /**
  * Holds the default input methods for supported languages
@@ -548,7 +557,7 @@ TranslatorsDeskGlobals.default_input_methods = function(language){
  * Instantiates jquery.ime for regional language inputs
  */
 function setupInputMethods(editor, options){
-	build_language_list_menu(editor, options)
+	// build_language_list_menu(editor, options)
 	if(!options.imePath){
 		options.imePath = "/static/libs/jquery.ime/";
 	}
@@ -559,7 +568,7 @@ function setupInputMethods(editor, options){
 	});
 	if(options.defaultLanguage){
 		set_editor_language(editor, options.defaultLanguage);
-		get_editor_language_menu(editor).val(options.defaultLanguage);
+		// get_editor_language_menu(editor).val(options.defaultLanguage);
 
 		if(options.defaultIM){
 			set_editor_input_method(editor, options.defaultIM);
@@ -692,41 +701,41 @@ function generateResultSentence(result, line_number) {
 }
 
 
-/**
- * Fetches the translation for one particular sentence using socket.
- */
-function fetchTranslation(sentence, src, tgt, start, end, type) {
-	if (type == "full") {
-		$('#intermediate_results #sentence_selector').append("<option>"+GLOBAL_sentence_id+": "+sentence.substring(0,60)+" ...</option>");
-	}
+// /**
+//  * Fetches the translation for one particular sentence using socket.
+//  */
+// function fetchTranslation(sentence, src, tgt, start, end, type) {
+// 	if (type == "full") {
+// 		$('#intermediate_results #sentence_selector').append("<option>"+GLOBAL_sentence_id+": "+sentence.substring(0,60)+" ...</option>");
+// 	}
 
-	socket.emit("translators_desk_get_translation_query", {
-			data: sentence,
-			src: get_editor_language_menu(editors[0]).val(),
-			tgt: get_target_language(editors[0]).val(), // TODO: Fix this hardcoded value. 
-			start: start, 
-			end: end,
-			type: type, 
-			sentence_id: GLOBAL_sentence_id
-	});
-}
+// 	socket.emit("translators_desk_get_translation_query", {
+// 			data: sentence,
+// 			src: get_editor_language_menu(editors[0]).val(),
+// 			tgt: get_target_language(editors[0]).val(), // TODO: Fix this hardcoded value. 
+// 			start: start, 
+// 			end: end,
+// 			type: type, 
+// 			sentence_id: GLOBAL_sentence_id
+// 	});
+// }
 
-/**
- * Splits the source text into sentences so they can be translated one by one by fetchTranslation.
- */
-function getSourceSentences(editor) {
-    var sentences = editor.getValue().replace(/(\r\n|\n|\r)/gm,"").split('।');
-	editors[0].setValue("");
+// /**
+//  * Splits the source text into sentences so they can be translated one by one by fetchTranslation.
+//  */
+// function getSourceSentences(editor) {
+//     var sentences = editor.getValue().replace(/(\r\n|\n|\r)/gm,"").split('।');
+// 	editors[0].setValue("");
 
-    for (i = 0; i < sentences.length; i++) {
-        sentences[i] = sentences[i].trim();
-        if (sentences[i].length > 0) {
-    		editors[0].replaceRange(sentences[i]+"\n", {line: Infinity});
-    		GLOBAL_sentence_id = i;
-            fetchTranslation(sentences[i], "hin", "pan", 1, 23, "full"); //TODO: Fix this hardcoded value. 
-        }
-    }
-}
+//     for (i = 0; i < sentences.length; i++) {
+//         sentences[i] = sentences[i].trim();
+//         if (sentences[i].length > 0) {
+//     		editors[0].replaceRange(sentences[i]+"\n", {line: Infinity});
+//     		GLOBAL_sentence_id = i;
+//             fetchTranslation(sentences[i], "hin", "pan", 1, 23, "full"); //TODO: Fix this hardcoded value. 
+//         }
+//     }
+// }
 
 
 /**
@@ -738,18 +747,18 @@ function clearAllEditors() {
 	}
 }
 
-/**
- * Loads the list of modules whose output is available for display as intermediate module output.
- */
-function load_output_selectors(sentence_id) {
-	sentence_details = TranslationResults[parseInt(sentence_id) + 1];
-	$('#intermediate_results #output_selector').html('');
-	$.each(sentence_details, function(index, value) {
-		var sentenceNumber = parseInt(sentence_id)+1;
-    	$('#intermediate_results #output_selector').append("<li onclick='showIntermediateOutput(\""+index+"\", \""+sentenceNumber+"\")'>"+index.split('-')[0]+"</li>");
-    });
-	editors[2].setValue("");
-}
+// /**
+//  * Loads the list of modules whose output is available for display as intermediate module output.
+//  */
+// function load_output_selectors(sentence_id) {
+// 	sentence_details = TranslationResults[parseInt(sentence_id) + 1];
+// 	$('#intermediate_results #output_selector').html('');
+// 	$.each(sentence_details, function(index, value) {
+// 		var sentenceNumber = parseInt(sentence_id)+1;
+//     	$('#intermediate_results #output_selector').append("<li onclick='showIntermediateOutput(\""+index+"\", \""+sentenceNumber+"\")'>"+index.split('-')[0]+"</li>");
+//     });
+// 	editors[2].setValue("");
+// }
 
 
 function init_editors(redoGetEditors, lang) {
@@ -770,7 +779,7 @@ function init_editors(redoGetEditors, lang) {
 		setupInputMethods(editor,
 									{
 										defaultLanguage: lang,			// TODO: Put target language here programatically. 
-										// defaultIM: "ur-phonetic",
+										defaultIM: "hi-phonetic",
 										// languages: ['en','hi','pa', 'te', 'ta', 'ur']
 										languages: ['en','hi','pa', 'te', 'ta', 'ur']
 									}
@@ -792,6 +801,9 @@ function getLangPairs(response) {
 		  // selText = LangFormatMapping[selText];
 		  console.log(selText);
 		  $('#sourceLanguage').html(selText+'<span class="caret"></span>');
+		set_editor_language(editors[0], selText[0].toLowerCase()+selText[1]);
+
+
 		  $('#tgt_selector').html("");
 
 		  $.each(LangPairs[selText], function(key, val) {
@@ -808,16 +820,47 @@ function getLangPairs(response) {
 		
 }
 
+function verifyFileStateChange(result) {
+	if (window.translationStatus!='GENERATING_TRANSLATED_PO_FILE:::COMPLETE' && !window.translationStatus.startsWith('OUTPUT_FILE_GENERATED')) {
+		fileStateChange(result);
+	}
+}
+
+function fileStateChange(result) {
+	console.log(result[0]);
+	
+	// if (currentTranslationStatus!=result[0]) {
+		currentTranslationStatus = result[0];
+		$('#translation_status').text(currentTranslationStatus);
+	// }
+
+	if (result[0]!='GENERATING_TRANSLATED_PO_FILE:::COMPLETE' && !result[0].startsWith('OUTPUT_FILE_GENERATED')) {
+	    socket.emit('translators_desk_check_file_state', {uid: window.uid, fileName: window.fileName});	
+	}
+	else {
+		window.location.reload();
+	}
+}
+
+
 $(document).ready(function(){
+    $('<div id="codemirror_block_1" td-editor-id=1 class="codemirror_block raw_text"></div>').insertAfter('#translators-desk-dropzone');
 	get_editors_on_page();
 	console.log('Initializing socket IO');
 	setupSocketIO();
 	if(editors.length > 0){
-		init_editors(false, "pa");
+		init_editors(false, "hi");
 	}
 	socket.emit("translators_desk_get_lang_pairs");
 	socket.on("translators_desk_get_lang_pairs_response", getLangPairs);
 
+	if (window.uid) {
+	    socket.emit('translators_desk_check_file_state', {uid: window.uid, fileName: window.fileName});
+	    socket.on('translators_desk_file_state_change', verifyFileStateChange);		
+	}
+
+	// get_editor_textarea(editors[0]).attr("placeholder", "Type your answer here");
+	// editors[0].setPlaceholder("hi");
 	// TODO: This block ideally doesnt belong here, as it is 
 	// not specific to individual CodeMirror instances
 	// $('#intermediate_results #sentence_selector').change(function() {
