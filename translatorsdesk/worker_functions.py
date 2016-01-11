@@ -62,7 +62,7 @@ def tokenize(sentence, src, target):
     PARAGRAPHS ARE LOST!!!
     tokenize sentences using the first module
   '''
-  SERVER="http://pipeline.ilmt.iiit.ac.in"
+  SERVER="http://api.ilmt.iiit.ac.in"
   TOKENIZER_URI = SERVER+"/"+src+"/"+target+"/1/1/"
   values = {'input' : sentence.encode('utf-8'), 'params': {}}
   data = urllib.urlencode(values)
@@ -81,7 +81,7 @@ def tokenize(sentence, src, target):
 def translate(sentence, src, target, module_start, module_end, last_module, chunker_module):
 
   print "TRANSLATE ENTERED"
-  SERVER="http://pipeline.ilmt.iiit.ac.in"
+  SERVER="http://api.ilmt.iiit.ac.in"
   URI=SERVER+"/"+src+"/"+target+"/"+module_start+"/"+module_end+"/"
   print URI
   values = {'input' : sentence.encode('utf-8'), 'params': {}}
@@ -105,11 +105,11 @@ def translate(sentence, src, target, module_start, module_end, last_module, chun
         for node in chunk.nodeList:
           if type(node) is ssfapi.Node:
             node.expand_af()
-            words[node.getAttribute('name').replace('"', '\\"')] = node.lex.replace('"', '\\"')
+            words[node.lex.replace('"', '\\"')] = node.getAttribute('name').replace('"', '\\"')
           else:
             for n in node.nodeList:
               n.expand_af()
-              words[n.getAttribute('name').replace('"', '\\"')] = n.lex.replace('"', '\\"')
+              words[n.lex.replace('"', '\\"')] = n.getAttribute('name').replace('"', '\\"')
 
   print words
   response = {}

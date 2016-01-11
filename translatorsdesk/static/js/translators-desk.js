@@ -776,7 +776,7 @@ function init_editors(redoGetEditors, lang) {
 		setupSpellCheck();
 		$.each(editors, function(index, editor) {
 			console.log(index);
-		setupInputMethods(editor,
+			setupInputMethods(editor,
 									{
 										defaultLanguage: lang,			// TODO: Put target language here programatically. 
 										defaultIM: "hi-phonetic",

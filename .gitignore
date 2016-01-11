@@ -52,3 +52,7 @@ env/*
 
 #Uploaded content
 translatorsdesk/static/uploads/
+
+
+#DS_Store
+*.DS_Store
