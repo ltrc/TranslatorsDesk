@@ -84,11 +84,14 @@ $(document).ready(function(){
                     // console.log(word);
                     // console.log(otherword);
                     // console.log(otherword);
+                    $(this).addClass("highlight");
+
                     $('.src_word').removeClass("highlight");
                     $('.source-text #'+otherword).addClass("highlight");
                   });
 
                   $('.tgt_word').mouseout(function() {
+                    $(this).removeClass("highlight");
                     $('.src_word').removeClass("highlight");
                   });
 
@@ -99,11 +102,13 @@ $(document).ready(function(){
                     // console.log(word);
                     // console.log(otherword);
                     // console.log(otherword);
+                    $(this).addClass("highlight");
                     $('.tgt_word').removeClass("highlight");
                     $('.target-text #'+otherword).addClass("highlight");
                   });
 
                   $('.src_word').mouseout(function() {
+                    $(this).removeClass("highlight");
                     $('.tgt_word').removeClass("highlight");
                   });
 
@@ -143,20 +148,30 @@ $("#download").click(function(){
   window.downloaded = false;
   var data = []
 
-  editors[parseInt($("#po-container .panel-row .codemirror_block").attr("td-editor-id")) - 1]
+  // editors[parseInt($("#po-container .panel-row .codemirror_block").attr("td-editor-id")) - 1]
   $("#po-container .panel-row").each(function(){
     var src = $(this).find(".source-text").text();
     var tgt = editors[parseInt($(this).find(".codemirror_block").attr("td-editor-id")) - 1].getValue();
+    console.log("SEE THIS: ");
+    console.log({"src":src, "tgt":tgt});
     data.push({"src":src, "tgt":tgt});
   }).promise().done(function(){
     //Data Collected !!
     //POST as JSON to the URI
+
+    // TEMPORARY FIX !!!!!!!!!!!!!
+
+    window.PO_DATA["data"] = data;
+
+
+    // FIX ENDS. 
 
     var _D = {};
     _D.uid = window.uid;
     _D.fileName = window.fileName;
     // _D.data = data;
     _D.data = window.PO_DATA["data"];
+    // for (var i=0; i<)
 
     console.log(data);
     $.ajax({
@@ -194,6 +209,7 @@ $("#download").click(function(){
 $('#preview').click(function() {
   $(this).fadeOut();
   $('.source-text').slideUp();
+  $('.panel-body').slideUp();
 });
 
 

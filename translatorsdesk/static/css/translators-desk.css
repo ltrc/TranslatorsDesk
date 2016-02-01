@@ -152,7 +152,18 @@ div.thead {
 	padding: 2px;
 }
 .highlight {
-	border-bottom: 2px solid black;
+	/*border-bottom: 2px solid black;*/
+	background-color: rgba(0,0,0,0.8);
+	color: white;
+	font-size: 125%;
+}
+
+.src_word, .tgt_word {
+	/*line-height: 200%;*/
+	-webkit-transition: all 0.3s ease;
+	-moz-transition: all 0.3s ease;
+	-o-transition: all 0.3s ease;
+	-ms-transition: all 0.3s ease;
 }
 .raw-group {
 	/*display: none;*/
