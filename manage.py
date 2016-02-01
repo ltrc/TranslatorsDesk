@@ -88,19 +88,21 @@ def translators_desk_get_word_suggestion(message):
     print spellcheckers
 
     if lang in ['hi', 'ur', 'en', 'te', 'ta', 'pa']:
-        print spellcheckers
-        suggestions = ['No suggestions found...', '']
+        # print spellcheckers
+        suggestions = spellcheckers[lang].suggest(word.encode('utf-8'))
+
+        # suggestions = ['No suggestions found...', '']
         if lang == 'hi':
             id = hindi_dict['words'].get(word, None)
             print id
             if id:
-                suggestions = hindi_dict['ids'][id]
+                suggestions.extend(hindi_dict['ids'][id])
         elif lang == 'ur':
             id = urdu_dict['words'].get(word, None)
             print "MERA : ", word, id
             if id:
-                suggestions = urdu_dict['ids'][id]
-        #suggestions = spellcheckers[lang].suggest(word)
+                suggestions.extend(urdu_dict['ids'][id])
+        # suggestions = spellcheckers[lang].suggest(word)
         print suggestions
         emit("translators_desk_get_word_suggestion_" \
             + hashlib.md5(word.lower()).hexdigest(), \
@@ -135,11 +137,16 @@ def _make_context():
     return {'app': app, 'db': db, 'User': User}    
 
 def load_dictionaries():
-    en = aspell.Speller('lang', 'en')
-    hi = aspell.Speller('lang', 'hi') #Removing aspell-hi temporarily because of some funny error on Ubuntu
-    te = aspell.Speller('lang', 'te')
-    ta = aspell.Speller('lang', 'ta')
-    pa = aspell.Speller('lang', 'pa')
+    en = aspell.Speller(('lang', 'en'), ('encoding', 'utf-8'))
+    hi = aspell.Speller(('lang', 'hi'), ('encoding', 'utf-8'))
+    te = aspell.Speller(('lang', 'te'), ('encoding', 'utf-8'))
+    ta = aspell.Speller(('lang', 'ta'), ('encoding', 'utf-8'))
+    pa = aspell.Speller(('lang', 'pa'), ('encoding', 'utf-8'))
+    # en = aspell.Speller('lang', 'en')
+    # hi = aspell.Speller('lang', 'hi') #Removing aspell-hi temporarily because of some funny error on Ubuntu
+    # te = aspell.Speller('lang', 'te')
+    # ta = aspell.Speller('lang', 'ta')
+    # pa = aspell.Speller('lang', 'pa')
     dictionaries = {}
     dictionaries['en'] = en
     dictionaries['hi'] = hi
