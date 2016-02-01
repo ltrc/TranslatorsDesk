@@ -4,6 +4,7 @@
 from gevent import monkey
 monkey.patch_all()
 import os
+import aspell
 import sys
 import subprocess
 from flask import Flask, render_template, session, request
@@ -16,7 +17,7 @@ from translatorsdesk.app import create_app
 from translatorsdesk.user.models import User
 from translatorsdesk.settings import DevConfig, ProdConfig
 from translatorsdesk.database import db
-from translatorsdesk.spellchecker import dictionaries as spellcheckers
+# from translatorsdesk.spellchecker import dictionaries as spellcheckers
 import random, hashlib, json, base64
 import urllib, urllib2
 import json
@@ -33,7 +34,7 @@ app.debug = True
 socketio = SocketIO(app)
 HERE = os.path.abspath(os.path.dirname(__file__))
 TEST_PATH = os.path.join(HERE, 'tests')
-
+spellcheckers = {}
 
 
 
@@ -77,15 +78,20 @@ def translators_desk_get_translation_query(message):
 def test_message(message):
     emit('translanslators_desk_echo_response', message)
 
-@socketio.on('translanslators_desk_get_word_suggesstion', namespace='/td')
-def translanslators_desk_get_word_suggesstion(message):
+@socketio.on('translators_desk_get_word_suggestion', namespace='/td')
+def translators_desk_get_word_suggestion(message):
+    print "REQUEST FOR SUGGESTION"
     word = message['data'].encode('utf-8')
     lang = message['lang']
+    print word, lang
     # Check if its a supported language
+    print spellcheckers
+
     if lang in ['hi', 'en', 'te', 'ta', 'pa']:
         print spellcheckers
         suggestions = spellcheckers[lang].suggest(word)
-        emit("translanslators_desk_get_word_suggesstion_" \
+        print suggestions
+        emit("translators_desk_get_word_suggestion_" \
             + hashlib.md5(word.lower()).hexdigest(), \
             json.dumps(suggestions))
 
@@ -117,6 +123,21 @@ def _make_context():
     """
     return {'app': app, 'db': db, 'User': User}    
 
+def load_dictionaries():
+    en = aspell.Speller('lang', 'en')
+    hi = aspell.Speller('lang', 'hi') #Removing aspell-hi temporarily because of some funny error on Ubuntu
+    te = aspell.Speller('lang', 'te')
+    ta = aspell.Speller('lang', 'ta')
+    pa = aspell.Speller('lang', 'pa')
+    dictionaries = {}
+    dictionaries['en'] = en
+    dictionaries['hi'] = hi
+    dictionaries['te'] = te
+    dictionaries['ta'] = ta
+    dictionaries['pa'] = pa
+    return dictionaries
+
+spellcheckers = load_dictionaries()
 manager = Manager(app)
 
 @manager.command
