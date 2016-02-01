@@ -89,7 +89,9 @@ def translators_desk_get_word_suggestion(message):
 
     if lang in ['hi', 'ur', 'en', 'te', 'ta', 'pa']:
         # print spellcheckers
-        suggestions = spellcheckers[lang].suggest(word.encode('utf-8'))
+        suggestions = ['No suggestions found', '']
+        if lang != 'ur':
+            suggestions = spellcheckers[lang].suggest(word.encode('utf-8'))
 
         # suggestions = ['No suggestions found...', '']
         if lang == 'hi':
@@ -101,7 +103,7 @@ def translators_desk_get_word_suggestion(message):
             id = urdu_dict['words'].get(word, None)
             print "MERA : ", word, id
             if id:
-                suggestions.extend(urdu_dict['ids'][id])
+                suggestions = urdu_dict['ids'][id]
         # suggestions = spellcheckers[lang].suggest(word)
         print suggestions
         emit("translators_desk_get_word_suggestion_" \

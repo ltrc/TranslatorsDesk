@@ -161,7 +161,7 @@ $("#download").click(function(){
 
     // TEMPORARY FIX !!!!!!!!!!!!!
 
-    window.PO_DATA["data"] = data;
+    //window.PO_DATA["data"] = data;
 
 
     // FIX ENDS. 
