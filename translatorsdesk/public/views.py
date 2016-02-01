@@ -24,7 +24,7 @@ from redis import Redis
 
 #TO-DO : Change this to a redis pool
 redis_conn = Redis()
-q = Queue(connection=redis_conn)
+q = Queue(connection=redis_conn, default_timeout=300)
 
 
 @login_manager.user_loader
