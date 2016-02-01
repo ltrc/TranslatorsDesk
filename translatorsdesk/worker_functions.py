@@ -70,6 +70,8 @@ def tokenize(sentence, src, target):
   data = urllib.urlencode(values)
   req = urllib2.Request(TOKENIZER_URI, data)
   the_page = get_call_api(req)
+  if not the_page:
+    return False
   js = json.loads(the_page)
   ssf_data = ssfapi.Document(js['tokenizer-1'])
   sentences = []
@@ -86,6 +88,9 @@ def translate(sentence, src, target, module_start, module_end, last_module, chun
   data = urllib.urlencode(values)
   req = urllib2.Request(URI, data)
   the_page = get_call_api(req)
+
+  if not the_page:
+    return False
 
   d = json.loads(the_page)
   print "TRANSLATE ENTERED"
@@ -122,7 +127,7 @@ def get_call_api(url):
             print e
             tries -= 1
             error = e
-    raise error
+    return False
 
 
 def translate_po(file, src, target):
@@ -146,17 +151,30 @@ def translate_po(file, src, target):
         module_start = "1"
         SERVER="http://api.ilmt.iiit.ac.in"
         module_end = get_call_api(SERVER+"/"+src+"/"+target+"/")
+        if not module_end:
+            change_state(file, "PIPELINE_ERROR")
+            return False
         modules = get_call_api(SERVER+"/"+src+"/"+target+"/modules/")
+        if not modules:
+            change_state(file, "PIPELINE_ERROR")
+            return False
         modules = modules.strip('[').strip(']').split(',')
         last_module = modules[-1].strip('"') + '-' + str(len(modules))
         chunker_index = modules.index("\"chunker\"")
         chunker_module = modules[chunker_index].strip('"')  + '-' + str(chunker_index+1)
 
         sents = tokenize(_entry['src'], src, target)
+        if not sents:
+            change_state(file, "PIPELINE_ERROR")
+            return False
+
         para = []
         final = []
         for sent in sents:
           response = translate(sent, src, target, module_start, module_end, last_module, chunker_module)
+          if not response:
+            change_state(file, "PIPELINE_ERROR")
+            return False
           response['src'] = sent.replace('"', '\\"')
           para.append(response)
           final.append(response['tgt'])
