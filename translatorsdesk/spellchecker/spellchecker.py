@@ -9,7 +9,7 @@ te = aspell.Speller('lang', 'te')
 ta = aspell.Speller('lang', 'ta')
 pa = aspell.Speller('lang', 'pa')
 
-
+print "DICTS"
 dictionaries = {}
 dictionaries['en'] = en
 # dictionaries['hi'] = hi

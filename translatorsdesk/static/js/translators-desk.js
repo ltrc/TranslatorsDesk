@@ -89,13 +89,16 @@ var editor_word_length_query_threshold;
  * Instantiates Translators Desk Word Suggesstion 
  */
 CodeMirror.commands.translators_desk_aspell = function(editor) {
+	console.log("YAYYY");
 	editor_word_length_query_threshold = TranslatorsDeskGlobals.word_length_query_threshold[get_editor_language(editor)]
 
 	editor.currentWord = editor.getCurrentWord();
 	editor.currentWordRange = editor.getCurrentWordRange();
+	// console.log(get_editor_language(editor));
 	if(editor.currentWord && editor_word_length_query_threshold && editor.currentWord.trim().length > editor_word_length_query_threshold ){
 		//Only consider words of length more than 3
-		socket.emit("translanslators_desk_get_word_suggesstion", 
+		console.log("CHECKING");
+		socket.emit("translators_desk_get_word_suggestion", 
 					{
 						data: editor.currentWord, 
 						lang: get_editor_language(editor)
@@ -105,15 +108,16 @@ CodeMirror.commands.translators_desk_aspell = function(editor) {
 			// TODO : The removelistener code is not working now
 			// Fix this
 			// Remove corresponding event listener
-			socket.removeListener("translanslators_desk_get_word_suggesstion_"+$.md5(editor.currentWord.toLowerCase()), socket_response_listener )
-
+			// socket.removeListener("translators_desk_get_word_suggestion_"+$.md5(editor.currentWord.toLowerCase()), socket_response_listener )
+			console.log("OKAY SUGGESTED!");
+			console.log(data);
 			//Display the hint
 			editor.showHint({
 								hint: CodeMirror.hint.translators_desk_aspell,
 								translators_desk_aspell_suggesstions: JSON.parse(data)
 							});
 		}	
-		socket.on("translanslators_desk_get_word_suggesstion_"+$.md5(editor.currentWord.toLowerCase()), socket_response_listener);
+		socket.on("translators_desk_get_word_suggestion_"+$.md5(editor.currentWord.toLowerCase()), socket_response_listener);
 	}
 }
 
