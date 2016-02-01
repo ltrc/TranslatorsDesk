@@ -54,8 +54,8 @@ $(document).ready(function(){
       // $("#po-container").append("<div class='row data-points'><div class='source col-md-6 text-center'>"+data.src+"</div><div class='col-md-6 text-center'><textarea style='width:100%' class='target expandableTextArea' spellcheck='false'>"+data.tgt+"</textarea></div></div>");
     }).promise().done(function(){
                   var tgtLang = window.tgt_lang; // For the editor language
-                  console.log("Target Editor Language: " + tgtLang);
-                  init_editors(true, tgtLang);
+                  console.log("Target Editor Language: " + tgtLang[0].toLowerCase()+tgtLang[1].toLowerCase());
+                  init_editors(true, tgtLang[0].toLowerCase()+tgtLang[1].toLowerCase());
                   // for(var i=0; i<editors.length; i++) {
                     var i = 0;
                     $(window.PO_DATA.data.entries).each(function(index, val) {
