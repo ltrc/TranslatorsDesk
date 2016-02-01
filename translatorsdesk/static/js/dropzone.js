@@ -18,6 +18,7 @@ $(function(){
               this.on("addedfile", function(file){
                 //TODO : Fix the state change of this button
                 $("#add-files").attr("disabled", "disabled");
+                // Add detection for inpage
               });
 
               this.on("error", function(){

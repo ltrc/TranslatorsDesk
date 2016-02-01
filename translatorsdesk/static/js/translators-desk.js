@@ -497,11 +497,11 @@ function set_editor_input_method(editor, input_method){
 
 function get_editor_language(editor) {
 	if (window.tgt_lang) {
-		console.log(window.tgt_lang);
-		return window.tgt_lang[0].toLowerCase() + window.tgt_lang[1];
+		var tgtLang = window.tgt_lang;
+		return tgtLang[0].toLowerCase()+tgtLang[1].toLowerCase();
 	}
 	else {
-		return $('#sourceLanguage').text()[0].toLowerCase()+$('#sourceLanguage').text()[1];		
+		return $('#sourceLanguage').text()[0].toLowerCase()+$('#sourceLanguage').text()[1];
 	}
 }
 
@@ -583,6 +583,9 @@ function setupInputMethods(editor, options){
 
 		if(options.defaultIM){
 			set_editor_input_method(editor, options.defaultIM);
+		}
+		else {
+			set_editor_input_method(editor, TranslatorsDeskGlobals.default_input_methods(options.defaultLanguage));
 		}
 	}
 }
@@ -790,7 +793,7 @@ function init_editors(redoGetEditors, lang) {
 			setupInputMethods(editor,
 									{
 										defaultLanguage: lang,			// TODO: Put target language here programatically. 
-										defaultIM: "hi-phonetic",
+										// defaultIM: "hi-phonetic",
 										// languages: ['en','hi','pa', 'te', 'ta', 'ur']
 										languages: ['en','hi','pa', 'te', 'ta', 'ur']
 									}
