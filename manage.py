@@ -81,15 +81,26 @@ def test_message(message):
 @socketio.on('translators_desk_get_word_suggestion', namespace='/td')
 def translators_desk_get_word_suggestion(message):
     print "REQUEST FOR SUGGESTION"
-    word = message['data'].encode('utf-8')
+    word = message['data'].strip()
     lang = message['lang']
     print word, lang
     # Check if its a supported language
     print spellcheckers
 
-    if lang in ['hi', 'en', 'te', 'ta', 'pa']:
+    if lang in ['hi', 'ur', 'en', 'te', 'ta', 'pa']:
         print spellcheckers
-        suggestions = spellcheckers[lang].suggest(word)
+        suggestions = ['No suggestions found...', '']
+        if lang == 'hi':
+            id = hindi_dict['words'].get(word, None)
+            print id
+            if id:
+                suggestions = hindi_dict['ids'][id]
+        elif lang == 'ur':
+            id = urdu_dict['words'].get(word, None)
+            print "MERA : ", word, id
+            if id:
+                suggestions = urdu_dict['ids'][id]
+        #suggestions = spellcheckers[lang].suggest(word)
         print suggestions
         emit("translators_desk_get_word_suggestion_" \
             + hashlib.md5(word.lower()).hexdigest(), \
@@ -135,9 +146,19 @@ def load_dictionaries():
     dictionaries['te'] = te
     dictionaries['ta'] = ta
     dictionaries['pa'] = pa
-    return dictionaries
 
-spellcheckers = load_dictionaries()
+    f = open('translatorsdesk/static/dictionaries/hin.dict', 'r')
+    hindi = {}
+    hindi['ids'], hindi['words'] = json.loads(f.read())
+    f.close()
+    f = open('translatorsdesk/static/dictionaries/urd.dict', 'r')
+    urdu = {}
+    urdu['ids'], urdu['words'] = json.loads(f.read())
+    f.close()
+
+    return (dictionaries, hindi, urdu)
+
+spellcheckers, hindi_dict, urdu_dict = load_dictionaries()
 manager = Manager(app)
 
 @manager.command

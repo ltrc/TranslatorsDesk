@@ -83,6 +83,7 @@ TranslatorsDeskGlobals.word_length_query_threshold['hi'] = 2
 TranslatorsDeskGlobals.word_length_query_threshold['pa'] = 2
 TranslatorsDeskGlobals.word_length_query_threshold['te'] = 2
 TranslatorsDeskGlobals.word_length_query_threshold['ta'] = 2
+TranslatorsDeskGlobals.word_length_query_threshold['ur'] = 2
 
 var editor_word_length_query_threshold;
 /**
@@ -94,7 +95,7 @@ CodeMirror.commands.translators_desk_aspell = function(editor) {
 
 	editor.currentWord = editor.getCurrentWord();
 	editor.currentWordRange = editor.getCurrentWordRange();
-	// console.log(get_editor_language(editor));
+	console.log(get_editor_language(editor));
 	if(editor.currentWord && editor_word_length_query_threshold && editor.currentWord.trim().length > editor_word_length_query_threshold ){
 		//Only consider words of length more than 3
 		console.log("CHECKING");
@@ -495,7 +496,13 @@ function set_editor_input_method(editor, input_method){
 
 
 function get_editor_language(editor) {
-	return $('#sourceLanguage').text()[0].toLowerCase()+$('#sourceLanguage').text()[1];
+	if (window.tgt_lang) {
+		console.log(window.tgt_lang);
+		return window.tgt_lang[0].toLowerCase() + window.tgt_lang[1];
+	}
+	else {
+		return $('#sourceLanguage').text()[0].toLowerCase()+$('#sourceLanguage').text()[1];		
+	}
 }
 
 // /**
