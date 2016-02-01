@@ -64,13 +64,12 @@ def extract_po(file):
 
 
 def tokenize(sentence, src, target):
-  SERVER="http://api.ilmt.iiit.ac.in"
+  SERVER="http://pipeline.ilmt.iiit.ac.in"
   TOKENIZER_URI = SERVER+"/"+src+"/"+target+"/1/1/"
   values = {'input' : sentence.encode('utf-8'), 'params': {}}
   data = urllib.urlencode(values)
   req = urllib2.Request(TOKENIZER_URI, data)
-  response = urllib2.urlopen(req)
-  the_page = response.read()
+  the_page = get_call_api(req)
   js = json.loads(the_page)
   ssf_data = ssfapi.Document(js['tokenizer-1'])
   sentences = []
@@ -80,17 +79,17 @@ def tokenize(sentence, src, target):
 
 def translate(sentence, src, target, module_start, module_end, last_module, chunker_module):
 
-  print "TRANSLATE ENTERED"
-  SERVER="http://api.ilmt.iiit.ac.in"
+  SERVER="http://pipeline.ilmt.iiit.ac.in"
   URI=SERVER+"/"+src+"/"+target+"/"+module_start+"/"+module_end+"/"
   values = {'input' : sentence.encode('utf-8'), 'params': {}}
 
   data = urllib.urlencode(values)
   req = urllib2.Request(URI, data)
-  response = urllib2.urlopen(req)
-  the_page = response.read()
+  the_page = get_call_api(req)
 
   d = json.loads(the_page)
+  print "TRANSLATE ENTERED"
+  print d[last_module]
   ssf_data = ssfapi.Document(d[last_module])
   sentence = ssf_data.nodeList[0].generateSentence()
   words = []
@@ -111,11 +110,20 @@ def translate(sentence, src, target, module_start, module_end, last_module, chun
 
   return response
 
-
-
+#CHANGE FILE STATTE WHEN PIPELINE IS DOWN ASK USER USER TO RETRY
 def get_call_api(url):
-    response = urllib2.urlopen(url)
-    return response.read()
+    tries = 5
+    error = None
+    while(tries > 0):
+        try:    
+            response = urllib2.urlopen(url)
+            return response.read()
+        except urllib2.HTTPError as e:
+            print e
+            tries -= 1
+            error = e
+    raise error
+
 
 def translate_po(file, src, target):
 
