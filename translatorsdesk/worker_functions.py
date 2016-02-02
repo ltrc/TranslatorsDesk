@@ -103,11 +103,11 @@ def translate(sentence, src, target, module_start, module_end, last_module, chun
         for node in chunk.nodeList:
           if type(node) is ssfapi.Node:
             node.expand_af()
-            words.append([node.getAttribute('name').replace('"', '\\"'), node.lex.replace('"', '\\"')])
+            words.append([node.getAttribute('name').replace('\\', '\\\\').replace('"', '\\"'), node.lex.replace('\\', '\\\\').replace('"', '\\"')])
           else:
             for n in node.nodeList:
               n.expand_af()
-              words.append([n.getAttribute('name').replace('"', '\\"'), n.lex.replace('"', '\\"')])
+              words.append([n.getAttribute('name').replace('\\', '\\\\').replace('"', '\\"'), n.lex.replace('\\', '\\\\').replace('"', '\\"')])
 
   response = {}
   response['tgt'] = sentence.replace('"', '\\"')
