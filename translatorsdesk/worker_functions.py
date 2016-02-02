@@ -121,9 +121,9 @@ def get_call_api(url):
     error = None
     while(tries > 0):
         try:    
-            response = urllib2.urlopen(url)
+            response = urllib2.urlopen(url, timeout = 5)
             return response.read()
-        except urllib2.HTTPError as e:
+        except Exception as e:
             print e
             tries -= 1
             error = e
