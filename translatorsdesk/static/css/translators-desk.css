@@ -126,7 +126,6 @@
 
 .panel-title:hover {
 	cursor: pointer;
-	background-color: rgba(0,0,0,0.1);
 
 	color: white;
 }
@@ -139,11 +138,14 @@
 
 .panel-title .target-text {
 	display: block;
-	font-size: 1.3em;
+	font-size: 1.2em;
 }
 
 .panel-title {
-	padding: 10px;
+	padding-left: 5px;
+	padding-right: 5px;
+	padding-top: 10px;
+	padding-bottom: 10px;
 }
 .panel-body {
 	/*margin-top: 50px;*/
@@ -151,7 +153,6 @@
 
 .panel-row {
 	display: block;
-	border-top: 1px dashed rgba(0,0,0,0.7);
 	border-collapse: collapse;
 }
 .codemirror_menu {
@@ -297,4 +298,14 @@ div.thead {
 #word_suggestions li:hover {
 	color: white;
 	background-color: rgba(0,0,0,0.8);
+}
+#po-container {
+	width: 70%;
+	border-radius: 5px;
+	border: 1px solid rgba(0,0,0,0.5);
+}
+#download_controls {
+	top: 100px;
+	position: fixed;
+	right: 30px;
 }

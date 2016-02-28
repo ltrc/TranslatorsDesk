@@ -20,6 +20,7 @@ html {
 
 body {
   padding-top: 100px;
+  margin-bottom: 60px;
   font-family: myriadL;
   /*background: url('../img/bgtile.png');*/
 }
@@ -108,7 +109,6 @@ ul.navbar {
 /* footer */
 
 footer {
-  margin-top: 45px;
   padding-top: 10px;
   border-top: 1px solid rgba(0,0,0,0.4);
   color: black;
@@ -148,6 +148,10 @@ footer .footer-nav {
   float: right;
   margin-right: 5%;
   list-style: none;
+}
+
+#po-container {
+  box-sizing: border-box;
 }
 
 #po-container .row:nth-of-type(odd) {

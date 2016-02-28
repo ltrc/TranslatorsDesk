@@ -4,17 +4,7 @@
 
 
 <div class="container-fluid">
-  <div class="row">
-      <div class="col-md-3 col-md-offset-1">
-        <h3>{{fileName}}</h3>
-      </div>
-      <div class="col-md-3 col-md-offset-5">
-        <center>
-        <button id="preview" class="btn btn-primary" style="margin-top:20px; margin-bottom: 20px;">Preview</button>
-        <button id="download" class="btn btn-success" style="margin-top:20px; margin-bottom: 20px;">Download</button>
-        </center>
-      </div>
-  </div>
+
   {% if not (status.__len__() >0 and (status[0]=="GENERATING_TRANSLATED_PO_FILE:::COMPLETE" or status[0].startswith("OUTPUT_FILE_GENERATED") )) %}
     <div id="loading-div" class="row">
         <center>
@@ -30,10 +20,20 @@
       <script type="text/javascript">
           var PO_DATA = '{{ PO | tojson | safe }}';
     </script>
+     <div class="row">
+      <div class="col-md-12">
       <div id="po-container" class="container">
       </div>
+    </div>
+  </div>
   {% endif %}
 </div>
+<div id="download_controls">
+        <center>
+        <button id="preview" class="btn btn-primary" style="margin-bottom: 20px;">Preview</button>
+        <button id="download" class="btn btn-success" style="margin-bottom: 20px;">Download {{fileName}}</button>
+        </center>
+      </div>
 <script type="text/javascript">
   window.uid = '{{uid}}';
   window.fileName = '{{fileName}}';
