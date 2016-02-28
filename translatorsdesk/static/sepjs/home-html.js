@@ -6,11 +6,13 @@ function getLangPairs(response) {
 		LangPairs[LangFormatMapping[key]] = val;
 	});
 	$.each(LangPairs, function(key, val) {
-		$('#sourceList').append("<li>"+key+"</li>");
+		$('#sourceList').append("<li class='anim'>"+key+"</li>");
 		initValue = key;
 	});
 
 			$("#sourceList li").click(function(){
+				$('#sourceList li').removeClass("selected-btn");
+				$(this).addClass("selected-btn");
 		  var selText = $(this).text();
 		  // selText = LangFormatMapping[selText];
 		  console.log(selText);
@@ -28,6 +30,9 @@ function getLangPairs(response) {
 		  var selText = $(this).text();
 		  console.log(selText);
 		  $('#targetLanguage').html(selText);
+		  $('#editor_overlay').fadeOut(function() {
+			$('.codemirror_block').removeClass("blur");
+		});
 		});
 		});
 
@@ -45,7 +50,7 @@ $(document).ready(function(){
 	var editor_height = $('.codemirror_block').height();
 	var editor_width =  $('.codemirror_block').width();
 	console.log(editor_height, editor_width);
-	$('#editor_overlay').css({height: $(window).height()*0.65, width: $(window).width()*0.60});
+	$('#editor_overlay').css({height: editor_height, width: editor_width});
 	$('#editor_overlay').css({maxHeight: editor_height, maxWidth: editor_width});
 	var offset = $('.codemirror_block').offset();
 	var editor_top = offset.top;
@@ -58,11 +63,9 @@ $(document).ready(function(){
 		$('.codemirror_block').addClass("blur");
 		$('#editor_overlay').fadeIn();
 	});
-	$('#dismiss_overlay').click(function(){
-		$('#editor_overlay').fadeOut(function() {
-			$('.codemirror_block').removeClass("blur");
-		});
-	});
+	// $('#dismiss_overlay').click(function(){
+		
+	// });
 	$('#lang_interchange').click(function() {
 		var source = $('#sourceLanguage').html();
 		var target = $('#targetLanguage').html();
