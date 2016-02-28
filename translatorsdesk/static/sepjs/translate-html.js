@@ -28,9 +28,6 @@ function fileStateChange(result) {
 }
 
 $(document).ready(function(){
-	if(editors.length > 0){
-		init_editors(false, "hi");
-	}
 	socket.emit("translators_desk_get_lang_pairs");
 	socket.on("translators_desk_get_lang_pairs_response", getLangPairs);
 
