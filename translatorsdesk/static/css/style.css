@@ -6,6 +6,11 @@
 
 @font-face {
   font-family: myriadL;
+  src: url('../fonts/myriadl.otf');
+}
+
+@font-face {
+  font-family: myriad;
   src: url('../fonts/myriadpro.ttf');
 }
 
@@ -14,9 +19,9 @@ html {
 }
 
 body {
-  padding-top: 60px;
+  padding-top: 100px;
   font-family: myriadL;
-  background: url('../img/bgtile.png');
+  /*background: url('../img/bgtile.png');*/
 }
 
 section {
@@ -32,6 +37,9 @@ div {
     text-justify: inter-word;  
 }
 
+button {
+  font-family: myriad;
+}
 .container-narrow{
   margin: 0 auto;
   max-width: 700px;
@@ -39,12 +47,18 @@ div {
 
 /* Forms */
 
+input, select {
+  font-family: myriad;
+}
+
 .navbar-form input[type="text"],
 .navbar-form input[type="password"] {
   width: 180px;
 }
 
-
+.navbar-right {
+  font-size: 1.1em;
+}
 .form-register {
   width: 50%;
 }
@@ -59,18 +73,45 @@ div {
           box-sizing: border-box;
 }
 
+
+.navbar {
+background: rgb(0, 49, 86);
+  color: white;
+    padding-top: 5px;
+  padding-bottom: 5px;
+  border-bottom: 5px solid black;
+
+}
+
+ul.navbar {
+  list-style-type: none;
+  color: white;
+}
+.navbar li a {
+  color: white;
+}
+
+#hero_logo {
+  color: white;
+
+  font-size: 2em;
+  vertical-align: middle;
+}
+
+
 /* footer */
 
 footer {
   margin-top: 45px;
   padding-top: 10px;
-  border-top: 2px solid black;
+  border-top: 1px solid rgba(0,0,0,0.2);
   color: black;
   position: fixed;
   bottom: 0px;
   width: 100%;
   z-index: 99;
-  font-size: 1.2em;
+  font-size: 1.1em;
+  font-family: myriad;
   background-color: white;
 }
 
@@ -122,10 +163,11 @@ p.subheading {
 
 .fa {
     display:inline-block;
-    line-height: 40px;
+/*    line-height: 40px;*/
     text-align: center;
     vertical-align: bottom;
 }
+
 
 /* Animation for translate page begins */
 

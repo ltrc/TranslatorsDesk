@@ -54,7 +54,7 @@ $(".codemirror_block").each(function(){
 	var editor = CodeMirror($(this)[0], {
 	  value: "",
 	  mode: "simple",
-	  viewportMargin: 10,
+	  viewportMargin: 20,
 	  lineNumbers: true,
 	  lineWrapping: true,
 	  styleSelectedText: true,
@@ -804,30 +804,33 @@ function init_editors(redoGetEditors, lang) {
 function getLangPairs(response) {
 	response = JSON.parse(response);
 	console.log(response);
+	var initValue = "";
 	$.each(response, function(key, val) {
 		LangPairs[LangFormatMapping[key]] = val;
 	});
 	$.each(LangPairs, function(key, val) {
-		$('#src_selector').append("<li><a href='#'>"+key+"</a></li>");
+		$('#sourceList').append("<li>"+key+"</li>");
+		initValue = key;
 	});
-			$("#src_selector li a").click(function(){
+
+			$("#sourceList li").click(function(){
 		  var selText = $(this).text();
 		  // selText = LangFormatMapping[selText];
 		  console.log(selText);
-		  $('#sourceLanguage').html(selText+'<span class="caret"></span>');
-		set_editor_language(editors[0], selText[0].toLowerCase()+selText[1]);
+		  $('#sourceLanguage').html(selText);
+			set_editor_language(editors[0], selText[0].toLowerCase()+selText[1]);
 
 
-		  $('#tgt_selector').html("");
+		  $('#targetList').html("");
 
 		  $.each(LangPairs[selText], function(key, val) {
-		    $('#tgt_selector').append("<li><a href='#'>"+LangFormatMapping[val]+"</a></li>");
+		    $('#targetList').append("<li>"+LangFormatMapping[val]+"</li>");
 		  });
 		  
-		  $("#tgt_selector li a").click(function(){
+		  $("#targetList li").click(function(){
 		  var selText = $(this).text();
 		  console.log(selText);
-		  $('#targetLanguage').html(selText+'<span class="caret"></span>');
+		  $('#targetLanguage').html(selText);
 		});
 		});
 
@@ -863,15 +866,31 @@ function fileStateChange(result) {
 	}
 }
 
+var hero_logo_opts = ["Anuvaad", "अनुवाद", "ترجمہ", "అనువాద"];
+var hero_logo_index = -1;
+
+function rotate_hero_logo() {
+	$('#hero_logo').fadeOut(function() {
+		var newopt = Math.floor(Math.random()*1000) % hero_logo_opts.length;
+		while (newopt==hero_logo_index) {
+			newopt = Math.floor(Math.random()*1000) % hero_logo_opts.length;
+		}
+		hero_logo_index = newopt;
+		$('#hero_logo').text(hero_logo_opts[newopt]);
+		$('#hero_logo').fadeIn();
+	});
+}
 
 $(document).ready(function(){
-    $('<div id="codemirror_block_1" td-editor-id=1 class="codemirror_block raw_text"></div>').insertAfter('#translators-desk-dropzone');
+	window.setInterval(rotate_hero_logo, 2000);	
+    // $('').insertAfter('#translators-desk-dropzone');
 	get_editors_on_page();
 	console.log('Initializing socket IO');
 	setupSocketIO();
 	if(editors.length > 0){
 		init_editors(false, "hi");
 	}
+	editors[0].setSize($(window).width()*0.60,$(window).height()*0.65);
 	socket.emit("translators_desk_get_lang_pairs");
 	socket.on("translators_desk_get_lang_pairs_response", getLangPairs);
 
@@ -880,6 +899,36 @@ $(document).ready(function(){
 	    socket.on('translators_desk_file_state_change', verifyFileStateChange);		
 	}
 
+	var editor_height = $('.codemirror_block').height();
+	var editor_width =  $('.codemirror_block').width();
+	console.log(editor_height, editor_width);
+	$('#editor_overlay').css({height: $(window).height()*0.65, width: $(window).width()*0.60});
+	// $('#editor_overlay').css({maxHeight: editor_height, maxWidth: editor_width});
+	var offset = $('.codemirror_block').offset();
+	var editor_top = offset.top;
+	var editor_left = offset.left
+	console.log($('#editor_overlay').height());
+	console.log(editor_top, editor_left);
+
+	$('#editor_overlay').css({top: editor_top, left: editor_left});
+	$('.change_lang_btn').click(function() {
+		$('.codemirror_block').addClass("blur");
+		$('#editor_overlay').fadeIn();
+	});
+	$('#dismiss_overlay').click(function(){
+		$('#editor_overlay').fadeOut(function() {
+			$('.codemirror_block').removeClass("blur");
+		});
+	});
+	$('#lang_interchange').click(function() {
+		var source = $('#sourceLanguage').html();
+		var target = $('#targetLanguage').html();
+		$('#sourceLanguage').html(target);
+		$('#targetLanguage').html(source);
+		set_editor_language(editors[0], target[0].toLowerCase()+target[1]);
+
+	});
+	$('.change_lang_btn').click();
 	// get_editor_textarea(editors[0]).attr("placeholder", "Type your answer here");
 	// editors[0].setPlaceholder("hi");
 	// TODO: This block ideally doesnt belong here, as it is 
