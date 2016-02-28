@@ -28,9 +28,6 @@ function fileStateChange(result) {
 }
 
 $(document).ready(function(){
-	socket.emit("translators_desk_get_lang_pairs");
-	socket.on("translators_desk_get_lang_pairs_response", getLangPairs);
-
 	if (window.uid) {
 	    socket.emit('translators_desk_check_file_state', {uid: window.uid, fileName: window.fileName});
 	    socket.on('translators_desk_file_state_change', verifyFileStateChange);		

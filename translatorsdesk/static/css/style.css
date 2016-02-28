@@ -77,8 +77,8 @@ input, select {
 .navbar {
 background: rgb(0, 49, 86);
   color: white;
-    padding-top: 5px;
-  padding-bottom: 5px;
+
+
   border-bottom: 5px solid black;
 
 }
@@ -95,7 +95,7 @@ ul.navbar {
   color: white;
 
   font-size: 2em;
-  vertical-align: middle;
+  vertical-align: bottom;
 }
 
 

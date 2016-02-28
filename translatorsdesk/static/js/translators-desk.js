@@ -646,44 +646,6 @@ function init_editors(redoGetEditors, lang) {
 		});
 }
 
-function getLangPairs(response) {
-	response = JSON.parse(response);
-	console.log(response);
-	var initValue = "";
-	$.each(response, function(key, val) {
-		LangPairs[LangFormatMapping[key]] = val;
-	});
-	$.each(LangPairs, function(key, val) {
-		$('#sourceList').append("<li>"+key+"</li>");
-		initValue = key;
-	});
-
-			$("#sourceList li").click(function(){
-		  var selText = $(this).text();
-		  // selText = LangFormatMapping[selText];
-		  console.log(selText);
-		  $('#sourceLanguage').html(selText);
-			set_editor_language(editors[0], selText[0].toLowerCase()+selText[1]);
-
-
-		  $('#targetList').html("");
-
-		  $.each(LangPairs[selText], function(key, val) {
-		    $('#targetList').append("<li>"+LangFormatMapping[val]+"</li>");
-		  });
-		  
-		  $("#targetList li").click(function(){
-		  var selText = $(this).text();
-		  console.log(selText);
-		  $('#targetLanguage').html(selText);
-		});
-		});
-
-		
-}
-
-
-
 var hero_logo_opts = ["Anuvaad", "अनुवाद", "ترجمہ", "అనువాద"];
 var hero_logo_index = -1;
 
