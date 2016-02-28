@@ -492,15 +492,15 @@ function get_editor_language(editor) {
 TranslatorsDeskGlobals.default_input_methods = function(language){
 	switch(language){
 		case 'hi':
-			return 'hi-phonetic'
+			return 'hi-transliteration'
 		case 'pa':
-			return 'pa-phonetic'
+			return 'pa-transliteration'
 		case 'te':
 			return 'te-transliteration'
 		case 'ta':
 			return 'ta-transliteration'
 		case 'ur':
-			return 'ur-phonetic'
+			return 'ur-transliteration'
 		default:
 			return false
 	}
@@ -616,7 +616,7 @@ function setupSocketIO(){
  * Clears the value in all editor instances. 
  */
 function clearAllEditors() {
-	for (var i=1; i<editors.length; i++) {
+	for (var i=0; i<editors.length; i++) {
 		editors[i].setValue("");
 	}
 }

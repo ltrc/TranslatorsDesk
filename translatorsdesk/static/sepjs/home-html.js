@@ -7,9 +7,8 @@ function getLangPairs(response) {
 	});
 	$.each(LangPairs, function(key, val) {
 		$('#sourceList').append("<li class='anim'>"+key+"</li>");
-		initValue = key;
+		initValue = val;
 	});
-
 			$("#sourceList li").click(function(){
 				$('#sourceList li').removeClass("selected-btn");
 				$(this).addClass("selected-btn");
@@ -24,6 +23,7 @@ function getLangPairs(response) {
 
 		  $.each(LangPairs[selText], function(key, val) {
 		    $('#targetList').append("<li>"+LangFormatMapping[val]+"</li>");
+			$('#targetLanguage').html(LangFormatMapping[val]);
 		  });
 		  
 		  $("#targetList li").click(function(){
@@ -32,6 +32,8 @@ function getLangPairs(response) {
 		  $('#targetLanguage').html(selText);
 		  $('#editor_overlay').fadeOut(function() {
 			$('.codemirror_block').removeClass("blur");
+			clearAllEditors();
+			editors[0].focus();
 		});
 		});
 		});
@@ -46,7 +48,6 @@ $(document).ready(function(){
 	socket.emit("translators_desk_get_lang_pairs");
 	socket.on("translators_desk_get_lang_pairs_response", getLangPairs);
 	editors[0].setSize($(window).width()*0.60,$(window).height()*0.65);
-	
 	var editor_height = $('.codemirror_block').height();
 	var editor_width =  $('.codemirror_block').width();
 	console.log(editor_height, editor_width);
@@ -72,7 +73,7 @@ $(document).ready(function(){
 		$('#sourceLanguage').html(target);
 		$('#targetLanguage').html(source);
 		set_editor_language(editors[0], target[0].toLowerCase()+target[1]);
-
+		clearAllEditors();
 	});
 	$('.change_lang_btn').click();
 })
