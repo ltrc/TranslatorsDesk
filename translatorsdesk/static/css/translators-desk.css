@@ -1,9 +1,16 @@
+.anim {
+  -o-transition:.5s;
+  -ms-transition:.5s;
+  -moz-transition:.5s;
+  -webkit-transition:.5s;
+  transition:.5s;
+}
 .CodeMirror {
   font-size: 16px;
   /*height: auto;*/
   border: 1px solid rgba(0,0,0,0.5);
   /*box-shadow: 0 0 1px black;*/
-  border-radius: 5px;
+  border-radius: 0px 0px 5px 5px;
 }
 .raw_text {
 	/*height: 400px;*/
@@ -24,7 +31,10 @@
 .codemirror_block {
 	width: 100%;
 	display: inline-block;
+
 }
+
+
 .codemirror_menu .container-fluid div ul li a {
   padding-right: 1px;
   font-size : 18px;
@@ -173,10 +183,7 @@ div.thead {
 .raw-group {
 	/*display: none;*/
 }
-#raw_text {
-	height: 200px;
-	font-size: 1.3em;
-}
+
 #translators-desk-dropzone {
 	display: none;
 }
@@ -195,6 +202,7 @@ div.thead {
 }
 #lang_interchange:hover {
 	background-color: rgba(0,0,0,0.1);
+	cursor: pointer;
 }
 .btn-outline {
 	outline-width: 0px;
@@ -260,4 +268,33 @@ div.thead {
 .selected-btn {
 	background-color: rgba(0,0,0,0.8);
 	color: white;
+}
+
+#word_suggestions {
+	list-style-type: none;
+	padding-left: 0px;
+	max-height: 25px;
+	background-color: white;
+	position: fixed;
+	width: 100%;
+	text-align: center;
+	border-radius: 5px 5px 0px 0px ;
+	border: 1px solid rgba(0,0,0,0.5);
+	overflow-y: scroll;
+}
+
+#word_suggestions li {
+	cursor: pointer;
+	display: inline-block;
+	margin-left: 5px;
+	margin-right: 5px;
+	text-align: center;
+	padding-left: 20px;
+	padding-right: 20px;
+	padding-top: 3px;
+	font-size: 1.1em;
+}
+#word_suggestions li:hover {
+	color: white;
+	background-color: rgba(0,0,0,0.8);
 }

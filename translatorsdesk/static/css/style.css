@@ -23,7 +23,13 @@ body {
   font-family: myriadL;
   /*background: url('../img/bgtile.png');*/
 }
-
+.anim {
+  -o-transition:.5s;
+  -ms-transition:.5s;
+  -moz-transition:.5s;
+  -webkit-transition:.5s;
+  transition:.5s;
+}
 section {
   overflow: auto;
 }
@@ -104,7 +110,7 @@ ul.navbar {
 footer {
   margin-top: 45px;
   padding-top: 10px;
-  border-top: 1px solid rgba(0,0,0,0.2);
+  border-top: 1px solid rgba(0,0,0,0.4);
   color: black;
   position: fixed;
   bottom: 0px;
@@ -168,6 +174,13 @@ p.subheading {
     vertical-align: bottom;
 }
 
+.btn-success {
+  border-bottom: 3px solid #1B5E20;
+}
+.btn-primary {
+  border-bottom: 3px solid rgb(0, 49, 86);
+
+}
 
 /* Animation for translate page begins */
 
@@ -242,3 +255,4 @@ p.subheading {
 }
 
 /* Animation for translate page ends */
+

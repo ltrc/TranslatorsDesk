@@ -22,7 +22,7 @@ function getLangPairs(response) {
 		  $('#targetList').html("");
 
 		  $.each(LangPairs[selText], function(key, val) {
-		    $('#targetList').append("<li>"+LangFormatMapping[val]+"</li>");
+		    $('#targetList').append("<li class='anim'>"+LangFormatMapping[val]+"</li>");
 			$('#targetLanguage').html(LangFormatMapping[val]);
 		  });
 		  
@@ -34,6 +34,7 @@ function getLangPairs(response) {
 			$('.codemirror_block').removeClass("blur");
 			clearAllEditors();
 			editors[0].focus();
+			$('#word_suggestions').fadeIn();
 		});
 		});
 		});
@@ -53,14 +54,16 @@ $(document).ready(function(){
 	console.log(editor_height, editor_width);
 	$('#editor_overlay').css({height: editor_height, width: editor_width});
 	$('#editor_overlay').css({maxHeight: editor_height, maxWidth: editor_width});
+	$('#word_suggestions').css({width: editor_width});
 	var offset = $('.codemirror_block').offset();
 	var editor_top = offset.top;
 	var editor_left = offset.left
 	console.log($('#editor_overlay').height());
 	console.log(editor_top, editor_left);
-
+	$('#word_suggestions').css({top: editor_top-$('#word_suggestions').height()-1, left: editor_left});
 	$('#editor_overlay').css({top: editor_top, left: editor_left});
 	$('.change_lang_btn').click(function() {
+		$('#word_suggestions').hide();
 		$('.codemirror_block').addClass("blur");
 		$('#editor_overlay').fadeIn();
 	});

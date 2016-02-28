@@ -662,7 +662,7 @@ function rotate_hero_logo() {
 }
 
 $(document).ready(function(){
-	// window.setInterval(rotate_hero_logo, 2000);	
+	window.setInterval(rotate_hero_logo, 2000);	
 	get_editors_on_page();
 	console.log('Initializing socket IO');
 	setupSocketIO();
