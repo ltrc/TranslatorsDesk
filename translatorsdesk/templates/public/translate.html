@@ -22,7 +22,7 @@
     </script>
      <div class="row">
       <div class="col-md-12">
-      <div id="po-container" class="container">
+      <div id="po-container" class="container anim">
       </div>
     </div>
   </div>
@@ -30,10 +30,13 @@
 </div>
 <div id="download_controls">
         <center>
-        <button id="preview" class="btn btn-primary" style="margin-bottom: 20px;">Preview</button>
-        <button id="download" class="btn btn-success" style="margin-bottom: 20px;">Download {{fileName}}</button>
+        <button id="preview" class="btn btn-primary">Preview</button>
+        <button id="download" class="btn btn-success">Download {{fileName}}</button>
         </center>
       </div>
+<div id="sentence_overlay">
+Hello <i class="fa fa-times fa-2x" id="close_btn"></i>
+</div>
 <script type="text/javascript">
   window.uid = '{{uid}}';
   window.fileName = '{{fileName}}';

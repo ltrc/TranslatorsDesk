@@ -71,12 +71,27 @@ $(document).ready(function(){
                   $('.panel-title').click(function() {
                       // console.log($(this).siblings());
                       // $('.panel-body').slideUp();
-                      $('.target-text').slideDown();
+                      event.stopPropagation();
+                      $('#po-container').addClass("blur");
+                      $('#sentence_overlay').fadeIn(200);
+                      $('#sentence_overlay').animate({height: "50%"}, 300);
+
+                      // $('.target-text').slideDown(); THIS IS MAIN
                       // $(this).find('.target-text').slideUp();
-                      $(this).siblings().slideToggle();
+                      // $(this).siblings().slideToggle();
                       // activePanel = $(this);
                     }); 
-
+                  $('#sentence_overlay #close_btn').click(function() {
+                    event.stopPropagation();
+                    $('#po-container').removeClass("blur");
+                    $('#sentence_overlay').animate({height: "0"}, 300);
+                    $('#sentence_overlay').fadeOut(200);
+                  });
+                  $(document).click(function() {
+                      $('#po-container').removeClass("blur");
+                      $('#sentence_overlay').animate({height: "0"}, 300);
+                    $('#sentence_overlay').fadeOut(200);
+                  });
                   $('.tgt_word').mouseover(function() {
                     // console.log(this.innerHTML);
                     var word = this.id;

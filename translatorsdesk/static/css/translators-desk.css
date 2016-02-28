@@ -300,6 +300,8 @@ div.thead {
 	background-color: rgba(0,0,0,0.8);
 }
 #po-container {
+	padding-top: 20px;
+	padding-bottom: 20px;
 	width: 70%;
 	border-radius: 5px;
 	border: 1px solid rgba(0,0,0,0.5);
@@ -308,4 +310,29 @@ div.thead {
 	top: 100px;
 	position: fixed;
 	right: 30px;
+}
+#sentence_overlay {
+	position: fixed;
+	display: none;
+	margin: auto;
+	left: 0;
+	right: 0;
+	bottom: 0;
+	top: 0;
+	padding: 20px;
+	/*this to solve "the content will not be cut when the window is smaller than the content": */
+    max-width:100%;
+    max-height:100%;
+    overflow:auto;
+	width: 80%;
+	height: 0%;
+	background-color: white;
+	border: 1px solid rgba(0,0,0,0.8);
+	border-radius: 5px;
+}
+#sentence_overlay #close_btn {
+	position: absolute;
+	cursor: pointer;
+	top: 20px;
+	right: 20px;
 }
