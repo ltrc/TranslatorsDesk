@@ -21,7 +21,7 @@
               <!-- The fileinput-button span is used to style the file input field as button -->
               <center>
               <span id="add-files" class="btn btn-primary fileinput-button">
-                  <span><span class="glyphicon glyphicon-file"></span> Upload Document</span>
+                  <span><span class="glyphicon glyphicon-file"></span> Upload</span>
               </span>
               <!-- <button class="btn btn-primary" id="switch_mode">Switch to text mode</button> -->
               <button id="submit_raw" class="btn btn-success btn-primary raw-group" style="background-color: #43A047;"><span class="glyphicon glyphicon-play-circle"></span> Translate</button>
@@ -76,4 +76,10 @@
 </div>
 
 {% endblock %}
+{% block js %}
+  <script src="{{ url_for('static', filename='sepjs/home-html.js') }}"> </script>
+  <script src="{{ url_for('static', filename='js/dropzone.js') }}"> </script>
+  <script src="{{ url_for('static', filename='libs/dropzone/dist/dropzone.js') }}"> </script>
+  <script src="{{ url_for('static', filename='js/inpage2unicode.js') }}"> </script>
 
+{% endblock %}

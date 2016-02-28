@@ -60,20 +60,6 @@ def translators_desk_get_lang_pairs():
     print result
     emit('translators_desk_get_lang_pairs_response', result)
 
-
-# The following function is probably outdated and not required anymore. Confirm and take necessary action. 
-@socketio.on('translators_desk_get_translation_query', namespace='/td')
-def translators_desk_get_translation_query(message):
-    print message
-    url = 'http://pipeline.ilmt.iiit.ac.in/hin/pan/'+str(message["start"])+'/'+str(message["end"])+'/' # TODO: Hardcoded languages. Fix either the values in ILMT pipeline or the values in Translators Desk.
-    values = {'input' : message["data"].encode('utf-8')}
-    data = urllib.urlencode(values)
-    req = urllib2.Request(url, data)
-    response = urllib2.urlopen(req)
-    the_page = response.read()
-    result = {"type": message["type"], "sentence_id": message["sentence_id"], "result": the_page}
-    emit('translators_desk_get_translation_response', json.dumps(result))
-
 @socketio.on('translanslators_desk_echo', namespace='/td')
 def test_message(message):
     emit('translanslators_desk_echo_response', message)

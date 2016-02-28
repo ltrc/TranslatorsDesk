@@ -36,14 +36,11 @@ js = Bundle(
     "libs/CodeMirror/addon/search/search.js",
     "libs/CodeMirror/addon/scroll/annotatescrollbar.js",
     "libs/CodeMirror/addon/search/matchesonscrollbar.js",
-    "libs/dropzone/dist/dropzone.js",
     "js/translators-desk-aspell-hint.js",
     "libs/CodeMirror/addon/display/panel.js",
     "libs/CodeMirror/addon/selection/mark-selection.js",
     "js/translators-desk.js",
-    "js/dropzone.js",    
     "js/plugins.js",
-    "js/poeditor.js",
     filters='jsmin',
     output="public/js/common.js"
 )

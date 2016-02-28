@@ -70,9 +70,8 @@
     <script type="text/javascript" src="{{ ASSET_URL }}"></script>
 {% endassets %}
 
-{% block js %}{% endblock %}
   <script src="{{ url_for('static', filename='js/jqueryui.js') }}"> </script>
-  <script src="{{ url_for('static', filename='js/inpage2unicode.js') }}"> </script>
+{% block js %}{% endblock %}
 
 <!-- end scripts -->
 {% endblock %}
