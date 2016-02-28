@@ -190,6 +190,8 @@ div.thead {
     padding-bottom: 2.5px;
     margin-left: 10px;
     margin-right: 10px;
+    font-size: 1.6em;
+    color: rgba(0, 0, 0, 0.6);
 }
 #lang_interchange:hover {
 	background-color: rgba(0,0,0,0.1);
