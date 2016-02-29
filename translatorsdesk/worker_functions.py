@@ -2,7 +2,6 @@ import subprocess
 from rq import Queue
 from redis import Redis
 from flask import json, jsonify
-
 import urllib, urllib2
 import sys
 import re
