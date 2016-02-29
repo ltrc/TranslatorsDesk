@@ -48,10 +48,10 @@ def translators_desk_check_file_state(message):
     r_conn = Redis()
     uid = message["uid"]
     fileName = message["fileName"]
-    key = uid+"/"+fileName+"_sents"
+    key = "state_"+uid+"/"+fileName
     _status = r_conn.lrange(key, 0, -1)
-    if _status > 0:
-        emit('translators_desk_file_state_change', _status)
+    # if _status > 0:
+    emit('translators_desk_file_state_change', _status)
 
 @socketio.on('translators_desk_get_lang_pairs', namespace='/td')
 def translators_desk_get_lang_pairs():
@@ -62,16 +62,17 @@ def translators_desk_get_lang_pairs():
     print result
     emit('translators_desk_get_lang_pairs_response', result)
 
-@socketio.on('get_translation_data', namespace='/td')
-def get_translation_data(message):
+@socketio.on('translators_desk_get_translation_data', namespace='/td')
+def translators_desk_get_translation_data(message):
     r_conn = Redis()
     uid = message["uid"]
     fileName = message["fileName"]
     key = uid+"/"+fileName+"_sents"
     _status = r_conn.lrange(key, 0, -1)
     if _status > 0:
-        r_conn.delete(key)
-        emit('get_translation_data_response', _status)
+        print _status
+        #r_conn.delete(key)
+        emit('translators_desk_get_translation_data_response', _status)
 
 @socketio.on('translators_desk_get_word_suggestion', namespace='/td')
 def translators_desk_get_word_suggestion(message):

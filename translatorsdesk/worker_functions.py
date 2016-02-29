@@ -39,7 +39,7 @@ def add_sentence_to_file(file, sent):
     u_file = "/".join(file.split("/")[-2:])
     r_conn.lpush(u_file+"_sents", sent)
 
-def remove_file_sents(key):
+def remove_file_sents(file):
     r_conn = get_redis_connection()
     u_file = "/".join(file.split("/")[-2:])
     r_conn.delete(u_file+"_sents")
@@ -157,7 +157,6 @@ def translate_po(file, src, target):
         if entry.msgid.strip() != "":
             d.append({"src":entry.msgid,"tgt":entry.msgstr})
 
-    change_state(file, "TRANSLATING_PO_FILE")
     count = 1;
     module_start = "1"
 
@@ -194,6 +193,12 @@ def translate_po(file, src, target):
             sent_count += 1
         para_count += 1
 
+    #SAVE META FILE BEFORE TRANSLATION
+    meta_file = open(file+'.meta', 'w')
+    meta_file.write(json.dumps(meta))
+    meta_file.close()
+    change_state(file, "TRANSLATING_PO_FILE:::BEGIN")
+
     #EXECUTE THREADS
     FAILURE = False
     def worker(sentences):
@@ -221,16 +226,16 @@ def translate_po(file, src, target):
     for para_no in xrange(len(meta['entries'])):
         d[para_no]['tgt'] = ' '.join( [each[1]['tgt'] for each in sorted(meta['entries'][para_no].items())] )
 
-    #SAVE META FILE
+    #SAVE META FILE AFTER TRANSLATION
     meta_file = open(file+'.meta', 'w')
     meta_file.write(json.dumps(meta))
     meta_file.close()
 
-    remove_file_sents(file)
 
     if not FAILURE:
+        # remove_file_sents(file)
         change_state(file, "TRANSLATING_PO_FILE:::COMPLETE")
-        change_state(file, "GENERATING_TRANSLATED_PO_FILE")
+        change_state(file, "GENERATING_TRANSLATED_PO_FILE:::BEGIN")
 
         po = polib.POFile()
         for _d in d:

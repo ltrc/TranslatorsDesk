@@ -107,10 +107,17 @@ CodeMirror.commands.translators_desk_aspell = function(editor) {
 			// Remove corresponding event listener
 			console.log(data);
 			//Display the hint
+			var data = JSON.parse(data);
 			editor.showHint({
 								hint: CodeMirror.hint.translators_desk_aspell,
-								translators_desk_aspell_suggesstions: JSON.parse(data)
+								translators_desk_aspell_suggesstions: data.spellings
 							});
+			if (data.synonyms) {
+				show_syns(editor, data.synonyms);
+			}
+			else {
+				show_syns(editor, []);
+			}
 		}	
 		socket.on("translators_desk_get_word_suggestion_"+$.md5(editor.currentWord.toLowerCase()), socket_response_listener);
 	}
@@ -659,6 +666,16 @@ function rotate_hero_logo() {
 		$('#hero_logo').text(hero_logo_opts[newopt]);
 		$('#hero_logo').fadeIn();
 	});
+}
+
+function show_syns(editor, syns) {
+	$('#word_suggestions').html("");
+	$.each(syns, function(index, val) {
+		$('#word_suggestions').append("<li class='anim'>"+val+"</li>");
+	});
+	if (syns.length==0) {
+		$('#word_suggestions').html("<li class='anim'>Word suggestions will appear here</li>");
+	}
 }
 
 $(document).ready(function(){

@@ -5,18 +5,6 @@
 
 <div class="container-fluid">
 
-  {% if not (status.__len__() >0 and (status[0]=="GENERATING_TRANSLATED_PO_FILE:::COMPLETE" or status[0].startswith("OUTPUT_FILE_GENERATED") )) %}
-    <div id="loading-div" class="row">
-        <center>
-        <br />
-        <br />
-        <br />
-        <div class="circle"></div>
-        <br/><br /><br />
-        <h2 id="translation_status"></h2>
-        </center>
-    </div>
-  {% else %}
       <script type="text/javascript">
           var PO_DATA = '{{ PO | tojson | safe }}';
     </script>
@@ -26,7 +14,7 @@
       </div>
     </div>
   </div>
-  {% endif %}
+
 </div>
 <div id="download_controls">
         <center>
