@@ -34,6 +34,15 @@ def change_state(file, state):
 
     r_conn.lpush("state_"+u_file, state)
 
+def add_sentence_to_file(file, sent):
+    r_conn = get_redis_connection()
+    u_file = "/".join(file.split("/")[-2:])
+    r_conn.lpush(u_file+"_sents", sent)
+
+def remove_file_sents(key):
+    r_conn = get_redis_connection()
+    u_file = "/".join(file.split("/")[-2:])
+    r_conn.delete(u_file+"_sents")
 
 #=================================================================
 # Process Input File
@@ -84,10 +93,6 @@ def tokenize(sentence, src, target):
   return sentences
 
 def translate(sentence, src, target, module_start, module_end, last_module, chunker_module):
-
-  response = {}
-  response['src'] = sentence.replace('"', '\\"')
-
   SERVER="http://pipeline.ilmt.iiit.ac.in"
   URI=SERVER+"/"+src+"/"+target+"/"+module_start+"/"+module_end+"/"
   values = {'input' : sentence.encode('utf-8'), 'params': {}}
@@ -116,6 +121,7 @@ def translate(sentence, src, target, module_start, module_end, last_module, chun
               n.expand_af()
               words.append([n.getAttribute('name').replace('\\', '\\\\').replace('"', '\\"'), n.lex.replace('\\', '\\\\').replace('"', '\\"')])
 
+  response = {}
   response['tgt'] = sentence.replace('"', '\\"')
   response['words'] = words
 
@@ -184,7 +190,7 @@ def translate_po(file, src, target):
         for sent in sents:
             index = sent_count%NO_OF_THREADS
             THREAD_DATA[index].append( (sent, para_count, sent_count) )
-            meta['entries'][para_count][sent_count] = None
+            meta['entries'][para_count][sent_count] = {'src': sent.replace('"', '\\"'), 'tgt': None, 'words': None}
             sent_count += 1
         para_count += 1
 
@@ -198,7 +204,9 @@ def translate_po(file, src, target):
                 print "FAILED"
                 FAILURE = True
             print response['tgt']
-            meta['entries'][sent[1]][sent[2]] = response
+            add_sentence_to_file(file, [sent[1], sent[2], response['words']])
+            meta['entries'][sent[1]][sent[2]]['tgt'] = response['tgt']
+            meta['entries'][sent[1]][sent[2]]['words'] = response['words']
 
     THREADS = []
     for i in xrange(NO_OF_THREADS):
@@ -217,6 +225,8 @@ def translate_po(file, src, target):
     meta_file = open(file+'.meta', 'w')
     meta_file.write(json.dumps(meta))
     meta_file.close()
+
+    remove_file_sents(file)
 
     if not FAILURE:
         change_state(file, "TRANSLATING_PO_FILE:::COMPLETE")

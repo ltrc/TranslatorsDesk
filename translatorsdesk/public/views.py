@@ -195,9 +195,6 @@ def translate(uid, fileName):
         else:
             return abort(404)
     else:
-        # r_conn = get_redis_connection()
-        # _status = r_conn.lrange("state_"+uid+"/"+fileName, 0, -1)
-
         return render_template('public/translate.html',\
                             fileName=fileName,
                             uid=uid,

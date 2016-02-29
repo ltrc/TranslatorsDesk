@@ -48,8 +48,10 @@ def translators_desk_check_file_state(message):
     r_conn = Redis()
     uid = message["uid"]
     fileName = message["fileName"]
-    _status = r_conn.lrange("state_"+uid+"/"+fileName, 0, -1)
-    emit('translators_desk_file_state_change', _status)
+    key = uid+"/"+fileName+"_sents"
+    _status = r_conn.lrange(key, 0, -1)
+    if _status > 0:
+        emit('translators_desk_file_state_change', _status)
 
 @socketio.on('translators_desk_get_lang_pairs', namespace='/td')
 def translators_desk_get_lang_pairs():
@@ -60,9 +62,16 @@ def translators_desk_get_lang_pairs():
     print result
     emit('translators_desk_get_lang_pairs_response', result)
 
-@socketio.on('translanslators_desk_echo', namespace='/td')
-def test_message(message):
-    emit('translanslators_desk_echo_response', message)
+@socketio.on('get_translation_data', namespace='/td')
+def get_translation_data(message):
+    r_conn = Redis()
+    uid = message["uid"]
+    fileName = message["fileName"]
+    key = uid+"/"+fileName+"_sents"
+    _status = r_conn.lrange(key, 0, -1)
+    if _status > 0:
+        r_conn.delete(key)
+        emit('get_translation_data_response', _status)
 
 @socketio.on('translators_desk_get_word_suggestion', namespace='/td')
 def translators_desk_get_word_suggestion(message):
@@ -75,21 +84,20 @@ def translators_desk_get_word_suggestion(message):
 
     if lang in ['hi', 'ur', 'en', 'te', 'ta', 'pa']:
         # print spellcheckers
-        suggestions = ['No suggestions found', '']
+        suggestions = {}
+        # suggestions['spellings'] = ['No suggestions found', '']
         if lang != 'ur':
-            suggestions = spellcheckers[lang].suggest(word.encode('utf-8'))
+            suggestions['spellings'] = spellcheckers[lang].suggest(word.encode('utf-8'))
 
         # suggestions = ['No suggestions found...', '']
         if lang == 'hi':
             id = hindi_dict['words'].get(word, None)
-            print id
             if id:
-                suggestions.extend(hindi_dict['ids'][id])
+                suggestions['synonyms'] = hindi_dict['ids'][id]
         elif lang == 'ur':
             id = urdu_dict['words'].get(word, None)
-            print "MERA : ", word, id
             if id:
-                suggestions = urdu_dict['ids'][id]
+                suggestions['synonyms'] = urdu_dict['ids'][id]
         # suggestions = spellcheckers[lang].suggest(word)
         print suggestions
         emit("translators_desk_get_word_suggestion_" \
