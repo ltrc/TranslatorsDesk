@@ -8,12 +8,14 @@ import sys
 import re
 import polib
 import os
+import threading
 import ssfapi
-from flask.ext.socketio import SocketIO, emit, join_room, leave_room, \
-    close_room, disconnect
+from time import time
+from flask.ext.socketio import SocketIO, emit, join_room, leave_room, close_room, disconnect
 reload(sys)
 sys.setdefaultencoding('utf8')
 
+NO_OF_THREADS = 5
 
 #TO-DO : Change this to a redis pool
 redis_conn = Redis()
@@ -81,6 +83,9 @@ def tokenize(sentence, src, target):
 
 def translate(sentence, src, target, module_start, module_end, last_module, chunker_module):
 
+  response = {}
+  response['src'] = sentence.replace('"', '\\"')
+
   SERVER="http://pipeline.ilmt.iiit.ac.in"
   URI=SERVER+"/"+src+"/"+target+"/"+module_start+"/"+module_end+"/"
   values = {'input' : sentence.encode('utf-8'), 'params': {}}
@@ -94,8 +99,8 @@ def translate(sentence, src, target, module_start, module_end, last_module, chun
 
   d = json.loads(the_page)
   print "TRANSLATE ENTERED"
-  print d[last_module]
   ssf_data = ssfapi.Document(d[last_module])
+  
   sentence = ssf_data.nodeList[0].generateSentence()
   words = []
   for tree in ssf_data.nodeList:
@@ -109,13 +114,12 @@ def translate(sentence, src, target, module_start, module_end, last_module, chun
               n.expand_af()
               words.append([n.getAttribute('name').replace('\\', '\\\\').replace('"', '\\"'), n.lex.replace('\\', '\\\\').replace('"', '\\"')])
 
-  response = {}
   response['tgt'] = sentence.replace('"', '\\"')
   response['words'] = words
 
   return response
 
-#CHANGE FILE STATTE WHEN PIPELINE IS DOWN ASK USER USER TO RETRY
+#CHANGE FILE STATE WHEN PIPELINE IS DOWN ASK USER USER TO RETRY
 def get_call_api(url):
     tries = 5
     error = None
@@ -147,65 +151,88 @@ def translate_po(file, src, target):
 
     change_state(file, "TRANSLATING_PO_FILE")
     count = 1;
-    for _entry in d:
-        module_start = "1"
-        SERVER="http://api.ilmt.iiit.ac.in"
-        module_end = get_call_api(SERVER+"/"+src+"/"+target+"/")
-        if not module_end:
-            change_state(file, "PIPELINE_ERROR")
-            return False
-        modules = get_call_api(SERVER+"/"+src+"/"+target+"/modules/")
-        if not modules:
-            change_state(file, "PIPELINE_ERROR")
-            return False
-        modules = modules.strip('[').strip(']').split(',')
-        last_module = modules[-1].strip('"') + '-' + str(len(modules))
-        chunker_index = modules.index("\"chunker\"")
-        chunker_module = modules[chunker_index].strip('"')  + '-' + str(chunker_index+1)
+    module_start = "1"
 
+    SERVER="http://api.ilmt.iiit.ac.in"
+    module_end = get_call_api(SERVER+"/"+src+"/"+target+"/")
+    if not module_end:
+        change_state(file, "PIPELINE_ERROR")
+        return False
+    modules = get_call_api(SERVER+"/"+src+"/"+target+"/modules/")
+    if not modules:
+        change_state(file, "PIPELINE_ERROR")
+        return False
+    modules = modules.strip('[').strip(']').split(',')
+    last_module = modules[-1].strip('"') + '-' + str(len(modules))
+    chunker_index = modules.index("\"chunker\"")
+    chunker_module = modules[chunker_index].strip('"')  + '-' + str(chunker_index+1)
+
+    #DIVIDE THE LOAD ACCROSS THREADS
+    THREAD_DATA = []
+    for x in xrange(0, NO_OF_THREADS):
+        THREAD_DATA.append([])
+    sent_count = 0
+    para_count = 0
+    for _entry in d:
         sents = tokenize(_entry['src'], src, target)
         if not sents:
             change_state(file, "PIPELINE_ERROR")
             return False
-
-        para = []
-        final = []
+        meta['entries'].append({})
         for sent in sents:
-          response = translate(sent, src, target, module_start, module_end, last_module, chunker_module)
-          if not response:
-            change_state(file, "PIPELINE_ERROR")
-            return False
-          response['src'] = sent.replace('"', '\\"')
-          para.append(response)
-          final.append(response['tgt'])
-        meta['entries'].append(para)
-        _entry['tgt'] = ' '.join(final)
-        
-        change_state(file, "TRANSLATING_PO_FILE:::PROGRESS:::"+str(count)+"/"+str(len(d)))
-        count += 1
+            index = sent_count%NO_OF_THREADS
+            THREAD_DATA[index].append( (sent, para_count, sent_count) )
+            meta['entries'][para_count][sent_count] = None
+            sent_count += 1
+        para_count += 1
 
-    change_state(file, "TRANSLATING_PO_FILE:::COMPLETE")
+    #EXECUTE THREADS
+    FAILURE = False
+    def worker(sentences):
+        for sent in sentences:
+            response = translate(sent[0], src, target, module_start, module_end, last_module, chunker_module)
+            if not response:
+                change_state(file, "PIPELINE_ERROR")
+                print "FAILED"
+                FAILURE = True
+            print response['tgt']
+            meta['entries'][sent[1]][sent[2]] = response
 
-    change_state(file, "GENERATING_TRANSLATED_PO_FILE")
+    THREADS = []
+    for i in xrange(NO_OF_THREADS):
+        t = threading.Thread(target = worker, args = (THREAD_DATA[i],) )
+        THREADS.append(t)
+        t.start()
+
+    #JOIN THREADS
+    for t in THREADS:
+        t.join()
+
+    for para_no in xrange(len(meta['entries'])):
+        d[para_no]['tgt'] = ' '.join( [each[1]['tgt'] for each in sorted(meta['entries'][para_no].items())] )
 
     #SAVE META FILE
     meta_file = open(file+'.meta', 'w')
     meta_file.write(json.dumps(meta))
     meta_file.close()
 
-    po = polib.POFile()
-    for _d in d:
-        _msgid = _d['src']
-        _msgstr = _d['tgt']
+    if not FAILURE:
+        change_state(file, "TRANSLATING_PO_FILE:::COMPLETE")
+        change_state(file, "GENERATING_TRANSLATED_PO_FILE")
 
-        entry = polib.POEntry(
-            msgid=unicode(_msgid),
-            msgstr=unicode(_msgstr),
-        )
-        po.append(entry)
+        po = polib.POFile()
+        for _d in d:
+            _msgid = _d['src']
+            _msgstr = _d['tgt']
 
-    po.save(file+".po")
-    change_state(file, "GENERATING_TRANSLATED_PO_FILE:::COMPLETE")    
+            entry = polib.POEntry(
+                msgid=unicode(_msgid),
+                msgstr=unicode(_msgstr),
+            )
+            po.append(entry)
+
+        po.save(file+".po")
+        change_state(file, "GENERATING_TRANSLATED_PO_FILE:::COMPLETE")    
 
 def process_input_file(file, src, tgt):
     #convert_html_namespace = {'Hindi' : 'hin', 'Panjabi' : 'pan', 'Urdu' : 'urd'}
@@ -217,10 +244,12 @@ def process_input_file(file, src, tgt):
     print "*"*80
     print src, tgt, src_conv, tgt_conv
     print "="*80
-
+    starttime = time()
     extract_xliff(file, src_conv, tgt_conv)
     extract_po(file)
     translate_po(file, src, tgt)
+    endtime = time()
+    print "TOTAL TIME TAKEN: ", endtime-starttime
 
 
 

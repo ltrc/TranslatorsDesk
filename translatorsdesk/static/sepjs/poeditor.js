@@ -7,8 +7,8 @@ $(document).ready(function(){
     window.PO_DATA_WORDS2 = {}  // Source to target and vice versa
     window.tgt_lang = PO_DATA.data.tgt_lang;
 
-    $(window.PO_DATA.data.entries).each(function(paraid, paradata){
-        $(paradata).each(function(idx, data) {
+    $.each(window.PO_DATA.data.entries, function(paraid, paradata){
+        $.each(paradata, function(idx, data) {
               console.log("Helo");
 
 
@@ -26,12 +26,15 @@ $(document).ready(function(){
                                         </div><!-- /.navbar-collapse -->\
                                       </div><!-- /.container-fluid -->\
                                     </nav>';
-
               var codemirror_editor = '<div id="codemirror_block_'+CODEMIRROR_EDITOR_ID+'" td-editor-id='+CODEMIRROR_EDITOR_ID+' class="codemirror_block"></div>';
+      console.log("HIIII");
+                
                 console.log(data)
+      console.log("HIIII");
 
                 var tgt_str_to_show = "";
                 var src_str_to_show = "";
+
                 $.each(data.words, function(index, val) {
                   tgt_str_to_show += "<span id='"+val[1]+"_"+paraid+"_"+idx+"_"+index+"' class='tgt_word'>"+val[1]+"</span> ";
                 });
@@ -52,20 +55,21 @@ $(document).ready(function(){
         });
           
       // $("#po-container").append("<div class='row data-points'><div class='source col-md-6 text-center'>"+data.src+"</div><div class='col-md-6 text-center'><textarea style='width:100%' class='target expandableTextArea' spellcheck='false'>"+data.tgt+"</textarea></div></div>");
-    }).promise().done(function(){
+    });
                   var tgtLang = window.tgt_lang; // For the editor language
                   console.log("Target Editor Language: " + tgtLang[0].toLowerCase()+tgtLang[1].toLowerCase());
                   init_editors(true, tgtLang[0].toLowerCase()+tgtLang[1].toLowerCase());
                   // for(var i=0; i<editors.length; i++) {
                     var i = 0;
-                    $(window.PO_DATA.data.entries).each(function(index, val) {
-                      $(val).each(function(indx, sentval) {
+                    $.each(window.PO_DATA.data.entries, function(index, val) {
+                      $.each(val, function(indx, sentval) {
+                        console.log(sentval.tgt);
                         editors[i].setValue(sentval.tgt);
                         i = i+1;
                       });
                     });
                   // }
-
+                  console.log("REACHED!!");
                   $('.panel-title').siblings().hide();
                   var activePanel;
                   $('.panel-title').click(function() {
@@ -126,19 +130,6 @@ $(document).ready(function(){
                     $(this).removeClass("highlight");
                     $('.tgt_word').removeClass("highlight");
                   });
-
-
-                  // Not needed anymore: 
-                // var elements = document.getElementsByClassName('expandableTextArea');
-
-                // for(var i=0;i<elements.length; i++){
-                //     elements[i].addEventListener('keyup', function() {
-                //         this.style.overflow = 'hidden';
-                //         this.style.height = 0;
-                //         this.style.height = this.scrollHeight + 'px';
-                //     }, false);      
-                // }
-    })
   }
 })
 
