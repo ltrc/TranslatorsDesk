@@ -11,6 +11,9 @@ import os
 import ssfapi
 from flask.ext.socketio import SocketIO, emit, join_room, leave_room, \
     close_room, disconnect
+
+from time import time
+
 reload(sys)
 sys.setdefaultencoding('utf8')
 
@@ -94,7 +97,7 @@ def translate(sentence, src, target, module_start, module_end, last_module, chun
 
   d = json.loads(the_page)
   print "TRANSLATE ENTERED"
-  print d[last_module]
+  # print d[last_module]
   ssf_data = ssfapi.Document(d[last_module])
   sentence = ssf_data.nodeList[0].generateSentence()
   words = []
@@ -217,10 +220,12 @@ def process_input_file(file, src, tgt):
     print "*"*80
     print src, tgt, src_conv, tgt_conv
     print "="*80
-
+    starttime = time()
     extract_xliff(file, src_conv, tgt_conv)
     extract_po(file)
     translate_po(file, src, tgt)
+    endtime = time()
+    print "TOTAL TIME TAKEN : ", endtime-starttime
 
 
 
