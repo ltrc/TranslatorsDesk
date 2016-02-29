@@ -10,8 +10,11 @@ import polib
 import os
 import threading
 import ssfapi
-from time import time
+
 from flask.ext.socketio import SocketIO, emit, join_room, leave_room, close_room, disconnect
+
+from time import time
+
 reload(sys)
 sys.setdefaultencoding('utf8')
 
@@ -249,7 +252,7 @@ def process_input_file(file, src, tgt):
     extract_po(file)
     translate_po(file, src, tgt)
     endtime = time()
-    print "TOTAL TIME TAKEN: ", endtime-starttime
+    print "TOTAL TIME TAKEN : ", endtime-starttime
 
 
 

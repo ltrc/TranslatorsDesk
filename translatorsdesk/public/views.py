@@ -170,7 +170,7 @@ def translate(uid, fileName):
     r_conn = get_redis_connection()
     _status = r_conn.lrange("state_"+uid+"/"+fileName, 0, -1)
 
-    if len(_status) >0 and (_status[0]=="GENERATING_TRANSLATED_PO_FILE:::COMPLETE" or _status[0].startswith("OUTPUT_FILE_GENERATED") ) :
+    if len(_status) >0: #and (_status[0]=="GENERATING_TRANSLATED_PO_FILE:::COMPLETE" or _status[0].startswith("OUTPUT_FILE_GENERATED") ) :
         if fileExists(uid, fileName):
             if(fileExists(uid, fileName+".po")):
 
@@ -184,14 +184,19 @@ def translate(uid, fileName):
                                     uid=uid,
                                     status = _status,
                                     PO = {'po':True, 'data':meta}
-                                    )        
+                                    )
             else:
-                return abort(404)
+                return render_template('public/translate.html',\
+                            fileName=fileName,
+                            uid=uid,
+                            status=_status,
+                            PO = False
+                            )
         else:
             return abort(404)
     else:
-        r_conn = get_redis_connection()
-        _status = r_conn.lrange("state_"+uid+"/"+fileName, 0, -1)
+        # r_conn = get_redis_connection()
+        # _status = r_conn.lrange("state_"+uid+"/"+fileName, 0, -1)
 
         return render_template('public/translate.html',\
                             fileName=fileName,

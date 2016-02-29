@@ -213,9 +213,16 @@ $("#download").click(function(){
 });
 
 $('#preview').click(function() {
-  $(this).fadeOut();
-  $('.source-text').slideUp();
-  $('.panel-body').slideUp();
+  if ($(this).text() == "Preview") {
+    $(this).text("Revert");
+    $('.source-text').slideUp();
+    $('.panel-body').slideUp();  
+  }
+  else {
+    $(this).text("Preview");
+    $('.source-text').slideDown();
+    // $('.panel-body').slideUp();  
+  }
 });
 
 
