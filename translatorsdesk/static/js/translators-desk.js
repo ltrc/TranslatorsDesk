@@ -678,6 +678,11 @@ function show_syns(editor, syns) {
 	}
 }
 
+
+function make_progress(i, n) {
+	$('#progressbar').stop().animate({width: ((i%n)*100/n)+"%"}, 100);
+}
+
 $(document).ready(function(){
 	window.setInterval(rotate_hero_logo, 2000);	
 	get_editors_on_page();

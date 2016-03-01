@@ -5,6 +5,7 @@
 body, html {
   overflow: hidden;
 }
+
 </style>
 {% endblock %}
 
@@ -84,7 +85,8 @@ body, html {
 <ul id="word_suggestions">
   <li class="anim">Word suggestions will appear here</li>
 </ul>
-
+<div id="progressbar">hi
+</div>
 {% endblock %}
 {% block js %}
   <script src="{{ url_for('static', filename='sepjs/home-html.js') }}"> </script>

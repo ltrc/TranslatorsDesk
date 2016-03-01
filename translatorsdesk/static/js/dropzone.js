@@ -26,7 +26,8 @@ $(function(){
               })
               // Update the total progress bar
               this.on("totaluploadprogress", function(progress) {
-                $("#total-progress .progress-bar").css("width" , progress + "%");
+                // $("#total-progress .progress-bar").css("width" , progress + "%");
+                make_progress(progress, 100);
               });
 
               this.on("sending", function(file, xhr, data) {
@@ -46,8 +47,22 @@ $(function(){
               this.on("success", function(response){
                 var _response = JSON.parse(response.xhr.response);
                 //TO-DO : Add error handling here
-                  document.location = "/translate/"+_response.uuid+"/"+_response.filename 
                   console.log("/translate/"+_response.uuid+"/"+_response.filename ); 
+                  // var i = 0;
+                  // window.setInterval(function() {
+                  //   i += 1;
+                  //   make_progress(i, 100);
+                  // }, 100);
+                  console.log("ATTN");
+                  socket.emit('translators_desk_check_file_state', {uid: _response.uuid, fileName: _response.filename});
+                  socket.on('translators_desk_file_state_change', function(data) {
+                    if (data.length>0 && data[0].startsWith('TRANSLATING_PO_FILE:::BEGIN')) {
+                      document.location = "/translate/"+_response.uuid+"/"+_response.filename 
+                    }
+                    else {
+                      socket.emit('translators_desk_check_file_state', {uid: _response.uuid, fileName: _response.filename});
+                    }
+                  });   
               });
             }
           };
@@ -55,7 +70,11 @@ $(function(){
 
       $('#submit_raw').click(function() {
         console.log(editors[0].getValue());
-        console.log(editors[0].getValue());
+        var i = 0;
+                  window.setInterval(function() {
+                    i += 1;
+                    make_progress(i, 100);
+                  }, 100);
         $.ajax({
           url: "/upload",
           method: "POST",
@@ -63,9 +82,20 @@ $(function(){
           async: true, 
           success: function(_response) {
             console.log(_response);
+
                 //TO-DO : Add error handling here
-            document.location = "/translate/"+_response.uuid+"/"+_response.filename 
+            // document.location = "/translate/"+_response.uuid+"/"+_response.filename 
             console.log("/translate/"+_response.uuid+"/"+_response.filename ); 
+            socket.emit('translators_desk_check_file_state', {uid: _response.uuid, fileName: _response.filename});
+            socket.on('translators_desk_file_state_change', function(data) {
+              if (data.length>0 && data[0].startsWith('TRANSLATING_PO_FILE:::BEGIN')) {
+                make_progress(100,100);
+                document.location = "/translate/"+_response.uuid+"/"+_response.filename 
+              }
+              else {
+                socket.emit('translators_desk_check_file_state', {uid: _response.uuid, fileName: _response.filename});
+              }
+            });
           }
         });
       });

@@ -49,16 +49,15 @@ $.each(entries, function(paraid, paradata){
                 }
                 else {
                   window.sentsToGet.push(paraid+"_"+idx);
-                  $.each(data.words, function(index, val) {
-                    tgt_str_to_show += "<span id='"+val[0]+"_"+paraid+"_"+idx+"_"+index+"' class='tgt_word'>"+val[0]+"</span> ";
-                    src_str_to_show += "<span id='"+val[0]+"_"+paraid+"_"+idx+"_"+index+"' class='src_word'>"+val[0]+"</span> ";
+                  $.each(data.src.split(' '), function(index, val) {
+                    tgt_str_to_show += "<span id='"+val+"_"+paraid+"_"+idx+"_"+index+"' class='tgt_word'>"+val+"</span> ";
+                    src_str_to_show += "<span id='"+val+"_"+paraid+"_"+idx+"_"+index+"' class='src_word'>"+val+"</span> ";
                   });
                 }
 
                 $("#po-container").append('<div class="panel-row"><div class="panel-title"><span class="source-text">\
                   '+src_str_to_show+'</span><span class="target-text">'+tgt_str_to_show+'</span></div><div class="panel-body col-md-12">'+codemirror_menu+codemirror_editor+'</div>\
                   </div>');
-
         });
     });
                   var tgtLang = window.tgt_lang; // For the editor language
@@ -125,9 +124,8 @@ $.each(entries, function(paraid, paradata){
 
 
 $(document).ready(function(){
-
-      console.log(window.PO_DATA);
   if(window.PO_DATA){
+    console.log("HOOHAAH");
     console.log(window.PO_DATA)     // fix this 'tgt' key. 
     window.PO_DATA = JSON.parse(window.PO_DATA);
     console.log(window.PO_DATA);
@@ -140,8 +138,8 @@ $(document).ready(function(){
     }
     }
     else {
-      socket.emit('translators_desk_get_translation_data', {uid: window.uid, fileName: window.fileName});
-      socket.on('translators_desk_get_translation_data_response', process_po_data);    
+      console.log("SHOULDNT SEE THIS");
+   
     }
     // update_po_data(window.PO_DATA.data.entries);
 })
