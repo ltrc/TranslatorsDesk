@@ -74,12 +74,12 @@ $(".codemirror_block").each(function(){
  */
 
 TranslatorsDeskGlobals.word_length_query_threshold = {}
-TranslatorsDeskGlobals.word_length_query_threshold['en'] = 3
-TranslatorsDeskGlobals.word_length_query_threshold['hi'] = 2
-TranslatorsDeskGlobals.word_length_query_threshold['pa'] = 2
-TranslatorsDeskGlobals.word_length_query_threshold['te'] = 2
-TranslatorsDeskGlobals.word_length_query_threshold['ta'] = 2
-TranslatorsDeskGlobals.word_length_query_threshold['ur'] = 2
+TranslatorsDeskGlobals.word_length_query_threshold['en'] = 1
+TranslatorsDeskGlobals.word_length_query_threshold['hi'] = 1
+TranslatorsDeskGlobals.word_length_query_threshold['pa'] = 1
+TranslatorsDeskGlobals.word_length_query_threshold['te'] = 1
+TranslatorsDeskGlobals.word_length_query_threshold['ta'] = 1
+TranslatorsDeskGlobals.word_length_query_threshold['ur'] = 1
 
 var editor_word_length_query_threshold;
 /**
