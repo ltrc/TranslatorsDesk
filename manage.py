@@ -84,13 +84,9 @@ def translators_desk_get_word_suggestion(message):
     print spellcheckers
 
     if lang in ['hi', 'ur', 'en', 'te', 'ta', 'pa']:
-        # print spellcheckers
-        suggestions = {}
-        # suggestions['spellings'] = ['No suggestions found', '']
+        suggestions = { 'spellings' : [], 'synonyms' : [] }
         if lang != 'ur':
             suggestions['spellings'] = spellcheckers[lang].suggest(word.encode('utf-8'))
-
-        # suggestions = ['No suggestions found...', '']
         if lang == 'hi':
             id = hindi_dict['words'].get(word, None)
             if id:
@@ -99,7 +95,12 @@ def translators_desk_get_word_suggestion(message):
             id = urdu_dict['words'].get(word, None)
             if id:
                 suggestions['synonyms'] = urdu_dict['ids'][id]
-        # suggestions = spellcheckers[lang].suggest(word)
+        elif lang == 'pa':
+            id = pan_dict['words'].get(word, None)
+            if id:
+                suggestions['synonyms'] = pan_dict['ids'][id]
+
+        suggestions['synonyms'] = [synonym for synonym in suggestions['synonyms'] if synonym != word]
         print suggestions
         emit("translators_desk_get_word_suggestion_" \
             + hashlib.md5(word.lower()).hexdigest(), \
@@ -153,16 +154,20 @@ def load_dictionaries():
 
     f = open('translatorsdesk/static/dictionaries/hin.dict', 'r')
     hindi = {}
-    hindi['ids'], hindi['words'] = json.loads(f.read())
+    hindi['words'], hindi['ids'], hindi['cat'], hindi['meaning'], hindi['example'] = json.loads(f.read())
     f.close()
     f = open('translatorsdesk/static/dictionaries/urd.dict', 'r')
     urdu = {}
-    urdu['ids'], urdu['words'] = json.loads(f.read())
+    urdu['words'], urdu['ids'], urdu['cat'], urdu['meaning'], urdu['example'] = json.loads(f.read())
+    f.close()
+    f = open('translatorsdesk/static/dictionaries/pan.dict', 'r')
+    pan = {}
+    pan['words'], pan['ids'], pan['cat'], pan['meaning'], pan['example'] = json.loads(f.read())
     f.close()
 
-    return (dictionaries, hindi, urdu)
+    return (dictionaries, hindi, urdu, pan)
 
-spellcheckers, hindi_dict, urdu_dict = load_dictionaries()
+spellcheckers, hindi_dict, urdu_dict, pan_dict = load_dictionaries()
 manager = Manager(app)
 
 @manager.command
