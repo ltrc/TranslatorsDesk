@@ -35,6 +35,9 @@ function getLangPairs(response) {
 			clearAllEditors();
 			editors[0].focus();
 			$('#word_suggestions').fadeIn();
+			$('#translation_controls').removeClass('blur');
+			$('.lang_label').removeClass('blur');
+
 		});
 		});
 		});
@@ -48,17 +51,38 @@ $(document).ready(function(){
 	}
 	socket.emit("translators_desk_get_lang_pairs");
 	socket.on("translators_desk_get_lang_pairs_response", getLangPairs);
+	// editors[0].setSize($(window).width()*0.60,$(window).height()*0.65);
+	// var editor_height = $('.codemirror_block').height();
 	editors[0].setSize($(window).width()*0.60,$(window).height()*0.65);
-	var editor_height = $('.codemirror_block').height();
-	var editor_width =  $('.codemirror_block').width();
-	console.log(editor_height, editor_width);
-	$('#editor_overlay').css({height: editor_height, width: editor_width});
-	$('#editor_overlay').css({maxHeight: editor_height, maxWidth: editor_width});
-	$('#word_suggestions').css({width: editor_width});
+
 	var offset = $('.codemirror_block').offset();
 	var editor_top = offset.top;
 	var editor_left = offset.left
-	console.log($('#editor_overlay').height());
+	var footer_offset = $('footer').offset();
+	var footer_top = footer_offset.top;
+	var editor_height = footer_top - editor_top - 40;
+	console.log(editor_height, editor_width);
+	editors[0].setSize($(window).width()*0.60,editor_height);
+	var editor_width =  $('.codemirror_block').width();
+
+	$('#editor_overlay').css({height: editor_height, width: editor_width});
+	$('#editor_overlay').css({maxHeight: editor_height, maxWidth: editor_width});
+	$('#word_suggestions').css({width: editor_width});
+
+	// var offset = $('.codemirror_block').offset();
+	// var editor_top = offset.top;
+	// var editor_left = offset.left
+	// 
+	// editors[0].setSize($(window).width()*0.60,editor_height+"px");
+	// // var editor_height = $('.codemirror_block').height();
+	// var editor_width =  $('.codemirror_block').width();
+	// console.log(editor_height, editor_width);
+	// $('#editor_overlay').css({height: editor_height, width: editor_width});
+	// $('#editor_overlay').css({maxHeight: editor_height, maxWidth: editor_width});
+	// $('#word_suggestions').css({width: editor_width});
+
+
+	console.log($('#editor_overlay').width());
 	console.log(editor_top, editor_left);
 	$('#word_suggestions').css({top: editor_top-$('#word_suggestions').height()-1, left: editor_left});
 	$('#editor_overlay').css({top: editor_top, left: editor_left});
@@ -66,6 +90,9 @@ $(document).ready(function(){
 		$('#word_suggestions').hide();
 		$('.codemirror_block').addClass("blur");
 		$('#editor_overlay').fadeIn();
+		$('#translation_controls').addClass('blur');
+		$('.lang_label').addClass('blur');
+
 	});
 	// $('#dismiss_overlay').click(function(){
 		
@@ -76,6 +103,7 @@ $(document).ready(function(){
 		$('#sourceLanguage').html(target);
 		$('#targetLanguage').html(source);
 		set_editor_language(editors[0], target[0].toLowerCase()+target[1]);
+		$('#word_suggestions').html('<li class="anim">Word suggestions will appear here</li>');
 		clearAllEditors();
 	});
 	$('.change_lang_btn').click();

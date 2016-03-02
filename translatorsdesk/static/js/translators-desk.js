@@ -668,10 +668,14 @@ function rotate_hero_logo() {
 	});
 }
 
+function use_suggestion(edID, val) {
+	editors[edID].replaceRange(val, editors[edID].getCurrentWordRange().from(), editors[edID].getCurrentWordRange().to())
+}
+
 function show_syns(editor, syns) {
 	$('#word_suggestions').html("");
 	$.each(syns, function(index, val) {
-		$('#word_suggestions').append("<li class='anim'>"+val+"</li>");
+		$('#word_suggestions').append("<li class='anim' onclick='use_suggestion("+editors.indexOf(editor)+", \""+val+"\")'>"+val+"</li>");
 	});
 	if (syns.length==0) {
 		$('#word_suggestions').html("<li class='anim'>Word suggestions will appear here</li>");
