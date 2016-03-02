@@ -1,4 +1,6 @@
 function update_po_data(entries) {
+  console.log(entries);
+
   entries = JSON.parse(entries);
 
   $.each(entries, function(ind, para){
@@ -30,7 +32,6 @@ function update_po_data(entries) {
     // console.log(words);
 
   console.log("I got this.");
-  // console.log(entries);
   make_progress(sentsDone, sentsToGet);
   if (sentsDone == sentsToGet) {
     make_progress(0,100);
@@ -39,65 +40,34 @@ function update_po_data(entries) {
 function process_po_data(entries) {
 $.each(entries, function(paraid, paradata){
         $.each(paradata, function(idx, data) {
-              var CODEMIRROR_EDITOR_ID = idx+1;    
-              var codemirror_menu = '<nav id="codemirror_menu_'+CODEMIRROR_EDITOR_ID+'" td-editor-id='+CODEMIRROR_EDITOR_ID+' class="navbar navbar-default codemirror_menu">\
-                                      <div class="container-fluid"><div class="collapse navbar-collapse" id="bs-example-navbar-collapse-1">\
-                                        <ul class="nav navbar-nav">\
-                                          <li><a href="#"><i class="fa fa-undo td-menu-item td-menu-item-undo"></i></a></li>\
-                                          <li><a href="#"><i class="fa fa-rotate-right td-menu-item td-menu-item-redo"></i></a></li>\
-                                        </ul>\
-                                        <ul class="nav navbar-nav navbar-right">\
-                                          <div class="navbar-form form-inline" >\
-                                          </div>\
-                                        </ul>\
-                                        </div><!-- /.navbar-collapse -->\
-                                      </div><!-- /.container-fluid -->\
-                                    </nav>';
-              var codemirror_editor = '<div id="codemirror_block_'+CODEMIRROR_EDITOR_ID+'" td-editor-id='+CODEMIRROR_EDITOR_ID+' class="codemirror_block"></div>';
-
+              
                 var tgt_str_to_show = "";
                 var src_str_to_show = "";
                 console.log("HAHA");
                 console.log(data);
                 if (data.tgt != null) {
                   $.each(data.words, function(index, val) {
-                    tgt_str_to_show += "<span id='"+val[1]+"_"+paraid+"_"+idx+"_"+index+"' class='tgt_word'>"+val[1]+"</span> ";
+                    // tgt_str_to_show += "<span id='"+val[1]+"_"+paraid+"_"+idx+"_"+index+"' class='tgt_word'>"+val[1]+"</span> ";
 
-                    src_str_to_show += "<span id='"+val[0]+"_"+paraid+"_"+idx+"_"+index+"' class='src_word'>"+val[0]+"</span> ";
-
+                    // src_str_to_show += "<span id='"+val[0]+"_"+paraid+"_"+idx+"_"+index+"' class='src_word'>"+val[0]+"</span> ";
+                    src_str_to_show = data.src;
+                    tgt_str_to_show = data.tgt;
                     window.PO_DATA_WORDS1[val[0]+"_"+paraid+"_"+idx+"_"+index] = val[1]+"_"+paraid+"_"+idx+"_"+index;
                     window.PO_DATA_WORDS2[val[1]+"_"+paraid+"_"+idx+"_"+index] = val[0]+"_"+paraid+"_"+idx+"_"+index;
                   });
                 }
                 else {
-                  // window.sentsToGet.push(paraid+"_"+idx);
                   window.sentsToGet += 1;
-                  // $.each(data.src.split(' '), function(index, val) {
-                  //   tgt_str_to_show += "<span id='"+val+"_"+paraid+"_"+idx+"_"+index+"' class='tgt_word'>"+val+"</span> ";
-                  //   src_str_to_show += "<span id='"+val+"_"+paraid+"_"+idx+"_"+index+"' class='src_word'>"+val+"</span> ";
-                  // });
                   src_str_to_show = data.src;
                   tgt_str_to_show = data.src;
                 }
 
                 $("#po-container").append('<div class="panel-row"><div class="panel-title"><span class="source-text" id="src_'+paraid+'_'+idx+'">\
-                  '+src_str_to_show+'</span><span class="target-text" id="tgt_'+paraid+'_'+idx+'">'+tgt_str_to_show+'</span></div><div class="panel-body col-md-12">'+codemirror_menu+codemirror_editor+'</div>\
-                  </div>');
+                  '+src_str_to_show+'</span><span class="target-text" id="tgt_'+paraid+'_'+idx+'">'+tgt_str_to_show+'</span></div></div>');
         });
     });
                   var tgtLang = window.tgt_lang; // For the editor language
                   console.log("Target Editor Language: " + tgtLang[0].toLowerCase()+tgtLang[1].toLowerCase());
-                  init_editors(true, tgtLang[0].toLowerCase()+tgtLang[1].toLowerCase());
-                    var i = 0;
-                    $.each(entries, function(index, val) {
-                      $.each(val, function(indx, sentval) {
-                        console.log(sentval.tgt);
-                        if (sentval.tgt!=null) {
-                          editors[i].setValue(sentval.tgt);                          
-                        }
-                        i = i+1;
-                      });
-                    });
                   // }
                   console.log("REACHED!!");
                   $('.panel-title').siblings().hide();
@@ -107,12 +77,17 @@ $.each(entries, function(paraid, paradata){
                       $('#po-container').addClass("blur");
                       $('#sentence_overlay').fadeIn(200);
                       $('#sentence_overlay').animate({height: "50%"}, 300);
+                      console.log($(this).find('.source-text').text());
+                      setup_modal();
                     }); 
                   $('#sentence_overlay #close_btn').click(function() {
                     event.stopPropagation();
                     $('#po-container').removeClass("blur");
                     $('#sentence_overlay').animate({height: "0"}, 300);
                     $('#sentence_overlay').fadeOut(200);
+                  });
+                  $('#sentence_overlay').click(function() {
+                    event.stopPropagation();
                   });
                   $(document).click(function() {
                       $('#po-container').removeClass("blur");
@@ -169,6 +144,32 @@ $(document).ready(function(){
     }
     // update_po_data(window.PO_DATA.data.entries);
 })
+
+function setup_modal() {
+var CODEMIRROR_EDITOR_ID = 0;    
+var tgtLang = window.tgt_lang;
+  init_editors(false, tgtLang[0].toLowerCase()+tgtLang[1].toLowerCase());
+  // editors[0].setSize($(window).width()*0.60,$(window).height()*0.65);
+  var offset = $('.codemirror_block').offset();
+  var editor_top = offset.top;
+  var editor_left = offset.left;
+  $('.codemirror_block').width("100%");
+  var editor_width = $('.codemirror_block').width();
+  $('#word_suggestions').css({width: editor_width});
+  $('#word_suggestions').css({top: editor_top-$('#word_suggestions').height()-1, left: editor_left});
+  $('#word_suggestions').show();
+
+  var i = 0;
+  // $.each(entries, function(index, val) {
+  //   $.each(val, function(indx, sentval) {
+  //     console.log(sentval.tgt);
+  //     if (sentval.tgt!=null) {
+  //       editors[i].setValue(sentval.tgt);                          
+  //     }
+  //     i = i+1;
+  //   });
+  // });
+}
 
 function OpenInNewTab(url) {
       var win = window.open(url, '_blank');

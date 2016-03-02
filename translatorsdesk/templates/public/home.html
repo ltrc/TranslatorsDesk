@@ -41,6 +41,9 @@ body, html {
     <br />
     <div class="row">
       <div class="col-md-12" style="text-align: center;">
+        <ul id="word_suggestions">
+          <li class="anim">Word suggestions will appear here</li>
+        </ul><br />
         <div id="codemirror_block_1" td-editor-id=1 class="codemirror_block raw_text anim" style="width: auto;"></div>
       </div>
     </div>
@@ -82,10 +85,8 @@ body, html {
   </tr>
 </table>
 </div>
-<ul id="word_suggestions">
-  <li class="anim">Word suggestions will appear here</li>
-</ul>
-<div id="progressbar">hi
+
+<div id="progressbar">
 </div>
 {% endblock %}
 {% block js %}

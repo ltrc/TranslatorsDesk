@@ -1,7 +1,17 @@
 
 {% extends "layout.html" %}
+{% block css %}
+<style>
+#codemirror_block_1 {
+  width: 100%;
+}
+#word_suggestions {
+  display: block;
+  position: relative;
+}
+</style>
+{% endblock %}
 {% block content %}
-
 
 <div class="container-fluid">
 
@@ -17,16 +27,24 @@
 
 </div>
 <div id="download_controls">
-        <center>
-        <button id="preview" class="btn btn-primary">Preview</button>
-        <button id="download" class="btn btn-success">Download this file</button>
-        </center>
-      </div>
+  <center>
+  <button id="preview" class="btn btn-primary">Preview</button>
+  <button id="download" class="btn btn-success">Download this file</button>
+  </center>
+</div>
+
 <div id="sentence_overlay">
-Hello <i class="fa fa-times fa-2x" id="close_btn"></i>
+  <i class="fa fa-times fa-2x" id="close_btn"></i>
+  <span id="modal_src"></span>
+  <span id="modal_tgt"></span>
+  <ul id="word_suggestions">
+    <li class="anim">Word suggestions will appear here</li>
+  </ul>
+  <div id="codemirror_block_1" td-editor-id="1" class="codemirror_block anim" style="width: auto;"></div>
 </div>
 <div id="progressbar">
 </div>
+
 <script type="text/javascript">
   window.uid = '{{uid}}';
   window.fileName = '{{fileName}}';
