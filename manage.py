@@ -61,7 +61,7 @@ def translators_desk_get_lang_pairs():
     response = urllib2.urlopen(req)
     result = response.read()
     print result
-    r_conn.set( "language_pairs", result )
+    r_conn.set( "language_pairs", result)
     emit('translators_desk_get_lang_pairs_response', result)
 
 @socketio.on('translators_desk_get_translation_data', namespace='/td')

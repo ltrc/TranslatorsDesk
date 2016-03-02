@@ -202,15 +202,13 @@ def translate_po(file, src='', target=''):
         if not META_EXISTS:
             meta['entries'].append({})
         for sent in sents:
-            print "PARA", para_count, "SENT", sent_count
-            print meta['entries'][para_count].keys()
-            if META_EXISTS and meta['entries'][para_count][sent_count]['tgt']:
+            if META_EXISTS and meta['entries'][para_count][str(sent_count)]['tgt']:
                 sent_count += 1
                 continue
             index = sent_count%NO_OF_THREADS
-            THREAD_DATA[index].append( (sent, para_count, sent_count) )
+            THREAD_DATA[index].append( (sent, para_count, str(sent_count)) )
             if not META_EXISTS:
-                meta['entries'][para_count][sent_count] = {'src': sent.replace('"', '\\"'), 'tgt': '', 'words': []}
+                meta['entries'][para_count][str(sent_count)] = {'src': sent.replace('"', '\\"'), 'tgt': '', 'words': []}
             sent_count += 1
         para_count += 1
 
@@ -247,7 +245,7 @@ def translate_po(file, src='', target=''):
         t.join()
 
     for para_no in xrange(len(meta['entries'])):
-        d[para_no]['tgt'] = ' '.join( [each[1]['tgt'] for each in sorted(meta['entries'][para_no].items())] )
+        d[para_no]['tgt'] = ' '.join( [each[1]['tgt'] for each in sorted(meta['entries'][para_no].items(), key=lambda x: int(x[0])) ] )
 
     #SAVE META FILE AFTER TRANSLATION
     meta_file = open(file+'.meta', 'w')
