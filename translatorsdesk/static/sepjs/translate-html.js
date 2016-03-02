@@ -35,6 +35,7 @@ $(document).ready(function(){
 
 		console.log('Found yo.');
 	    socket.emit('translators_desk_check_file_state', {uid: window.uid, fileName: window.fileName});
+	    socket.emit('translators_desk_get_translation_data', {uid: window.uid, fileName: window.fileName});
 	    socket.on('translators_desk_file_state_change', function(result) {
 	    	if (!result[0].startsWith('GENERATING_TRANSLATED_PO_FILE:::COMPLETE') && !result[0].startsWith('OUTPUT_FILE_GENERATED')) {
 				console.log("Checking socket yo");

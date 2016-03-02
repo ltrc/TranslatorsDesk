@@ -209,7 +209,7 @@ def translate_po(file, src, target):
                 print "FAILED"
                 FAILURE = True
             print response['tgt']
-            add_sentence_to_file(file, [sent[1], sent[2], response['words']])
+            add_sentence_to_file(file, json.dumps([sent[1], sent[2], response['words']]))
             meta['entries'][sent[1]][sent[2]]['tgt'] = response['tgt']
             meta['entries'][sent[1]][sent[2]]['words'] = response['words']
 

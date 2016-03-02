@@ -35,7 +35,7 @@ $(function(){
                 data.append("tgt", $("#targetLanguage").text());
                 data.append("raw_text", $('#raw_text').text());
                 // Show the total progress bar when upload starts
-                $("#total-progress").css("opacity" , "1");
+                // $("#total-progress").css("opacity" , "1");
                 // And disable the start button
               });
 
@@ -48,16 +48,12 @@ $(function(){
                 var _response = JSON.parse(response.xhr.response);
                 //TO-DO : Add error handling here
                   console.log("/translate/"+_response.uuid+"/"+_response.filename ); 
-                  // var i = 0;
-                  // window.setInterval(function() {
-                  //   i += 1;
-                  //   make_progress(i, 100);
-                  // }, 100);
+                  
                   console.log("ATTN");
                   socket.emit('translators_desk_check_file_state', {uid: _response.uuid, fileName: _response.filename});
                   socket.on('translators_desk_file_state_change', function(data) {
                     if (data.length>0 && data[0].startsWith('TRANSLATING_PO_FILE:::BEGIN')) {
-                      document.location = "/translate/"+_response.uuid+"/"+_response.filename 
+                      document.location = "/translate/"+_response.uuid+"/"+_response.filename;
                     }
                     else {
                       socket.emit('translators_desk_check_file_state', {uid: _response.uuid, fileName: _response.filename});

@@ -71,8 +71,8 @@ def translators_desk_get_translation_data(message):
     _status = r_conn.lrange(key, 0, -1)
     if _status > 0:
         print _status
-        #r_conn.delete(key)
-        emit('translators_desk_get_translation_data_response', _status)
+        r_conn.delete(key)
+        emit('translators_desk_get_translation_data_response', json.dumps(_status))
 
 @socketio.on('translators_desk_get_word_suggestion', namespace='/td')
 def translators_desk_get_word_suggestion(message):

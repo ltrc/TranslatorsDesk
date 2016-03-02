@@ -1,16 +1,33 @@
 function update_po_data(entries) {
-  // $.each(entries, function(paraid, paradata){
-  //   $.each(paradata, function(idx, data) {
-  //     if (data.tgt != null) {
-  //       window.sentsToGet.splice(window.sentsToGet.indexOf(paraid+"_"+idx));
-  //       $.each(data.words, function(index, val) {
-  //         $('.tgt_word#'+val[0]+"_"+paraid+"_"+idx+"_"+index).text(val[1]);
-  //         window.PO_DATA_WORDS1[val[0]+"_"+paraid+"_"+idx+"_"+index] = val[1]+"_"+paraid+"_"+idx+"_"+index;
-  //         window.PO_DATA_WORDS2[val[1]+"_"+paraid+"_"+idx+"_"+index] = val[0]+"_"+paraid+"_"+idx+"_"+index;
-  //       });
-  //     }
-  //   });
-  // });
+  entries = JSON.parse(entries);
+
+  $.each(entries, function(ind, para){
+    para = JSON.parse(para);
+    paraid = para[0];
+    idx = para[1];
+    words = para[2];
+    console.log(words);
+    var tgt_str_to_show = "";
+    var src_str_to_show = "";
+    $.each(words, function(index, val) {
+      tgt_str_to_show += "<span id='"+val[1]+"_"+paraid+"_"+idx+"_"+index+"' class='tgt_word'>"+val[1]+"</span> ";
+
+      src_str_to_show += "<span id='"+val[0]+"_"+paraid+"_"+idx+"_"+index+"' class='src_word'>"+val[0]+"</span> ";
+
+      window.PO_DATA_WORDS1[val[0]+"_"+paraid+"_"+idx+"_"+index] = val[1]+"_"+paraid+"_"+idx+"_"+index;
+      window.PO_DATA_WORDS2[val[1]+"_"+paraid+"_"+idx+"_"+index] = val[0]+"_"+paraid+"_"+idx+"_"+index;
+    });
+    $('#src_'+paraid+'_'+idx).fadeOut(function() {
+      $(this).html(src_str_to_show);
+    });
+    $('#src_'+paraid+'_'+idx).fadeIn();
+    $('#tgt_'+paraid+'_'+idx).fadeOut(function() {
+      $(this).html(tgt_str_to_show);
+    });
+    $('#tgt_'+paraid+'_'+idx).fadeIn();
+  });
+    // console.log(words);
+
   console.log("I got this.");
   console.log(entries);
 }
@@ -49,14 +66,16 @@ $.each(entries, function(paraid, paradata){
                 }
                 else {
                   window.sentsToGet.push(paraid+"_"+idx);
-                  $.each(data.src.split(' '), function(index, val) {
-                    tgt_str_to_show += "<span id='"+val+"_"+paraid+"_"+idx+"_"+index+"' class='tgt_word'>"+val+"</span> ";
-                    src_str_to_show += "<span id='"+val+"_"+paraid+"_"+idx+"_"+index+"' class='src_word'>"+val+"</span> ";
-                  });
+                  // $.each(data.src.split(' '), function(index, val) {
+                  //   tgt_str_to_show += "<span id='"+val+"_"+paraid+"_"+idx+"_"+index+"' class='tgt_word'>"+val+"</span> ";
+                  //   src_str_to_show += "<span id='"+val+"_"+paraid+"_"+idx+"_"+index+"' class='src_word'>"+val+"</span> ";
+                  // });
+                  src_str_to_show = data.src;
+                  tgt_str_to_show = data.src;
                 }
 
-                $("#po-container").append('<div class="panel-row"><div class="panel-title"><span class="source-text">\
-                  '+src_str_to_show+'</span><span class="target-text">'+tgt_str_to_show+'</span></div><div class="panel-body col-md-12">'+codemirror_menu+codemirror_editor+'</div>\
+                $("#po-container").append('<div class="panel-row"><div class="panel-title"><span class="source-text" id="src_'+paraid+'_'+idx+'">\
+                  '+src_str_to_show+'</span><span class="target-text" id="tgt_'+paraid+'_'+idx+'">'+tgt_str_to_show+'</span></div><div class="panel-body col-md-12">'+codemirror_menu+codemirror_editor+'</div>\
                   </div>');
         });
     });
