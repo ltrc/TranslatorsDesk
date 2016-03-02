@@ -42,7 +42,7 @@ def add_sentence_to_file(file, sent):
 def remove_file_sents(file):
     r_conn = get_redis_connection()
     u_file = "/".join(file.split("/")[-2:])
-    r_conn.delete(u_file+"_sents")
+    r_conn.expire(u_file+"_sents", 60*60*24)
 
 #=================================================================
 # Process Input File
@@ -97,12 +97,14 @@ def translate(sentence, src, target, module_start, module_end, last_module, chun
   URI=SERVER+"/"+src+"/"+target+"/"+module_start+"/"+module_end+"/"
   values = {'input' : sentence.encode('utf-8'), 'params': {}}
 
+  response = { 'tgt': '', 'words': [] }
+
   data = urllib.urlencode(values)
   req = urllib2.Request(URI, data)
   the_page = get_call_api(req)
 
   if not the_page:
-    return False
+    return response
 
   d = json.loads(the_page)
   print "TRANSLATE ENTERED"
@@ -121,7 +123,6 @@ def translate(sentence, src, target, module_start, module_end, last_module, chun
               n.expand_af()
               words.append([n.getAttribute('name').replace('\\', '\\\\').replace('"', '\\"'), n.lex.replace('\\', '\\\\').replace('"', '\\"')])
 
-  response = {}
   response['tgt'] = sentence.replace('"', '\\"')
   response['words'] = words
 
@@ -142,13 +143,26 @@ def get_call_api(url):
     return False
 
 
-def translate_po(file, src, target):
+def translate_po(file, src='', target=''):
 
     #STORE META INFO
-    meta = {}
-    meta['src_lang'] = src
-    meta['tgt_lang'] = target
-    meta['entries'] = []
+    META_EXISTS = False
+    if os.path.exists(file+'.meta'):
+        meta_file = open(file+'.meta', 'r')
+        meta = json.loads(meta_file.read())
+        meta_file.close()
+        src = meta['src_lang']
+        target = meta['tgt_lang']
+        if meta['entries']:
+            META_EXISTS = True
+    else:
+        meta = {}
+        meta['src_lang'] = src
+        meta['tgt_lang'] = target
+        meta['entries'] = []
+        meta_file = open(file+'.meta', 'w')
+        meta_file.write(json.dumps(meta))
+        meta_file.close()
 
     po = polib.pofile(file+".po")
     valid_entries = [e for e in po if not e.obsolete]
@@ -185,37 +199,46 @@ def translate_po(file, src, target):
         if not sents:
             change_state(file, "PIPELINE_ERROR")
             return False
-        meta['entries'].append({})
+        if not META_EXISTS:
+            meta['entries'].append({})
         for sent in sents:
+            print "PARA", para_count, "SENT", sent_count
+            print meta['entries'][para_count].keys()
+            if META_EXISTS and meta['entries'][para_count][sent_count]['tgt']:
+                sent_count += 1
+                continue
             index = sent_count%NO_OF_THREADS
             THREAD_DATA[index].append( (sent, para_count, sent_count) )
-            meta['entries'][para_count][sent_count] = {'src': sent.replace('"', '\\"'), 'tgt': None, 'words': None}
+            if not META_EXISTS:
+                meta['entries'][para_count][sent_count] = {'src': sent.replace('"', '\\"'), 'tgt': '', 'words': []}
             sent_count += 1
         para_count += 1
 
     #SAVE META FILE BEFORE TRANSLATION
-    meta_file = open(file+'.meta', 'w')
-    meta_file.write(json.dumps(meta))
-    meta_file.close()
+    if not META_EXISTS:
+        meta_file = open(file+'.meta', 'w')
+        meta_file.write(json.dumps(meta))
+        meta_file.close()
     change_state(file, "TRANSLATING_PO_FILE:::BEGIN")
 
     #EXECUTE THREADS
-    FAILURE = False
-    def worker(sentences):
+    FAILURE = [False]
+    def worker(sentences, FAILURE):
         for sent in sentences:
             response = translate(sent[0], src, target, module_start, module_end, last_module, chunker_module)
-            if not response:
+            if not response['tgt']:
                 change_state(file, "PIPELINE_ERROR")
                 print "FAILED"
-                FAILURE = True
+                FAILURE[0] = True
+            else:
+                add_sentence_to_file(file, json.dumps([sent[1], sent[2], response['words']]))
             print response['tgt']
-            add_sentence_to_file(file, json.dumps([sent[1], sent[2], response['words']]))
             meta['entries'][sent[1]][sent[2]]['tgt'] = response['tgt']
             meta['entries'][sent[1]][sent[2]]['words'] = response['words']
 
     THREADS = []
     for i in xrange(NO_OF_THREADS):
-        t = threading.Thread(target = worker, args = (THREAD_DATA[i],) )
+        t = threading.Thread(target = worker, args = (THREAD_DATA[i], FAILURE) )
         THREADS.append(t)
         t.start()
 
@@ -231,9 +254,10 @@ def translate_po(file, src, target):
     meta_file.write(json.dumps(meta))
     meta_file.close()
 
+    #EXPIRE FILE_SENTS KEY IN 24 HOURS
+    remove_file_sents(file)
 
-    if not FAILURE:
-        # remove_file_sents(file)
+    if not FAILURE[0]:
         change_state(file, "TRANSLATING_PO_FILE:::COMPLETE")
         change_state(file, "GENERATING_TRANSLATED_PO_FILE:::BEGIN")
 

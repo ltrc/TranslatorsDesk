@@ -72,6 +72,12 @@ def about():
     form = LoginForm(request.form)
     return render_template("public/about.html", form=form)
 
+
+@blueprint.route("/account/", methods=['GET'])
+def account():
+    return render_template("users/account.html")
+
+
 """
     Handles file uploads
 """
@@ -80,10 +86,26 @@ def about():
 @blueprint.route('/upload', methods=['POST'])
 def upload():
     if request.method == 'POST':
+        r_conn = get_redis_connection()
+        src = request.values.get("src", None)
+        tgt = request.values.get("tgt", None)
+
+        #CHECK IF SRC AND TGT ARE VALID
+        if not (src and tgt):
+            return jsonify({"success": False, "message": "Source and Target Languages not specified!!"})
+
+        lg_pairs = json.loads(r_conn.get("language_pairs"))
+        print lg_pairs
+        if (src[:3].lower() not in lg_pairs) or (tgt[:3].lower()not in lg_pairs[src[:3].lower()]):
+            return jsonify({"success": False, "message": "Source and Target Languages not valid!!"})
+
+        #CLEAN SRC AND TGT VAR
+        src = src.strip('\n').strip('\r').strip()
+        tgt = tgt.strip('\n').strip('\r').strip()
+
         file = request.files.get('file', None)
         raw_text = request.values.get("raw_text", None)
-        print file
-        print raw_text
+
         if file:
             if _allowed_file(file.filename):
                 _uuid = str(uuid.uuid4())
@@ -105,15 +127,7 @@ def upload():
         
         if file or raw_text:
             ## Add Job to Queue
-            src = request.values.get("src", None)
-            tgt = request.values.get("tgt", None)
-            print src, tgt
-            if not (src and tgt):
-                return jsonify({"success": False, "message": "Source and Target Languages not specified!!"})
-            #CLEAN SRC AND TGT VAR
-            src = src.strip('\n').strip('\r').strip()
-            tgt = tgt.strip('\n').strip('\r').strip()
-
+            print filepath
             job = q.enqueue_call(func=worker_functions.process_input_file, args=(filepath, src, tgt))
 
             return jsonify({"success":True, "filename":secure_filename, "uuid": _uuid })       
@@ -170,28 +184,37 @@ def translate(uid, fileName):
     r_conn = get_redis_connection()
     _status = r_conn.lrange("state_"+uid+"/"+fileName, 0, -1)
 
-    if len(_status) >0 and (_status[0].startswith("TRANSLATING_PO_FILE") or _status[0].startswith("GENERATING_TRANSLATED_PO_FILE") ) :
+    if len(_status) > 0:
         if fileExists(uid, fileName):
-            filepath = os.path.join(current_app.config['UPLOAD_FOLDER'],  uid, fileName+".meta")
-            meta_file = open(filepath, 'r')
-            meta = json.loads(meta_file.read())
-            _status = r_conn.lrange("state_"+uid+"/"+fileName, 0, -1)
-            
+            if _status[0].startswith("TRANSLATING_PO_FILE") or _status[0].startswith("GENERATING_TRANSLATED_PO_FILE"):
+                filepath = os.path.join(current_app.config['UPLOAD_FOLDER'],  uid, fileName+".meta")
+                meta_file = open(filepath, 'r')
+                meta = json.loads(meta_file.read())
+                _status = r_conn.lrange("state_"+uid+"/"+fileName, 0, -1)
+                return render_template('public/translate.html',\
+                                    fileName=fileName,
+                                    uid=uid,
+                                    status = _status,
+                                    PO = {'po':True, 'data':meta}
+                                    )
+            elif _status[0].startswith("PIPELINE_ERROR"):
+                print "RESUMED", fileName
+                filepath = os.path.join(current_app.config['UPLOAD_FOLDER'],  uid, fileName)
+                job = q.enqueue_call(func=worker_functions.translate_po, args=(filepath,) )
+
             return render_template('public/translate.html',\
                                 fileName=fileName,
                                 uid=uid,
-                                status = _status,
-                                PO = {'po':True, 'data':meta}
+                                status=_status,
+                                PO = False
                                 )
         else:
-            return abort(404)
+                print "ELSE 1"
+                return abort(404)
     else:
-        return render_template('public/translate.html',\
-                            fileName=fileName,
-                            uid=uid,
-                            status=_status,
-                            PO = False
-                            )
+        print "ELSE 2"
+        return abort(404)
+    
 
 import subprocess
 

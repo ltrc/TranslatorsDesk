@@ -55,11 +55,13 @@ def translators_desk_check_file_state(message):
 
 @socketio.on('translators_desk_get_lang_pairs', namespace='/td')
 def translators_desk_get_lang_pairs():
+    r_conn = Redis()
     url = 'http://api.ilmt.iiit.ac.in/langpairs'
     req = urllib2.Request(url)
     response = urllib2.urlopen(req)
     result = response.read()
     print result
+    r_conn.set( "language_pairs", result )
     emit('translators_desk_get_lang_pairs_response', result)
 
 @socketio.on('translators_desk_get_translation_data', namespace='/td')
@@ -100,7 +102,7 @@ def translators_desk_get_word_suggestion(message):
             if id:
                 suggestions['synonyms'] = pan_dict['ids'][id]
 
-        suggestions['synonyms'] = [synonym for synonym in suggestions['synonyms'] if synonym != word]
+        # suggestions['synonyms'] = [synonym for synonym in suggestions['synonyms'] if synonym != word]
         print suggestions
         emit("translators_desk_get_word_suggestion_" \
             + hashlib.md5(word.lower()).hexdigest(), \
