@@ -35,9 +35,9 @@ function getLangPairs(response) {
 			clearAllEditors();
 			editors[0].focus();
 			$('#word_suggestions').fadeIn();
-			$('#translation_controls').removeClass('blur');
+			// $('#translation_controls').removeClass('blur');
+			$('#translation_controls').fadeIn();
 			$('.lang_label').removeClass('blur');
-
 		});
 		});
 		});
@@ -51,8 +51,6 @@ $(document).ready(function(){
 	}
 	socket.emit("translators_desk_get_lang_pairs");
 	socket.on("translators_desk_get_lang_pairs_response", getLangPairs);
-	// editors[0].setSize($(window).width()*0.60,$(window).height()*0.65);
-	// var editor_height = $('.codemirror_block').height();
 	editors[0].setSize($(window).width()*0.60,$(window).height()*0.65);
 
 	var offset = $('.codemirror_block').offset();
@@ -69,18 +67,6 @@ $(document).ready(function(){
 	$('#editor_overlay').css({maxHeight: editor_height, maxWidth: editor_width});
 	$('#word_suggestions').css({width: editor_width});
 
-	// var offset = $('.codemirror_block').offset();
-	// var editor_top = offset.top;
-	// var editor_left = offset.left
-	// 
-	// editors[0].setSize($(window).width()*0.60,editor_height+"px");
-	// // var editor_height = $('.codemirror_block').height();
-	// var editor_width =  $('.codemirror_block').width();
-	// console.log(editor_height, editor_width);
-	// $('#editor_overlay').css({height: editor_height, width: editor_width});
-	// $('#editor_overlay').css({maxHeight: editor_height, maxWidth: editor_width});
-	// $('#word_suggestions').css({width: editor_width});
-
 
 	console.log($('#editor_overlay').width());
 	console.log(editor_top, editor_left);
@@ -90,13 +76,11 @@ $(document).ready(function(){
 		$('#word_suggestions').hide();
 		$('.codemirror_block').addClass("blur");
 		$('#editor_overlay').fadeIn();
-		$('#translation_controls').addClass('blur');
+		$('#translation_controls').fadeOut();
+		// $('#translation_controls').addClass('blur');
 		$('.lang_label').addClass('blur');
 
 	});
-	// $('#dismiss_overlay').click(function(){
-		
-	// });
 	$('#lang_interchange').click(function() {
 		var source = $('#sourceLanguage').html();
 		var target = $('#targetLanguage').html();

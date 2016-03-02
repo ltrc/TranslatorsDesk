@@ -18,6 +18,8 @@ $(function(){
               this.on("addedfile", function(file){
                 //TODO : Fix the state change of this button
                 $("#add-files").attr("disabled", "disabled");
+                $("#raw_text").attr("disabled", "true");                
+
                 // Add detection for inpage
               });
 
@@ -28,6 +30,7 @@ $(function(){
               this.on("totaluploadprogress", function(progress) {
                 // $("#total-progress .progress-bar").css("width" , progress + "%");
                 make_progress(progress, 100);
+                console.log("Progress: "+progress);
               });
 
               this.on("sending", function(file, xhr, data) {
@@ -45,14 +48,19 @@ $(function(){
               });
 
               this.on("success", function(response){
+                var i = 0;
+                  window.setInterval(function() {
+                    i += 1;
+                    make_progress(i, 100);
+                  }, 100);
                 var _response = JSON.parse(response.xhr.response);
                 //TO-DO : Add error handling here
                   console.log("/translate/"+_response.uuid+"/"+_response.filename ); 
-                  
-                  console.log("ATTN");
+
                   socket.emit('translators_desk_check_file_state', {uid: _response.uuid, fileName: _response.filename});
                   socket.on('translators_desk_file_state_change', function(data) {
                     if (data.length>0 && data[0].startsWith('TRANSLATING_PO_FILE:::BEGIN')) {
+                      make_progress(100,100);
                       document.location = "/translate/"+_response.uuid+"/"+_response.filename;
                     }
                     else {

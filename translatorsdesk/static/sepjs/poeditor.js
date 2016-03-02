@@ -7,6 +7,7 @@ function update_po_data(entries) {
     idx = para[1];
     words = para[2];
     console.log(words);
+    window.sentsDone += 1;
     var tgt_str_to_show = "";
     var src_str_to_show = "";
     $.each(words, function(index, val) {
@@ -17,10 +18,10 @@ function update_po_data(entries) {
       window.PO_DATA_WORDS1[val[0]+"_"+paraid+"_"+idx+"_"+index] = val[1]+"_"+paraid+"_"+idx+"_"+index;
       window.PO_DATA_WORDS2[val[1]+"_"+paraid+"_"+idx+"_"+index] = val[0]+"_"+paraid+"_"+idx+"_"+index;
     });
-    $('#src_'+paraid+'_'+idx).fadeOut(function() {
-      $(this).html(src_str_to_show);
-    });
-    $('#src_'+paraid+'_'+idx).fadeIn();
+    // $('#src_'+paraid+'_'+idx).fadeOut(function() {
+      $('#src_'+paraid+'_'+idx).html(src_str_to_show);
+    // });
+    // $('#src_'+paraid+'_'+idx).fadeIn();
     $('#tgt_'+paraid+'_'+idx).fadeOut(function() {
       $(this).html(tgt_str_to_show);
     });
@@ -29,7 +30,11 @@ function update_po_data(entries) {
     // console.log(words);
 
   console.log("I got this.");
-  console.log(entries);
+  // console.log(entries);
+  make_progress(sentsDone, sentsToGet);
+  if (sentsDone == sentsToGet) {
+    make_progress(0,100);
+  }
 }
 function process_po_data(entries) {
 $.each(entries, function(paraid, paradata){
@@ -65,7 +70,8 @@ $.each(entries, function(paraid, paradata){
                   });
                 }
                 else {
-                  window.sentsToGet.push(paraid+"_"+idx);
+                  // window.sentsToGet.push(paraid+"_"+idx);
+                  window.sentsToGet += 1;
                   // $.each(data.src.split(' '), function(index, val) {
                   //   tgt_str_to_show += "<span id='"+val+"_"+paraid+"_"+idx+"_"+index+"' class='tgt_word'>"+val+"</span> ";
                   //   src_str_to_show += "<span id='"+val+"_"+paraid+"_"+idx+"_"+index+"' class='src_word'>"+val+"</span> ";
@@ -150,7 +156,8 @@ $(document).ready(function(){
     console.log(window.PO_DATA);
     window.PO_DATA_WORDS1 = {}
     window.PO_DATA_WORDS2 = {}  // Source to target and vice versa
-    window.sentsToGet = [];
+    window.sentsToGet = 0;
+    window.sentsDone = 0;
     if (window.PO_DATA.data) {
       window.tgt_lang = PO_DATA.data.tgt_lang;
       process_po_data(window.PO_DATA.data.entries);

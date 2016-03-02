@@ -671,13 +671,17 @@ function rotate_hero_logo() {
 }
 
 function use_suggestion(edID, val) {
-	editors[edID].replaceRange(val, editors[edID].getCurrentWordRange().from(), editors[edID].getCurrentWordRange().to())
+	editors[edID].replaceRange(val, editors[edID].getCurrentWordRange().from(), editors[edID].getCurrentWordRange().to());
+	editors[edID].focus();
 }
 
 function show_syns(editor, syns) {
 	$('#word_suggestions').html("");
+	var curr_word = editor.getCurrentWord();
 	$.each(syns, function(index, val) {
-		$('#word_suggestions').append("<li class='anim' onclick='use_suggestion("+editors.indexOf(editor)+", \""+val+"\")'>"+val+"</li>");
+		if (val != curr_word) {
+			$('#word_suggestions').append("<li class='anim' onclick='use_suggestion("+editors.indexOf(editor)+", \""+val+"\")'>"+val+"</li>");			
+		}
 	});
 	if (syns.length==0) {
 		$('#word_suggestions').html("<li class='anim'>Word suggestions will appear here</li>");
@@ -686,7 +690,8 @@ function show_syns(editor, syns) {
 
 
 function make_progress(i, n) {
-	$('#progressbar').stop().animate({width: ((i%n)*100/n)+"%"}, 100);
+	console.log("Progressing to: "+((Math.floor(i)%(n+5))*100/n))
+	$('#progressbar').stop().animate({width: ((Math.floor(i)%(n+5))*100/n)+"%"}, 100);
 }
 
 $(document).ready(function(){
