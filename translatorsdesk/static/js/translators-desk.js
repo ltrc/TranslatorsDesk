@@ -108,10 +108,12 @@ CodeMirror.commands.translators_desk_aspell = function(editor) {
 			console.log(data);
 			//Display the hint
 			var data = JSON.parse(data);
-			editor.showHint({
+			if (data.spellings) {
+				editor.showHint({
 								hint: CodeMirror.hint.translators_desk_aspell,
 								translators_desk_aspell_suggesstions: data.spellings
-							});
+							});	
+			}
 			if (data.synonyms) {
 				show_syns(editor, data.synonyms);
 			}
