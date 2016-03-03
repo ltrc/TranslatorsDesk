@@ -26,9 +26,9 @@
     </form>
     <p><em>Already registered?</em> Click <a href="/">here</a> to login.</p>
 </div>
+
 <form id="loginForm" method="POST" class="navbar-form form-inline navbar-right" action="/" role="login">
-      {{ form.hidden_tag() }}
-      <input type="hidden" name="csrf_token" value="{{ csrf_token() }}" />
+      <input type="hidden" name="csrf_token" value="{{ csrf_token() }}"/>
       <div class="form-group">
         {{ form.username(placeholder="Username", class_="form-control") }}
         {{ form.password(placeholder="Password", class_="form-control") }}

@@ -1,6 +1,9 @@
 #!/usr/bin/env python
 # -*- coding: utf-8 -*-
 
+from translatorsdesk.database import db as _db
+from flask_wtf.csrf import CsrfProtect
+
 from gevent import monkey
 monkey.patch_all()
 import os
@@ -30,6 +33,7 @@ if os.environ.get("TRANSLATORSDESK_ENV") == 'prod':
     app = create_app(ProdConfig)
 else:
     app = create_app(DevConfig)
+CsrfProtect(app)
 app.debug = True
 socketio = SocketIO(app)
 HERE = os.path.abspath(os.path.dirname(__file__))
@@ -187,4 +191,7 @@ manager.add_command('shell', Shell(make_context=_make_context))
 manager.add_command('db', MigrateCommand)
 
 if __name__ == '__main__':
+    _db.app = app
+    with app.app_context():
+        _db.create_all()
     manager.run()

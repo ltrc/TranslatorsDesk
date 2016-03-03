@@ -38,10 +38,18 @@ def home():
     # Handle logging in
     if request.method == 'POST':
         if form.validate_on_submit():
-            login_user(form.user)
-            flash("You are logged in.", 'success')
-            redirect_url = request.args.get("next") or url_for("user.members")
-            return redirect(redirect_url)
+            username = request.form['username']
+            password = request.form['password']
+            print username, password
+            user = User.query.filter_by(username=username).first()
+            if user.check_password(password):
+                login_user(user)
+                flash("You are logged in.", 'success')
+                print request.args
+                redirect_url = url_for("user.account") or request.args.get("next") 
+                return redirect(redirect_url)
+            else:
+                flash("Invalid credentials")
         else:
             flash_errors(form)
     return render_template("public/home.html", form=form)
@@ -71,11 +79,6 @@ def register():
 def about():
     form = LoginForm(request.form)
     return render_template("public/about.html", form=form)
-
-
-@blueprint.route("/account/", methods=['GET'])
-def account():
-    return render_template("users/account.html")
 
 
 """

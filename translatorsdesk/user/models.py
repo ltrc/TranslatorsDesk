@@ -13,7 +13,6 @@ from translatorsdesk.database import (
     SurrogatePK,
 )
 
-
 class Role(SurrogatePK, Model):
     __tablename__ = 'roles'
     name = Column(db.String(80), unique=True, nullable=False)
@@ -58,3 +57,20 @@ class User(UserMixin, SurrogatePK, Model):
 
     def __repr__(self):
         return '<User({username!r})>'.format(username=self.username)
+
+class File(SurrogatePK, Model):
+    __tablename__ = 'files'
+    uuid = Column(db.String(100), unique = True, nullable = False)
+    name = Column(db.String(100), nullable = False)
+    created_at = Column(db.DateTime, nullable=False, default=dt.datetime.utcnow)
+    user_id = ReferenceCol('users', nullable=True)
+    user = relationship('User', backref='files')
+    shareable = Column(db.Boolean, nullable = False, default=False)
+
+    def __init__(self, name, **kwargs):
+        db.Model.__init__(self, name=name, **kwargs)
+
+    def __repr__(self):
+        return '<File: ' + self.uid + '/' + self.name + '>'
+
+db.create_all()

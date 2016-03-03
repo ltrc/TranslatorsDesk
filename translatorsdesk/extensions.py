@@ -2,7 +2,7 @@
 """Extensions module. Each extension is initialized in the app factory located
 in app.py
 """
-
+from flask import Flask
 from flask_bcrypt import Bcrypt
 bcrypt = Bcrypt()
 
@@ -10,7 +10,9 @@ from flask_login import LoginManager
 login_manager = LoginManager()
 
 from flask_sqlalchemy import SQLAlchemy
-db = SQLAlchemy()
+app = Flask(__name__)
+db = SQLAlchemy(app)
+db.create_all()
 
 from flask_migrate import Migrate
 migrate = Migrate()

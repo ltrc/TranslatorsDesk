@@ -2,11 +2,10 @@
 from flask import Blueprint, render_template
 from flask.ext.login import login_required
 
-blueprint = Blueprint("user", __name__, url_prefix='/users',
-                        static_folder="../static")
+blueprint = Blueprint("user", __name__, url_prefix='/users', static_folder="../static")
 
 
-@blueprint.route("/")
+@blueprint.route("/account/", methods=['GET'])
 @login_required
-def members():
-    return render_template("users/members.html")
+def account():
+    return render_template("users/account.html")
