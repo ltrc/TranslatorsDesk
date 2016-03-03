@@ -88,6 +88,7 @@ body, html {
 
 <div id="progressbar">
 </div>
+<input type="hidden" id="csrf_token" name="csrf_token" value="{{ csrf_token() }}"/>
 {% endblock %}
 {% block js %}
   <script src="{{ url_for('static', filename='sepjs/home-html.js') }}"> </script>

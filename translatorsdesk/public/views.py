@@ -3,10 +3,10 @@
 from flask import (Blueprint, request, render_template, flash, url_for,
                     redirect, session, jsonify, redirect, request, current_app,
                     abort)
-from flask.ext.login import login_user, login_required, logout_user
+from flask.ext.login import login_user, login_required, logout_user, current_user
 
 from translatorsdesk.extensions import login_manager
-from translatorsdesk.user.models import User
+from translatorsdesk.user.models import User, File
 from translatorsdesk.public.forms import LoginForm
 from translatorsdesk.user.forms import RegisterForm
 from translatorsdesk.utils import flash_errors
@@ -34,7 +34,7 @@ def load_user(id):
 
 @blueprint.route("/", methods=["GET", "POST"])
 def home():
-    form = LoginForm(request.form)
+    form = LoginForm(request.form)#, csrf_enabled=False)
     # Handle logging in
     if request.method == 'POST':
         if form.validate_on_submit():
@@ -85,7 +85,6 @@ def about():
     Handles file uploads
 """
 
-
 @blueprint.route('/upload', methods=['POST'])
 def upload():
     if request.method == 'POST':
@@ -128,6 +127,20 @@ def upload():
                 os.makedirs(os.path.dirname(filepath))
             job = q.enqueue_call(func=worker_functions.save_text_file, args=(filepath, raw_text))
         
+        if current_user.is_authenticated():
+            user_file = File.create(
+                            uuid = _uuid,
+                            name = secure_filename,
+                            user_id = current_user.id,
+                        )
+        else:
+            user_file = File.create(
+                            uuid = _uuid,
+                            name = secure_filename,
+                        )
+            files = File.query.filter_by(user_id=None).all()
+            print files
+
         if file or raw_text:
             ## Add Job to Queue
             print filepath

@@ -33,7 +33,9 @@ if os.environ.get("TRANSLATORSDESK_ENV") == 'prod':
     app = create_app(ProdConfig)
 else:
     app = create_app(DevConfig)
-CsrfProtect(app)
+
+csrf = CsrfProtect(app)
+
 app.debug = True
 socketio = SocketIO(app)
 HERE = os.path.abspath(os.path.dirname(__file__))

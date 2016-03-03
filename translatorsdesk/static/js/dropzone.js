@@ -34,6 +34,7 @@ $(function(){
               });
 
               this.on("sending", function(file, xhr, data) {
+                data.append("csrf_token", $("#csrf_token").val());
                 data.append("src", $("#sourceLanguage").text());
                 data.append("tgt", $("#targetLanguage").text());
                 data.append("raw_text", $('#raw_text').text());
@@ -82,7 +83,7 @@ $(function(){
         $.ajax({
           url: "/upload",
           method: "POST",
-          data: { raw_text: editors[0].getValue(), src: $("#sourceLanguage").text(), tgt: $("#targetLanguage").text()  },
+          data: { csrf_token: $("#csrf_token").val(), raw_text: editors[0].getValue(), src: $("#sourceLanguage").text(), tgt: $("#targetLanguage").text()  },
           async: true, 
           success: function(_response) {
             console.log(_response);

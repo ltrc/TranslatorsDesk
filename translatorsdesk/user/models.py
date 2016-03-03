@@ -71,6 +71,4 @@ class File(SurrogatePK, Model):
         db.Model.__init__(self, name=name, **kwargs)
 
     def __repr__(self):
-        return '<File: ' + self.uid + '/' + self.name + '>'
-
-db.create_all()
+        return '<File: ' + self.uuid + '/' + self.name + '>'

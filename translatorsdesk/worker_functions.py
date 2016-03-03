@@ -31,7 +31,6 @@ def change_state(file, state):
 
     r_conn = get_redis_connection()
     u_file = "/".join(file.split("/")[-2:])
-
     r_conn.lpush("state_"+u_file, state)
 
 def add_sentence_to_file(file, sent):
