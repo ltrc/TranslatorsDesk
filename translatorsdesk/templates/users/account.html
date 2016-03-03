@@ -1,7 +1,377 @@
 
 {% extends "layout.html" %}
-{% block content %}
-    <h1>Welcome {{ session.username }}</h1>
-    <h3>This is the members-only page.</h3>
+
+{% block css %}
+<style>
+.file {
+	/*border: 1px solid rgb(0, 49, 86);*/
+	display: inline-block;
+
+	width: 20%;
+	border-radius: 4px;
+	box-sizing: border-box;
+	margin: 20px;
+	width: 100%;
+	cursor: pointer;
+}
+
+.file:hover {
+	background-color: rgba(0,49,86, 0.9);
+	color: white;
+}
+
+.file:hover .filedate {
+	color: white;
+}
+.filename {
+	display: block;
+	font-family: myriad;
+	font-size: 1.3em;
+}
+.filestatus {
+	display: block;
+	font-size: 1em;
+	font-family: myriad;
+}
+.fileicon {
+	width: 30%;
+	display: inline-block;
+	vertical-align: top;
+}
+.filedetails {
+	display: inline-block;
+	padding-top: 10px;
+	padding-right: 10px;
+	margin-left: 10px;
+	box-sizing: border-box;
+
+}
+.filedate {
+	font-size: 1em;
+	font-family: myriad;
+	color: rgba(0,0,0,0.5);
+}
+.fileicon img {
+	max-width: 90%;
+}
+.body-content {
+
+}
+.toolbar {
+	position: fixed;
+	top: 60px;
+	padding-top: 10px;
+	padding-bottom: 10px;
+	left: 0px;
+	text-align: center;
+	width: 100%;
+	background-color: rgba(255,255,255,0.9);
+	z-index: 99;
+}	
+#searchbox {
+	width: 40%;
+	outline-width: 0px;
+	padding: 5px;
+	font-family: myriad;
+	border: 1px solid rgba(0,0,0,0.5);
+	border-radius: 2px;
+	margin-left: 10px;
+	margin-right: 10px;
+}
+#searchbox:active, #searchbox:focus {
+	border: 1px solid rgba(0,49,86, 1);
+}
+.btn {
+	font-family: myriad;
+}
+</style>
 {% endblock %}
 
+{% block content %}
+    <!-- <h1>Welcome {{ session.username }}</h1> -->
+    <div class="toolbar">
+    	<a href="/"><button class="btn btn-primary"><span class="glyphicon glyphicon-play-circle"></span> New</button></a>
+    	<input type="text" class="anim" placeholder="Search..." id="searchbox" />
+    </div>
+<div class="body-content">
+	    
+	    <div class="col-md-4">
+		    <div class="file anim">
+				<div class="fileicon">
+					<img src="{{ url_for('static', filename='img/word.png') }}" />
+				</div>
+				<div class="filedetails">
+					<span class="filename">my_big_filename.docx</span>
+					<span class="filestatus">Translation Complete</span>
+					<span class="filedate anim">24 February 2015</span>
+				</div>
+		    </div>
+		</div>
+	    <div class="col-md-4">
+		    <div class="file anim">
+				<div class="fileicon">
+					<img src="{{ url_for('static', filename='img/text.png') }}" />
+				</div>
+				<div class="filedetails">
+					<span class="filename">my_big_filename.docx</span>
+					<span class="filestatus">Translation Complete</span>
+					<span class="filedate anim">24 February 2015</span>
+				</div>
+		    </div>
+		</div>
+	    <div class="col-md-4">
+		    <div class="file anim">
+				<div class="fileicon">
+					<img src="{{ url_for('static', filename='img/word.png') }}" />
+				</div>
+				<div class="filedetails">
+					<span class="filename">my_big_filename.docx</span>
+					<span class="filestatus">Translation Complete</span>
+					<span class="filedate anim">24 February 2015</span>
+				</div>
+		    </div>
+		</div>
+	    <div class="col-md-4">
+		    <div class="file anim">
+				<div class="fileicon">
+					<img src="{{ url_for('static', filename='img/powerpoint.png') }}" />
+				</div>
+				<div class="filedetails">
+					<span class="filename">my_big_filename.docx</span>
+					<span class="filestatus">Translation Complete</span>
+					<span class="filedate anim">24 February 2015</span>
+				</div>
+		    </div>
+		</div>
+	    <div class="col-md-4">
+		    <div class="file anim">
+				<div class="fileicon">
+					<img src="{{ url_for('static', filename='img/word.png') }}" />
+				</div>
+				<div class="filedetails">
+					<span class="filename">my_big_filename.docx</span>
+					<span class="filestatus">Translation Complete</span>
+					<span class="filedate anim">24 February 2015</span>
+				</div>
+		    </div>
+		</div>
+	    <div class="col-md-4">
+		    <div class="file anim">
+				<div class="fileicon">
+					<img src="{{ url_for('static', filename='img/text.png') }}" />
+				</div>
+				<div class="filedetails">
+					<span class="filename">my_big_filename.docx</span>
+					<span class="filestatus">Translation Complete</span>
+					<span class="filedate anim">24 February 2015</span>
+				</div>
+		    </div>
+		</div>
+	    <div class="col-md-4">
+		    <div class="file anim">
+				<div class="fileicon">
+					<img src="{{ url_for('static', filename='img/powerpoint.png') }}" />
+				</div>
+				<div class="filedetails">
+					<span class="filename">my_big_filename.docx</span>
+					<span class="filestatus">Translation Complete</span>
+					<span class="filedate anim">24 February 2015</span>
+				</div>
+		    </div>
+		</div>
+	    <div class="col-md-4">
+		    <div class="file anim">
+				<div class="fileicon">
+					<img src="{{ url_for('static', filename='img/word.png') }}" />
+				</div>
+				<div class="filedetails">
+					<span class="filename">my_big_filename.docx</span>
+					<span class="filestatus">Translation Complete</span>
+					<span class="filedate anim">24 February 2015</span>
+				</div>
+		    </div>
+		</div>
+	    <div class="col-md-4">
+		    <div class="file anim">
+				<div class="fileicon">
+					<img src="{{ url_for('static', filename='img/word.png') }}" />
+				</div>
+				<div class="filedetails">
+					<span class="filename">my_big_filename.docx</span>
+					<span class="filestatus">Translation Complete</span>
+					<span class="filedate anim">24 February 2015</span>
+				</div>
+		    </div>
+		</div>
+	    <div class="col-md-4">
+		    <div class="file anim">
+				<div class="fileicon">
+					<img src="{{ url_for('static', filename='img/text.png') }}" />
+				</div>
+				<div class="filedetails">
+					<span class="filename">my_big_filename.docx</span>
+					<span class="filestatus">Translation Complete</span>
+					<span class="filedate anim">24 February 2015</span>
+				</div>
+		    </div>
+		</div>
+	    <div class="col-md-4">
+		    <div class="file anim">
+				<div class="fileicon">
+					<img src="{{ url_for('static', filename='img/word.png') }}" />
+				</div>
+				<div class="filedetails">
+					<span class="filename">my_big_filename.docx</span>
+					<span class="filestatus">Translation Complete</span>
+					<span class="filedate anim">24 February 2015</span>
+				</div>
+		    </div>
+		</div>
+	    <div class="col-md-4">
+		    <div class="file anim">
+				<div class="fileicon">
+					<img src="{{ url_for('static', filename='img/word.png') }}" />
+				</div>
+				<div class="filedetails">
+					<span class="filename">my_big_filename.docx</span>
+					<span class="filestatus">Translation Complete</span>
+					<span class="filedate anim">24 February 2015</span>
+				</div>
+		    </div>
+		</div>
+	    <div class="col-md-4">
+		    <div class="file anim">
+				<div class="fileicon">
+					<img src="{{ url_for('static', filename='img/word.png') }}" />
+				</div>
+				<div class="filedetails">
+					<span class="filename">my_big_filename.docx</span>
+					<span class="filestatus">Translation Complete</span>
+					<span class="filedate anim">24 February 2015</span>
+				</div>
+		    </div>
+		</div>
+	    <div class="col-md-4">
+		    <div class="file anim">
+				<div class="fileicon">
+					<img src="{{ url_for('static', filename='img/text.png') }}" />
+				</div>
+				<div class="filedetails">
+					<span class="filename">my_big_filename.docx</span>
+					<span class="filestatus">Translation Complete</span>
+					<span class="filedate anim">24 February 2015</span>
+				</div>
+		    </div>
+		</div>
+	    <div class="col-md-4">
+		    <div class="file anim">
+				<div class="fileicon">
+					<img src="{{ url_for('static', filename='img/text.png') }}" />
+				</div>
+				<div class="filedetails">
+					<span class="filename">my_big_filename.docx</span>
+					<span class="filestatus">Translation Complete</span>
+					<span class="filedate anim">24 February 2015</span>
+				</div>
+		    </div>
+		</div>
+	    <div class="col-md-4">
+		    <div class="file anim">
+				<div class="fileicon">
+					<img src="{{ url_for('static', filename='img/word.png') }}" />
+				</div>
+				<div class="filedetails">
+					<span class="filename">my_big_filename.docx</span>
+					<span class="filestatus">Translation Complete</span>
+					<span class="filedate anim">24 February 2015</span>
+				</div>
+		    </div>
+		</div>
+	    <div class="col-md-4">
+		    <div class="file anim">
+				<div class="fileicon">
+					<img src="{{ url_for('static', filename='img/powerpoint.png') }}" />
+				</div>
+				<div class="filedetails">
+					<span class="filename">my_big_filename.docx</span>
+					<span class="filestatus">Translation Complete</span>
+					<span class="filedate anim">24 February 2015</span>
+				</div>
+		    </div>
+		</div>
+	    <div class="col-md-4">
+		    <div class="file anim">
+				<div class="fileicon">
+					<img src="{{ url_for('static', filename='img/word.png') }}" />
+				</div>
+				<div class="filedetails">
+					<span class="filename">my_big_filename.docx</span>
+					<span class="filestatus">Translation Complete</span>
+					<span class="filedate anim">24 February 2015</span>
+				</div>
+		    </div>
+		</div>
+	    <div class="col-md-4">
+		    <div class="file anim">
+				<div class="fileicon">
+					<img src="{{ url_for('static', filename='img/powerpoint.png') }}" />
+				</div>
+				<div class="filedetails">
+					<span class="filename">my_big_filename.docx</span>
+					<span class="filestatus">Translation Complete</span>
+					<span class="filedate anim">24 February 2015</span>
+				</div>
+		    </div>
+		</div>
+	    <div class="col-md-4">
+		    <div class="file anim">
+				<div class="fileicon">
+					<img src="{{ url_for('static', filename='img/word.png') }}" />
+				</div>
+				<div class="filedetails">
+					<span class="filename">my_big_filename.docx</span>
+					<span class="filestatus">Translation Complete</span>
+					<span class="filedate anim">24 February 2015</span>
+				</div>
+		    </div>
+		</div>
+	    <div class="col-md-4">
+		    <div class="file anim">
+				<div class="fileicon">
+					<img src="{{ url_for('static', filename='img/text.png') }}" />
+				</div>
+				<div class="filedetails">
+					<span class="filename">my_big_filename.docx</span>
+					<span class="filestatus">Translation Complete</span>
+					<span class="filedate anim">24 February 2015</span>
+				</div>
+		    </div>
+		</div>
+	    <div class="col-md-4">
+		    <div class="file anim">
+				<div class="fileicon">
+					<img src="{{ url_for('static', filename='img/word.png') }}" />
+				</div>
+				<div class="filedetails">
+					<span class="filename">my_big_filename.docx</span>
+					<span class="filestatus">Translation Complete</span>
+					<span class="filedate anim">24 February 2015</span>
+				</div>
+		    </div>
+		</div>
+
+		
+		
+	</div>
+</div>
+{% endblock %}
+
+{% block js %}
+<script>
+	$(document).ready(function() {
+		// var header_offset = $('nav').offset();
+		$('.toolbar').css({top: $('nav').height()+10+"px"});
+		// $('.body-content').css({marginTop: $('nav').height()+10+$('.toolbar').height()+"px"});
+	});	
+</script>
+{% endblock %}

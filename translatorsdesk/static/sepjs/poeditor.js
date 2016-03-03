@@ -195,7 +195,8 @@ $("#download").click(function(){
   // editors[parseInt($("#po-container .panel-row .codemirror_block").attr("td-editor-id")) - 1]
   $("#po-container .panel-row").each(function(){
     var src = $(this).find(".source-text").text();
-    var tgt = editors[parseInt($(this).find(".codemirror_block").attr("td-editor-id")) - 1].getValue();
+    var tgt = $(this).find(".target-text").text();
+    // var tgt = editors[parseInt($(this).find(".codemirror_block").attr("td-editor-id")) - 1].getValue();
     console.log("SEE THIS: ");
     console.log({"src":src, "tgt":tgt});
     data.push({"src":src, "tgt":tgt});
@@ -218,17 +219,17 @@ $("#download").click(function(){
     // for (var i=0; i<)
 
     console.log(data);
-    $.ajax({
-      type: "POST",
-      contentType: "application/json; charset=utf-8",
-      url: "/preview",
-      data: JSON.stringify(_D),
-      complete: function (data) {
-        // window.open(data.responseText);
-       downloadURI(data.responseText);
-      },
-      dataType: "json"
-    });
+    // $.ajax({
+    //   type: "POST",
+    //   contentType: "application/json; charset=utf-8",
+    //   url: "/preview",
+    //   data: JSON.stringify(_D),
+    //   complete: function (data) {
+    //     // window.open(data.responseText);
+    //    downloadURI(data.responseText);
+    //   },
+    //   dataType: "json"
+    // });
 
     function checkForLink(){ 
       $.get("/status/"+_D.uid+"/"+_D.fileName, function(data){
