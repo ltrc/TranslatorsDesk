@@ -114,7 +114,8 @@
 	};
 	var filestatus = {
 		"GENERATING_TRANSLATED_PO_FILE:::COMPLETE":"Translation Complete",
-		"PIPELINE_ERROR":"Pipeline Error"
+		"PIPELINE_ERROR":"Pipeline Error",
+		"OUTPUT_FILE_GENERATED":"Translation Complete"
 	};
 
 	var privacy = {
@@ -125,15 +126,21 @@
 		$('.body-content').html('');
 		$.each(filelist, function(index, val) {
 			var element = "";
+			console.log(val[1], val[3]);
 			element += '<div class="col-md-4">\
 			    <div class="file anim" id="'+val[0]+'/'+val[1]+'">\
 					<div class="fileicon">\
 						<img src="'+window.icos[val[1].split('.')[val[1].split('.').length-1]]+'" />\
 					</div>\
 					<div class="filedetails">\
-						<span class="filename"><sup>'+window.privacy[val[2]]+"</sup> "+val[1]+'</span>\
-						<span class="filestatus">'+window.filestatus[val[3]]+'</span>\
-						<span class="filedate anim">'+val[4]+'</span>\
+						<span class="filename"><sup>'+window.privacy[val[2]]+"</sup> "+val[1]+'</span>';
+						if (val[3].startsWith('OUTPUT_FILE_GENERATED')) {
+							element += '<span class="filestatus">Translation Complete</span>';
+						}
+						else {
+							element += '<span class="filestatus">'+window.filestatus[val[3]]+'</span>';
+						}
+						element += '<span class="filedate anim">'+val[4]+'</span>\
 					</div>\
 			    </div>\
 			</div>';

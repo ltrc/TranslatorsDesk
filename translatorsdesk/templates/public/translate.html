@@ -44,7 +44,7 @@
 </div>
 <div id="progressbar">
 </div>
-
+<input type="hidden" id="csrf_token" name="csrf_token" value="{{ csrf_token() }}"/>
 <script type="text/javascript">
   window.uid = '{{uid}}';
   window.fileName = '{{fileName}}';

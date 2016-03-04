@@ -11,6 +11,7 @@ function update_po_data(entries) {
     console.log(words);
     window.sentsDone += 1;
     window.modal_data[paraid+"_"+idx] = ["", ""];
+    window.corrected_data[paraid+"_"+idx] = [];
     var tgt_str_to_show = "";
     var src_str_to_show = "";
     $.each(words, function(index, val) {
@@ -18,7 +19,7 @@ function update_po_data(entries) {
       window.modal_data[paraid+"_"+idx][1] += "<span id='"+val[1]+"_"+paraid+"_"+idx+"_"+index+"' class='tgt_word'>"+val[1]+"</span> ";;
       src_str_to_show += val[0]+ " ";
       window.modal_data[paraid+"_"+idx][0] += "<span id='"+val[0]+"_"+paraid+"_"+idx+"_"+index+"' class='src_word'>"+val[0]+"</span> ";
-
+      window.corrected_data[paraid+"_"+idx].push(val[1]+" ");
       window.PO_DATA_WORDS1[val[0]+"_"+paraid+"_"+idx+"_"+index] = val[1]+"_"+paraid+"_"+idx+"_"+index;
       window.PO_DATA_WORDS2[val[1]+"_"+paraid+"_"+idx+"_"+index] = val[0]+"_"+paraid+"_"+idx+"_"+index;
     });
@@ -51,10 +52,15 @@ $.each(entries, function(paraid, paradata){
                 if (data.tgt != null) {
                   src_str_to_show = data.src;
                   tgt_str_to_show = data.tgt;
+                    window.corrected_data[paraid+"_"+idx] = [];
+
+
 
                   $.each(data.words, function(index, val) {
                     window.modal_data[paraid+"_"+idx][1] += "<span id='"+val[1]+"_"+paraid+"_"+idx+"_"+index+"' class='tgt_word'>"+val[1]+"</span> ";
                     window.modal_data[paraid+"_"+idx][0] += "<span id='"+val[0]+"_"+paraid+"_"+idx+"_"+index+"' class='src_word'>"+val[0]+"</span> ";
+                  // window.corrected_data[paraid+"_"+idx].push([val[0], val[1]]);
+                    window.corrected_data[paraid+"_"+idx].push(val[1]+" ");
 
                     window.PO_DATA_WORDS1[val[0]+"_"+paraid+"_"+idx+"_"+index] = val[1]+"_"+paraid+"_"+idx+"_"+index;
                     window.PO_DATA_WORDS2[val[1]+"_"+paraid+"_"+idx+"_"+index] = val[0]+"_"+paraid+"_"+idx+"_"+index;
@@ -113,6 +119,7 @@ $.each(entries, function(paraid, paradata){
 
 $(document).ready(function(){
   window.modal_data = {};
+  window.corrected_data = {};
   if(window.PO_DATA){
     console.log("HOOHAAH");
     console.log(window.PO_DATA)     // fix this 'tgt' key. 
@@ -138,10 +145,11 @@ function fix_highlighting() {
     $('.tgt_word').mouseover(function() {
     var word = this.id;
     var otherword = window.PO_DATA_WORDS2[word];
+    console.log(word, otherword);
     $(this).addClass("highlight");
 
     $('.src_word').removeClass("highlight");
-    $('.source-text #'+otherword).addClass("highlight");
+    $('.src_word#'+otherword).addClass("highlight");
   });
 
   $('.tgt_word').mouseout(function() {
@@ -152,9 +160,10 @@ function fix_highlighting() {
   $('.src_word').mouseover(function() {
     var word = this.id;
     var otherword = window.PO_DATA_WORDS1[word];
+    console.log(word, otherword);
     $(this).addClass("highlight");
     $('.tgt_word').removeClass("highlight");
-    $('.target-text #'+otherword).addClass("highlight");
+    $('.tgt_word#'+otherword).addClass("highlight");
   });
 
   $('.src_word').mouseout(function() {
@@ -228,26 +237,39 @@ $("#download").click(function(){
 
     // FIX ENDS. 
 
+    window.CORRECTED_DATA = [];
+    $('.target-text').each(function(index, valx) {
+      var paraid = valx.id.split('_')[1];
+      var sentid = valx.id.split('_')[2];
+      var curr = [parseInt(paraid), parseInt(sentid), window.corrected_data[paraid+"_"+sentid]];
+      // $.each(window.modal_data[paraid+"_"+sentid], function(ind, val) {
+      //   curr[2].push(val[0].replace(/(<([^>]+)>)/ig,""), val[1].replace(/(<([^>]+)>)/ig,""));
+      // });
+      window.CORRECTED_DATA.push(curr);
+    });
     var _D = {};
-    _D.uid = window.uid;
-    _D.fileName = window.fileName;
+    _D["uid"] = window.uid;
+    _D["fileName"] = window.fileName;
     // _D.data = data;
-    _D.data = window.PO_DATA["data"];
+    _D["data"] = JSON.stringify(window.CORRECTED_DATA);
+    _D["csrf_token"] = $('#csrf_token').val();
     // for (var i=0; i<)
 
-    console.log(data);
+    console.log(_D);
     // $.ajax({
     //   type: "POST",
     //   contentType: "application/json; charset=utf-8",
-    //   url: "/preview",
-    //   data: JSON.stringify(_D),
+    //   url: "/download",
+    //   data: _D,
     //   complete: function (data) {
     //     // window.open(data.responseText);
-    //    downloadURI(data.responseText);
+    //    // downloadURI(data.responseText);
     //   },
     //   dataType: "json"
     // });
-
+      ajaxCall("/download", _D, "POST", true, function(data) {
+        console.log(data);
+      }); 
     function checkForLink(){ 
       $.get("/status/"+_D.uid+"/"+_D.fileName, function(data){
           console.log(data);

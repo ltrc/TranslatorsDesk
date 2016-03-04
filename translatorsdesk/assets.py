@@ -40,6 +40,7 @@ js = Bundle(
     "libs/CodeMirror/addon/display/panel.js",
     "libs/CodeMirror/addon/selection/mark-selection.js",
     "js/translators-desk.js",
+    "js/helper.js",
     "js/plugins.js",
     filters='jsmin',
     output="public/js/common.js"

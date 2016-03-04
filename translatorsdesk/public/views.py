@@ -202,7 +202,7 @@ def translate(uid, fileName):
     _status = r_conn.lrange("state_"+uid+"/"+fileName, 0, -1)
     if len(_status) > 0:
         if fileExists(uid, fileName):
-            if _status[0].startswith("TRANSLATING_PO_FILE") or _status[0].startswith("GENERATING_TRANSLATED_PO_FILE"):
+            if _status[0].startswith("TRANSLATING_PO_FILE") or _status[0].startswith("GENERATING_TRANSLATED_PO_FILE") or _status[0].startswith("OUTPUT_FILE_GENERATED"):
                 filepath = os.path.join(current_app.config['UPLOAD_FOLDER'],  uid, fileName+".meta")
                 meta_file = open(filepath, 'r')
                 meta = json.loads(meta_file.read())
@@ -230,21 +230,22 @@ def translate(uid, fileName):
     else:
         print "ELSE 2"
         return abort(404)
-    
+
 
 @blueprint.route('/download', methods=['POST'])
 @login_required
 def download():
-    data = request.json
+    data = request.values
     uid = data.get('uid', None)
     fileName = data.get('fileName', None)
     corrections = data.get('data', None)
+    print uid, fileName, corrections
     if not (uid and fileName and corrections):
         return jsonify({"success": False, "message": "Data Missing"})
     if not _can_user_access_file(uid, fileName, current_user):
         abort(403)
     file = os.path.join(current_app.config['UPLOAD_FOLDER'],  uid, fileName)
-    job = q.enqueue_call(func=worker_functions.generateOutputFile, args=(file, corrections))
+    job = q.enqueue_call(func=worker_functions.generateOutputFile, args=(file, json.loads(corrections)))
     return "#";
 
 

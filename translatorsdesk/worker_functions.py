@@ -384,14 +384,14 @@ def mergeTranslatedXLFFileWithDocument(file):
 
 
 def generateOutputFile(file, corrections): 
-    change_state(file, "BEGIN_PROCESSING_OF_FILE")
-
+    # change_state(file, "BEGIN_PROCESSING_OF_FILE")
+    print "corrections:", corrections
     #UPDATE META DATA
     meta_file = open(file+".meta", 'r')
     meta = json.loads(meta_file.read())
     meta_file.close()
     for c in corrections:
-        meta['entries'][c[0]][str(c[1])]['tgt'] = c[2]
+        meta['entries'][int(c[0])][str(int(c[1]))]['tgt'] = ''.join(c[2]).strip()
     f = open(file+'.meta', 'w')
     f.write(json.dumps(meta))
     f.close()
@@ -406,12 +406,10 @@ def generateOutputFile(file, corrections):
     po = polib.POFile()
     i = 0
     while i in xrange(len(meta['entries'])):
-        target = []
-        for sent in meta['entries'][i]:
-            target.append(sent['tgt'])
-
+        target = ' '.join([each[1]['tgt'] for each in sorted(meta['entries'][i].items())])
+        print target
         _msgid = d[i]['src']
-        _msgstr = ' '.join(target)
+        _msgstr = target
 
         entry = polib.POEntry(
             msgid=unicode(_msgid),
