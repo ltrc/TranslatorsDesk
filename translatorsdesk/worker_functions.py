@@ -32,7 +32,9 @@ def change_state(file, state):
     r_conn = get_redis_connection()
     key = "state_" + "/".join(file.split("/")[-2:])
     _status = r_conn.lrange(key, 0, -1)
-    if _status > 0 and _status[0] == state:
+    if _status < 0 or len(_status) == 0:
+        r_conn.lpush(key, state)
+    elif _status[0] == state:
         return
     r_conn.lpush(key, state)
 

@@ -26,7 +26,7 @@ def account():
 	for each in user_files:
 		key = "state_"+each.uuid+"/"+each.name
 		status = r_conn.lrange(key, 0, -1)
-		if status < 0:
+		if status < 0 or len(status) == 0:
 			status = "Missing from Redis"
 		else:
 			status = status[0]
