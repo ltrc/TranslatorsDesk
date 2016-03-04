@@ -11,6 +11,7 @@ from rq import Queue
 
 import os
 
+#TO-DO : Change this to a redis pool
 redis_conn = Redis()
 q = Queue(connection=redis_conn, default_timeout=300)
 

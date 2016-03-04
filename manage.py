@@ -21,7 +21,7 @@ from translatorsdesk.app import create_app
 from translatorsdesk.user.models import User, File
 from translatorsdesk.settings import DevConfig, ProdConfig
 from translatorsdesk.database import db
-# from translatorsdesk.spellchecker import dictionaries as spellcheckers
+
 import random, hashlib, json, base64
 import urllib, urllib2
 import json
@@ -61,6 +61,7 @@ def translators_desk_get_lang_pairs():
     r_conn.set( "language_pairs", result)
     emit('translators_desk_get_lang_pairs_response', result)
 
+
 @socketio.on('translators_desk_check_file_state', namespace='/td')
 def translators_desk_check_file_state(message):
     r_conn = Redis()
@@ -81,6 +82,7 @@ def translators_desk_check_file_state(message):
     _status = r_conn.lrange(key, 0, -1)
     # if _status > 0:
     emit('translators_desk_file_state_change', _status)
+
 
 @socketio.on('translators_desk_get_translation_data', namespace='/td')
 def translators_desk_get_translation_data(message):
@@ -105,6 +107,7 @@ def translators_desk_get_translation_data(message):
         r_conn.delete(key)
         emit('translators_desk_get_translation_data_response', json.dumps(_status))
 
+
 @socketio.on('translators_desk_get_word_suggestion', namespace='/td')
 def translators_desk_get_word_suggestion(message):
     print "REQUEST FOR SUGGESTION"
@@ -118,24 +121,36 @@ def translators_desk_get_word_suggestion(message):
         suggestions = { 'spellings' : [], 'synonyms' : [] }
         if lang != 'ur':
             suggestions['spellings'] = spellcheckers[lang].suggest(word.encode('utf-8'))
-        if lang == 'hi':
-            id = hindi_dict['words'].get(word, None)
-            if id:
-                suggestions['synonyms'] = hindi_dict['ids'][id]
-        elif lang == 'ur':
-            id = urdu_dict['words'].get(word, None)
-            if id:
-                suggestions['synonyms'] = urdu_dict['ids'][id]
-        elif lang == 'pa':
-            id = pan_dict['words'].get(word, None)
-            if id:
-                suggestions['synonyms'] = pan_dict['ids'][id]
-
-        # suggestions['synonyms'] = [synonym for synonym in suggestions['synonyms'] if synonym != word]
+        lang_dict = languages[lang]
+        id = lang_dict['words'].get(word, None)
+        if id:
+            suggestions['synonyms'] = lang_dict['ids'][id]
         print suggestions
         emit("translators_desk_get_word_suggestion_" \
             + hashlib.md5(word.lower()).hexdigest(), \
             json.dumps(suggestions))
+
+
+@socketio.on('translators_desk_get_word_details', namespace='/td')
+def translators_desk_get_word_details(message):
+    print "REQUEST FOR DETAILS"
+    word = message['data'].strip()
+    lang = message['lang']
+    print word, lang
+
+    if lang in ['hi', 'ur', 'pa']:
+        details = { 'cat' : '', 'meaning' : '', 'example' : ''}
+        lang_dict = languages[lang]
+        id = lang_dict['words'].get(word, None)
+        lang_dict['cat'][id]
+        lang_dict['meaning'][id]
+        lang_dict['example'][id]
+
+        print details
+        emit("translators_desk_get_word_suggestion_" \
+            + hashlib.md5(word.lower()).hexdigest(), \
+            json.dumps(details))
+
 
 @socketio.on('spell_check_cache_query', namespace='/td')
 def spell_check_cache_query(message):
@@ -150,6 +165,7 @@ def spell_check_cache_query(message):
             error_list.append(word)
     emit("spell_check_cache_query_response", json.dumps(error_list));
 
+
 @socketio.on('connect', namespace='/td')
 def test_connect():
     emit('my response', {'data': 'Connected', 'count': 0})
@@ -159,11 +175,13 @@ def test_connect():
 def test_disconnect():
     print('Client disconnected')
 
+
 def _make_context():
     """Return context dict for a shell session so you can access
     app, db, and the User model by default.
     """
     return {'app': app, 'db': db, 'User': User}    
+
 
 def load_dictionaries():
     en = aspell.Speller(('lang', 'en'), ('encoding', 'utf-8'))
@@ -183,6 +201,7 @@ def load_dictionaries():
     dictionaries['ta'] = ta
     dictionaries['pa'] = pa
 
+    languages = {}
     f = open('translatorsdesk/static/dictionaries/hin.dict', 'r')
     hindi = {}
     hindi['words'], hindi['ids'], hindi['cat'], hindi['meaning'], hindi['example'] = json.loads(f.read())
@@ -196,10 +215,16 @@ def load_dictionaries():
     pan['words'], pan['ids'], pan['cat'], pan['meaning'], pan['example'] = json.loads(f.read())
     f.close()
 
-    return (dictionaries, hindi, urdu, pan)
+    languages['hi'] = hindi
+    languages['ur'] = urdu
+    languages['pa'] = pan
 
-spellcheckers, hindi_dict, urdu_dict, pan_dict = load_dictionaries()
+    return (dictionaries, languages)
+
+spellcheckers, languages = load_dictionaries()
+print "DICTIONARIES LOADED"
 manager = Manager(app)
+
 
 @manager.command
 def test():
@@ -208,12 +233,15 @@ def test():
     exit_code = pytest.main([TEST_PATH, '--verbose'])
     return exit_code
 
+
 @manager.command
 def run():
     socketio.run(app, host="0.0.0.0", port=6001, use_reloader=True)
 
+
 manager.add_command('shell', Shell(make_context=_make_context))
 manager.add_command('db', MigrateCommand)
+
 
 if __name__ == '__main__':
     _db.app = app
