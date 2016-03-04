@@ -29,20 +29,22 @@ def get_redis_connection():
 
 def change_state(file, state):
     print "="*80, state
-
     r_conn = get_redis_connection()
-    u_file = "/".join(file.split("/")[-2:])
-    r_conn.lpush("state_"+u_file, state)
+    key = "state_" + "/".join(file.split("/")[-2:])
+    _status = r_conn.lrange(key, 0, -1)
+    if _status > 0 and _status[0] == state:
+        return
+    r_conn.lpush(key, state)
 
 def add_sentence_to_file(file, sent):
     r_conn = get_redis_connection()
-    u_file = "/".join(file.split("/")[-2:])
-    r_conn.lpush(u_file+"_sents", sent)
+    key = "/".join(file.split("/")[-2:]) + "_sents"
+    r_conn.lpush(key, sent)
 
 def remove_file_sents(file):
     r_conn = get_redis_connection()
-    u_file = "/".join(file.split("/")[-2:])
-    r_conn.expire(u_file+"_sents", 60*60*24)
+    key = "/".join(file.split("/")[-2:]) + "_sents"
+    r_conn.expire(key, 60*60*24)
 
 #=================================================================
 # Process Input File
