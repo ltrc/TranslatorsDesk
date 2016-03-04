@@ -1,9 +1,14 @@
 # -*- coding: utf-8 -*-
 '''Public section, including homepage and signup.'''
+import json
+import datetime, uuid, os
+
 from flask import (Blueprint, request, render_template, flash, url_for,
                     redirect, session, jsonify, redirect, request, current_app,
                     abort)
 from flask.ext.login import login_user, login_required, logout_user, current_user
+from rq import Queue
+from redis import Redis
 from translatorsdesk.extensions import login_manager
 from translatorsdesk.user.models import User, File
 from translatorsdesk.public.forms import LoginForm
@@ -12,19 +17,58 @@ from translatorsdesk.utils import flash_errors
 from translatorsdesk.database import db
 import translatorsdesk.worker_functions as worker_functions
 
-import polib
-import json
-import datetime, uuid, os
-
 blueprint = Blueprint('public', __name__, static_folder="../static")
-
-from rq import Queue
-from redis import Redis
 
 #TO-DO : Change this to a redis pool
 redis_conn = Redis()
 q = Queue(connection=redis_conn, default_timeout=300)
 
+"""
+    Helper functions
+"""
+def _allowed_file(filename):
+    return '.' in filename and filename.rsplit('.', 1)[1] in current_app.config['ALLOWED_FILE_EXTENSIONS']
+
+def _can_user_access_file(uid, fileName, current_user):
+    file = File.query.filter_by(uuid = uid, name = fileName).first()
+    if not file.shareable:
+        if not current_user.is_authenticated():
+            return False
+        else:
+            if file.user_id != current_user.id:
+                return False
+    return True
+
+"""
+    Checks if a uid, fileName pair exists
+"""
+def fileExists(uid, fileName):
+    filepath = os.path.join(current_app.config['UPLOAD_FOLDER'],  uid, fileName)
+    if os.path.exists(filepath):
+        return True
+    else:
+        return False
+
+"""
+    Checks if the XLIFF file for a uid, fileName pair exists
+    Note: This assumes that the uid and fileName pair exists
+"""
+def fileXLIFFExists(uid, fileName):
+    filepath = os.path.join(current_app.config['UPLOAD_FOLDER'],  uid, fileName+".xlf")
+    if os.path.exists(filepath):
+        return True
+    else:
+        return False
+
+def returnFileData(uid, fileName):
+    filepath = os.path.join(current_app.config['UPLOAD_FOLDER'],  uid, fileName)    
+    f = open(filepath, 'r')
+    data = f.read()
+    f.close()
+    return data
+
+def get_redis_connection():
+    return Redis()
 
 @login_manager.user_loader
 def load_user(id):
@@ -143,63 +187,19 @@ def upload():
             return jsonify({"success": False, "message": "Corrupt File"})
 
 
-def _allowed_file(filename):
-    return '.' in filename and filename.rsplit('.', 1)[1] in current_app.config['ALLOWED_FILE_EXTENSIONS']
-
-
-"""
-    Helper functions for Translate
-"""
-
-"""
-    Checks if a uid, fileName pair exists
-"""
-def fileExists(uid, fileName):
-    filepath = os.path.join(current_app.config['UPLOAD_FOLDER'],  uid, fileName)
-    if os.path.exists(filepath):
-        return True
-    else:
-        return False
-
-"""
-    Checks if the XLIFF file for a uid, fileName pair exists
-    Note: This assumes that the uid and fileName pair exists
-"""
-def fileXLIFFExists(uid, fileName):
-    filepath = os.path.join(current_app.config['UPLOAD_FOLDER'],  uid, fileName+".xlf")
-    if os.path.exists(filepath):
-        return True
-    else:
-        return False
-
-def returnFileData(uid, fileName):
-    filepath = os.path.join(current_app.config['UPLOAD_FOLDER'],  uid, fileName)    
-    f = open(filepath, 'r')
-    data = f.read()
-    f.close()
-    return data
-
-def get_redis_connection():
-    return Redis()
-
-
 """
     Handles Computer Assisted Translation of a particular xliff file
 """
 @blueprint.route('/translate/<uid>/<fileName>/', methods=['GET'])
 def translate(uid, fileName):
-    ##Check if the uid and filename exists
+    
+    #Check if user is allowed to view the file
+    if not _can_user_access_file(uid, fileName, current_user):
+        abort(403)
+
+    #Check if the uid and filename exists
     r_conn = get_redis_connection()
     _status = r_conn.lrange("state_"+uid+"/"+fileName, 0, -1)
-
-    file = File.query.filter_by(uuid = uid, name = fileName).first()
-    if not file.shareable:
-        if not current_user.is_authenticated():
-            return abort(403)
-        else:
-            if file.user_id != current_user.id:
-                return abort(403)
-
     if len(_status) > 0:
         if fileExists(uid, fileName):
             if _status[0].startswith("TRANSLATING_PO_FILE") or _status[0].startswith("GENERATING_TRANSLATED_PO_FILE"):
@@ -232,49 +232,26 @@ def translate(uid, fileName):
         return abort(404)
     
 
-import subprocess
-
-@blueprint.route('/preview', methods=['POST'])
-def preview():
+@blueprint.route('/download', methods=['POST'])
+@login_required
+def download():
     data = request.json
-    fileName = data['fileName']
-    uid = data['uid']
-    meta = data['data']
-
+    uid = data.get('uid', None)
+    fileName = data.get('fileName', None)
+    corrections = data.get('data', None)
+    if not (uid and fileName and corrections):
+        return jsonify({"success": False, "message": "Data Missing"})
+    if not _can_user_access_file(uid, fileName, current_user):
+        abort(403)
     file = os.path.join(current_app.config['UPLOAD_FOLDER'],  uid, fileName)
-    po = polib.pofile(file+".po")
-    valid_entries = [e for e in po if not e.obsolete]
-    d = []
-    for entry in valid_entries:
-        if entry.msgid.strip() != "":
-            d.append({"src":entry.msgid,"tgt":entry.msgstr})
-
-    po = polib.POFile()
-    i = 0
-    while i in xrange(len(meta['entries'])):
-        target = []
-        for sent in meta['entries'][i]:
-            target.append(sent['tgt'])
-
-        _msgid = d[i]['src']
-        _msgstr = ' '.join(target)
-
-        entry = polib.POEntry(
-            msgid=unicode(_msgid),
-            msgstr=unicode(_msgstr),
-        )
-        po.append(entry)
-        i += 1
-
-    po.save(file+".updated.po")
-
-    job = q.enqueue_call(func=worker_functions.generateOutputFile, args=(file, meta))
-
+    job = q.enqueue_call(func=worker_functions.generateOutputFile, args=(file, corrections))
     return "#";
 
 
 @blueprint.route('/status/<uid>/<fileName>', methods=['GET'])
 def status(uid, fileName):
+    if not _can_user_access_file(uid, fileName, current_user):
+        abort(403)
     r_conn = get_redis_connection()
     _status = r_conn.lrange("state_"+uid+"/"+fileName, 0, -1)
 

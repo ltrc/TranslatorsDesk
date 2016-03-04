@@ -114,9 +114,6 @@ def translators_desk_get_word_suggestion(message):
     word = message['data'].strip()
     lang = message['lang']
     print word, lang
-    # Check if its a supported language
-    print spellcheckers
-
     if lang in ['hi', 'ur', 'en', 'te', 'ta', 'pa']:
         suggestions = { 'spellings' : [], 'synonyms' : [] }
         if lang != 'ur':
@@ -137,15 +134,14 @@ def translators_desk_get_word_details(message):
     word = message['data'].strip()
     lang = message['lang']
     print word, lang
-
     if lang in ['hi', 'ur', 'pa']:
         details = { 'cat' : '', 'meaning' : '', 'example' : ''}
         lang_dict = languages[lang]
         id = lang_dict['words'].get(word, None)
-        lang_dict['cat'][id]
-        lang_dict['meaning'][id]
-        lang_dict['example'][id]
-
+        if id:
+            details['cat'] = lang_dict['cat'][id]
+            details['meaning'] = lang_dict['meaning'][id]
+            details['example'] = lang_dict['example'][id]
         print details
         emit("translators_desk_get_word_suggestion_" \
             + hashlib.md5(word.lower()).hexdigest(), \

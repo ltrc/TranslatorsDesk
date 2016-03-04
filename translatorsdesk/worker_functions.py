@@ -379,14 +379,43 @@ def mergeTranslatedXLFFileWithDocument(file):
     change_state(file,"MERGE_TRANSLATED_XLIFF_FILE:::COMPLETE")
 
 
-def generateOutputFile(file, meta): 
-	# file : fullpath of the file
-
+def generateOutputFile(file, corrections): 
     change_state(file, "BEGIN_PROCESSING_OF_FILE")
 
+    #UPDATE META DATA
+    meta_file = open(file+".meta", 'r')
+    meta = json.loads(meta_file.read())
+    meta_file.close()
+    for c in corrections:
+        meta['entries'][c[0]][str(c[1])]['tgt'] = c[2]
     f = open(file+'.meta', 'w')
     f.write(json.dumps(meta))
     f.close()
+
+    #UPDATE PO FILE
+    po = polib.pofile(file+".po")
+    valid_entries = [e for e in po if not e.obsolete]
+    d = []
+    for entry in valid_entries:
+        if entry.msgid.strip() != "":
+            d.append({"src":entry.msgid,"tgt":entry.msgstr})
+    po = polib.POFile()
+    i = 0
+    while i in xrange(len(meta['entries'])):
+        target = []
+        for sent in meta['entries'][i]:
+            target.append(sent['tgt'])
+
+        _msgid = d[i]['src']
+        _msgstr = ' '.join(target)
+
+        entry = polib.POEntry(
+            msgid=unicode(_msgid),
+            msgstr=unicode(_msgstr),
+        )
+        po.append(entry)
+        i += 1
+    po.save(file+".updated.po")
 
     mergePOFileWithXLF(file)
     takeBackupOfOldXLFFile(file)

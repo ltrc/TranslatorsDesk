@@ -1,15 +1,13 @@
 # -*- coding: utf-8 -*-
-from flask import Blueprint, render_template
+import os
+
+from flask import Blueprint, render_template, current_app, abort
 from flask.ext.login import login_required, current_user
 from sqlalchemy import desc
-
-from translatorsdesk.user.models import User, File
-
-from flask import current_app, abort
 from redis import Redis
 from rq import Queue
 
-import os
+from translatorsdesk.user.models import User, File
 
 #TO-DO : Change this to a redis pool
 redis_conn = Redis()
@@ -17,6 +15,15 @@ q = Queue(connection=redis_conn, default_timeout=300)
 
 blueprint = Blueprint("user", __name__, url_prefix='/users', static_folder="../static")
 
+def _can_user_access_file(uid, fileName, current_user):
+    file = File.query.filter_by(uuid = uid, name = fileName).first()
+    if not file.shareable:
+        if not current_user.is_authenticated():
+            return False
+        else:
+            if file.user_id != current_user.id:
+                return False
+    return True
 
 @blueprint.route("/account/", methods=['GET'])
 @login_required
@@ -40,17 +47,16 @@ def account():
 @login_required
 def delete_file():
 	data = request.json
-	name = data.get('file', None)
-	uuid = data.get('uuid', None)
+	uuid = data.get('uid', None)
+	name = data.get('fileName', None)
 
 	if not name or not uid:
-		return jsonify({"success": False, "message": "UID or Filename not specified!!"})
+		return jsonify({"success": False, "message": "Data Missing"})
+
+	if not _can_user_access_file(uuid, name, current_user):
+		abort(403)
 
 	file = File.query.filter_by(uuid = uuid, name = name).first()
-
-	if file.user_id != current_user.id:
-		return abort(403)
-
 	file = os.path.join(current_app.config['UPLOAD_FOLDER'],  uuid, name)
 	folder_path = os.path.join(current_app.config['UPLOAD_FOLDER'],  uuid)
 
@@ -75,16 +81,15 @@ def delete_file():
 @login_required
 def share_file():
 	data = request.json
-	name = data.get('file', None)
-	uuid = data.get('uuid', None)
+	uuid = data.get('uid', None)
+	name = data.get('fileName', None)
 
 	if not name or not uid:
-		return jsonify({"success": False, "message": "UID or Filename not specified!!"})
+		return jsonify({"success": False, "message": "Data Missing"})
+
+	if not _can_user_access_file(uuid, name, current_user):
+		abort(403)
 
 	file = File.query.filter_by(uuid = uuid, name = name).first()
-
-	if file.user_id != current_user.id:
-		return abort(403)
-
 	file.update(shareable = True)
 	return jsonify({"success": True, "message": file + " has been made shareable"})
