@@ -114,9 +114,14 @@ def translate(sentence, src, target, module_start, module_end, last_module, chun
 
   d = json.loads(the_page)
   print "TRANSLATE ENTERED"
-  ssf_data = ssfapi.Document(d[last_module])
-  
-  sentence = ssf_data.nodeList[0].generateSentence()
+  try:
+    ssf_data = ssfapi.Document(d[last_module])
+    sentence = ssf_data.nodeList[0].generateSentence()
+  except:
+    print "*****SSF ERROR*****"
+    print d[last_module]
+    return response
+    
   words = []
   for tree in ssf_data.nodeList:
     for chunk in tree.nodeList:
@@ -131,7 +136,6 @@ def translate(sentence, src, target, module_start, module_end, last_module, chun
 
   response['tgt'] = sentence.replace('"', '\\"')
   response['words'] = words
-
   return response
 
 #CHANGE FILE STATE WHEN PIPELINE IS DOWN ASK USER USER TO RETRY
