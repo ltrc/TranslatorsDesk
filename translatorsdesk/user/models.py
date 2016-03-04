@@ -32,7 +32,7 @@ class User(UserMixin, SurrogatePK, Model):
     email = Column(db.String(80), unique=True, nullable=False)
     #: The hashed password
     password = Column(db.String(128), nullable=True)
-    created_at = Column(db.DateTime, nullable=False, default=dt.datetime.utcnow)
+    created_at = Column(db.DateTime, nullable=False, default=dt.datetime.now)
     first_name = Column(db.String(30), nullable=True)
     last_name = Column(db.String(30), nullable=True)
     active = Column(db.Boolean(), default=False)
@@ -62,7 +62,7 @@ class File(SurrogatePK, Model):
     __tablename__ = 'files'
     uuid = Column(db.String(100), unique = True, nullable = False)
     name = Column(db.String(100), nullable = False)
-    created_at = Column(db.DateTime, nullable=False, default=dt.datetime.utcnow)
+    created_at = Column(db.DateTime, nullable=False, default=dt.datetime.now)
     user_id = ReferenceCol('users', nullable=True)
     user = relationship('User', backref='files')
     shareable = Column(db.Boolean, nullable = False, default=False)

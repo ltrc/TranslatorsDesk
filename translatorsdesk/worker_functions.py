@@ -7,6 +7,7 @@ import sys
 import re
 import polib
 import os
+import shutil
 import threading
 import ssfapi
 
@@ -74,6 +75,8 @@ def extract_po(file):
     out, err = p.communicate()	
     change_state(file,"EXTRACTING_PO:::COMPLETE")    
 
+def delete_folder(path):
+    shutil.rmtree(path)
 
 def tokenize(sentence, src, target):
   SERVER="http://pipeline.ilmt.iiit.ac.in"

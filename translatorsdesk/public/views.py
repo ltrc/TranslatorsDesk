@@ -4,7 +4,6 @@ from flask import (Blueprint, request, render_template, flash, url_for,
                     redirect, session, jsonify, redirect, request, current_app,
                     abort)
 from flask.ext.login import login_user, login_required, logout_user, current_user
-
 from translatorsdesk.extensions import login_manager
 from translatorsdesk.user.models import User, File
 from translatorsdesk.public.forms import LoginForm
@@ -31,49 +30,43 @@ q = Queue(connection=redis_conn, default_timeout=300)
 def load_user(id):
     return User.get_by_id(int(id))
 
-
 @blueprint.route("/", methods=["GET", "POST"])
 def home():
-    form = LoginForm(request.form)#, csrf_enabled=False)
-    # Handle logging in
+    return render_template("public/home.html")
+
+@blueprint.route("/login/", methods=["GET", "POST"])
+def login():
+    login_form = LoginForm(request.form)
+    register_form = RegisterForm(request.form, csrf_enabled=False)
     if request.method == 'POST':
-        if form.validate_on_submit():
-            username = request.form['username']
-            password = request.form['password']
-            print username, password
-            user = User.query.filter_by(username=username).first()
-            if user.check_password(password):
-                login_user(user)
-                flash("You are logged in.", 'success')
-                print request.args
-                redirect_url = url_for("user.account") or request.args.get("next") 
-                return redirect(redirect_url)
-            else:
-                flash("Invalid credentials")
+        if login_form.validate_on_submit():
+            login_user(login_form.user)
+            redirect_url = url_for("user.account") or request.args.get("next") 
+            return redirect(redirect_url)
         else:
-            flash_errors(form)
-    return render_template("public/home.html", form=form)
+            flash_errors(login_form)
+    return render_template('public/register.html', login_form=login_form, register_form=register_form)
 
 @blueprint.route('/logout/')
 @login_required
 def logout():
     logout_user()
-    flash('You are logged out.', 'info')
     return redirect(url_for('public.home'))
 
 @blueprint.route("/register/", methods=['GET', 'POST'])
 def register():
-    form = RegisterForm(request.form, csrf_enabled=False)
-    if form.validate_on_submit():
-        new_user = User.create(username=form.username.data,
-                        email=form.email.data,
-                        password=form.password.data,
+    login_form = LoginForm(request.form)
+    register_form = RegisterForm(request.form, csrf_enabled=False)
+    if register_form.validate_on_submit():
+        new_user = User.create(username=register_form.username.data,
+                        email=register_form.email.data,
+                        password=register_form.password.data,
                         active=True)
         flash("Thank you for registering. You can now log in.", 'success')
         return redirect(url_for('public.home'))
     else:
-        flash_errors(form)
-    return render_template('public/register.html', form=form)
+        flash_errors(register_form)
+    return render_template('public/register.html', login_form=login_form, register_form=register_form)
 
 @blueprint.route("/about/")
 def about():
@@ -137,9 +130,8 @@ def upload():
             user_file = File.create(
                             uuid = _uuid,
                             name = secure_filename,
+                            shareable = True
                         )
-            files = File.query.filter_by(user_id=None).all()
-            print files
 
         if file or raw_text:
             ## Add Job to Queue
@@ -199,6 +191,14 @@ def translate(uid, fileName):
     ##Check if the uid and filename exists
     r_conn = get_redis_connection()
     _status = r_conn.lrange("state_"+uid+"/"+fileName, 0, -1)
+
+    file = File.query.filter_by(uuid = uid, name = fileName).first()
+    if not file.shareable:
+        if not current_user.is_authenticated():
+            return abort(403)
+        else:
+            if file.user_id != current_user.id:
+                return abort(403)
 
     if len(_status) > 0:
         if fileExists(uid, fileName):

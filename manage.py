@@ -3,6 +3,7 @@
 
 from translatorsdesk.database import db as _db
 from flask_wtf.csrf import CsrfProtect
+from flask.ext.login import current_user
 
 from gevent import monkey
 monkey.patch_all()
@@ -17,7 +18,7 @@ from flask_migrate import MigrateCommand
 from flask.ext.socketio import SocketIO, emit, join_room, leave_room, \
     close_room, disconnect
 from translatorsdesk.app import create_app
-from translatorsdesk.user.models import User
+from translatorsdesk.user.models import User, File
 from translatorsdesk.settings import DevConfig, ProdConfig
 from translatorsdesk.database import db
 # from translatorsdesk.spellchecker import dictionaries as spellcheckers
@@ -49,16 +50,6 @@ spellcheckers = {}
     TODO : Move this block of code to a more appropriate location
 """
 
-@socketio.on('translators_desk_check_file_state', namespace='/td')
-def translators_desk_check_file_state(message):
-    r_conn = Redis()
-    uid = message["uid"]
-    fileName = message["fileName"]
-    key = "state_"+uid+"/"+fileName
-    _status = r_conn.lrange(key, 0, -1)
-    # if _status > 0:
-    emit('translators_desk_file_state_change', _status)
-
 @socketio.on('translators_desk_get_lang_pairs', namespace='/td')
 def translators_desk_get_lang_pairs():
     r_conn = Redis()
@@ -70,11 +61,43 @@ def translators_desk_get_lang_pairs():
     r_conn.set( "language_pairs", result)
     emit('translators_desk_get_lang_pairs_response', result)
 
+@socketio.on('translators_desk_check_file_state', namespace='/td')
+def translators_desk_check_file_state(message):
+    r_conn = Redis()
+    uid = message["uid"]
+    fileName = message["fileName"]
+    
+    file = File.query.filter_by(uuid = uid, name = fileName).first()
+    if not file.shareable:
+        if not current_user.is_authenticated():
+            emit('translators_desk_file_state_change', 'Not Authorized')
+            return
+        else:
+            if file.user_id != current_user.id:
+                emit('translators_desk_file_state_change', 'Not Authorized')
+                return
+
+    key = "state_"+uid+"/"+fileName
+    _status = r_conn.lrange(key, 0, -1)
+    # if _status > 0:
+    emit('translators_desk_file_state_change', _status)
+
 @socketio.on('translators_desk_get_translation_data', namespace='/td')
 def translators_desk_get_translation_data(message):
     r_conn = Redis()
     uid = message["uid"]
     fileName = message["fileName"]
+
+    file = File.query.filter_by(uuid = uid, name = fileName).first()
+    if not file.shareable:
+        if not current_user.is_authenticated():
+            emit('translators_desk_file_state_change', 'Not Authorized')
+            return
+        else:
+            if file.user_id != current_user.id:
+                emit('translators_desk_file_state_change', 'Not Authorized')
+                return
+
     key = uid+"/"+fileName+"_sents"
     _status = r_conn.lrange(key, 0, -1)
     if _status > 0:
