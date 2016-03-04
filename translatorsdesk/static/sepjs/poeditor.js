@@ -10,12 +10,14 @@ function update_po_data(entries) {
     words = para[2];
     console.log(words);
     window.sentsDone += 1;
+    window.modal_data[paraid+"_"+idx] = ["", ""];
     var tgt_str_to_show = "";
     var src_str_to_show = "";
     $.each(words, function(index, val) {
-      tgt_str_to_show += "<span id='"+val[1]+"_"+paraid+"_"+idx+"_"+index+"' class='tgt_word'>"+val[1]+"</span> ";
-
-      src_str_to_show += "<span id='"+val[0]+"_"+paraid+"_"+idx+"_"+index+"' class='src_word'>"+val[0]+"</span> ";
+      tgt_str_to_show += val[1]+ " ";
+      window.modal_data[paraid+"_"+idx][1] += "<span id='"+val[1]+"_"+paraid+"_"+idx+"_"+index+"' class='tgt_word'>"+val[1]+"</span> ";;
+      src_str_to_show += val[0]+ " ";
+      window.modal_data[paraid+"_"+idx][0] += "<span id='"+val[0]+"_"+paraid+"_"+idx+"_"+index+"' class='src_word'>"+val[0]+"</span> ";
 
       window.PO_DATA_WORDS1[val[0]+"_"+paraid+"_"+idx+"_"+index] = val[1]+"_"+paraid+"_"+idx+"_"+index;
       window.PO_DATA_WORDS2[val[1]+"_"+paraid+"_"+idx+"_"+index] = val[0]+"_"+paraid+"_"+idx+"_"+index;
@@ -36,22 +38,24 @@ function update_po_data(entries) {
   if (sentsDone == sentsToGet) {
     make_progress(0,100);
   }
+  fix_highlighting();
 }
 function process_po_data(entries) {
 $.each(entries, function(paraid, paradata){
         $.each(paradata, function(idx, data) {
-              
+                window.modal_data[paraid+"_"+idx] = ["",""];
                 var tgt_str_to_show = "";
                 var src_str_to_show = "";
                 console.log("HAHA");
                 console.log(data);
                 if (data.tgt != null) {
-                  $.each(data.words, function(index, val) {
-                    // tgt_str_to_show += "<span id='"+val[1]+"_"+paraid+"_"+idx+"_"+index+"' class='tgt_word'>"+val[1]+"</span> ";
+                  src_str_to_show = data.src;
+                  tgt_str_to_show = data.tgt;
 
-                    // src_str_to_show += "<span id='"+val[0]+"_"+paraid+"_"+idx+"_"+index+"' class='src_word'>"+val[0]+"</span> ";
-                    src_str_to_show = data.src;
-                    tgt_str_to_show = data.tgt;
+                  $.each(data.words, function(index, val) {
+                    window.modal_data[paraid+"_"+idx][1] += "<span id='"+val[1]+"_"+paraid+"_"+idx+"_"+index+"' class='tgt_word'>"+val[1]+"</span> ";
+                    window.modal_data[paraid+"_"+idx][0] += "<span id='"+val[0]+"_"+paraid+"_"+idx+"_"+index+"' class='src_word'>"+val[0]+"</span> ";
+
                     window.PO_DATA_WORDS1[val[0]+"_"+paraid+"_"+idx+"_"+index] = val[1]+"_"+paraid+"_"+idx+"_"+index;
                     window.PO_DATA_WORDS2[val[1]+"_"+paraid+"_"+idx+"_"+index] = val[0]+"_"+paraid+"_"+idx+"_"+index;
                   });
@@ -62,7 +66,7 @@ $.each(entries, function(paraid, paradata){
                   tgt_str_to_show = data.src;
                 }
 
-                $("#po-container").append('<div class="panel-row"><div class="panel-title"><span class="source-text" id="src_'+paraid+'_'+idx+'">\
+                $("#po-container").append('<div class="panel-row"><div class="panel-title" id="para_'+paraid+'_'+idx+'"><span class="source-text" id="src_'+paraid+'_'+idx+'">\
                   '+src_str_to_show+'</span><span class="target-text" id="tgt_'+paraid+'_'+idx+'">'+tgt_str_to_show+'</span></div></div>');
         });
     });
@@ -79,6 +83,15 @@ $.each(entries, function(paraid, paradata){
                       $('#sentence_overlay').animate({height: "50%"}, 300);
                       console.log($(this).find('.source-text').text());
                       setup_modal();
+                      var paraid = $(this).attr('id').split('_')[1];
+                      var sentid = $(this).attr('id').split('_')[2];
+                      var src_text = $(this).find('.source-text').text();
+                      var tgt_text = $(this).find('.target-text').text();
+                      console.log(src_text);
+                      console.log(tgt_text);
+                      $('#modal_src').html(window.modal_data[paraid+"_"+sentid][0]);
+                      $('#modal_tgt').html(window.modal_data[paraid+"_"+sentid][1]);
+                      fix_highlighting();
                     }); 
                   $('#sentence_overlay #close_btn').click(function() {
                     event.stopPropagation();
@@ -94,36 +107,12 @@ $.each(entries, function(paraid, paradata){
                       $('#sentence_overlay').animate({height: "0"}, 300);
                     $('#sentence_overlay').fadeOut(200);
                   });
-                  $('.tgt_word').mouseover(function() {
-                    var word = this.id;
-                    var otherword = window.PO_DATA_WORDS2[word];
-                    $(this).addClass("highlight");
 
-                    $('.src_word').removeClass("highlight");
-                    $('.source-text #'+otherword).addClass("highlight");
-                  });
-
-                  $('.tgt_word').mouseout(function() {
-                    $(this).removeClass("highlight");
-                    $('.src_word').removeClass("highlight");
-                  });
-
-                  $('.src_word').mouseover(function() {
-                    var word = this.id;
-                    var otherword = window.PO_DATA_WORDS1[word];
-                    $(this).addClass("highlight");
-                    $('.tgt_word').removeClass("highlight");
-                    $('.target-text #'+otherword).addClass("highlight");
-                  });
-
-                  $('.src_word').mouseout(function() {
-                    $(this).removeClass("highlight");
-                    $('.tgt_word').removeClass("highlight");
-                  });
   }
 
 
 $(document).ready(function(){
+  window.modal_data = {};
   if(window.PO_DATA){
     console.log("HOOHAAH");
     console.log(window.PO_DATA)     // fix this 'tgt' key. 
@@ -145,6 +134,34 @@ $(document).ready(function(){
     // update_po_data(window.PO_DATA.data.entries);
 })
 
+function fix_highlighting() {
+    $('.tgt_word').mouseover(function() {
+    var word = this.id;
+    var otherword = window.PO_DATA_WORDS2[word];
+    $(this).addClass("highlight");
+
+    $('.src_word').removeClass("highlight");
+    $('.source-text #'+otherword).addClass("highlight");
+  });
+
+  $('.tgt_word').mouseout(function() {
+    $(this).removeClass("highlight");
+    $('.src_word').removeClass("highlight");
+  });
+
+  $('.src_word').mouseover(function() {
+    var word = this.id;
+    var otherword = window.PO_DATA_WORDS1[word];
+    $(this).addClass("highlight");
+    $('.tgt_word').removeClass("highlight");
+    $('.target-text #'+otherword).addClass("highlight");
+  });
+
+  $('.src_word').mouseout(function() {
+    $(this).removeClass("highlight");
+    $('.tgt_word').removeClass("highlight");
+  });
+}
 function setup_modal() {
 var CODEMIRROR_EDITOR_ID = 0;    
 var tgtLang = window.tgt_lang;
@@ -153,7 +170,7 @@ var tgtLang = window.tgt_lang;
   var offset = $('.codemirror_block').offset();
   var editor_top = offset.top;
   var editor_left = offset.left;
-  $('.codemirror_block').width("100%");
+  // $('.codemirror_block').width("100%");
   var editor_width = $('.codemirror_block').width();
   $('#word_suggestions').css({width: editor_width});
   $('#word_suggestions').css({top: editor_top-$('#word_suggestions').height()-1, left: editor_left});

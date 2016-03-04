@@ -186,7 +186,11 @@ p.subheading {
   border-bottom: 3px solid rgb(0, 49, 86);
 
 }
-
+.navbar-text a {
+  text-decoration: none;
+}
+.navbar-text a:hover {
+}
 /* Animation for translate page begins */
 
 .circle {

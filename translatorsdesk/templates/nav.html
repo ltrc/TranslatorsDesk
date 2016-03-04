@@ -24,12 +24,12 @@
 
     {% if current_user and current_user.is_authenticated() %}
         <li>
-            <p class="navbar-text"><a class="navbar-link" href="{{ url_for('user.account') }}">{{ current_user.username }} : My Account</a></p>
+            <p class="navbar-text"><a href="{{ url_for('user.account') }}" class="anim">{{ current_user.username }}'s files</a></p>
         </li>
         <li><a class="navbar-link" href="{{ url_for('public.logout') }}"><i class="fa fa-sign-out"></i></a></li>
 
     {% else %}
-    <li><a href="{{ url_for('public.register') }}" style="color: white;"><span class="glyphicon glyphicon-user"></span> &nbsp;My Account</a></li> 
+    <li><a href="{{ url_for('public.register') }}" class="anim" style="color: white;"><span class="glyphicon glyphicon-user"></span> &nbsp;My Account</a></li> 
 
     {% endif %}
     </ul>
