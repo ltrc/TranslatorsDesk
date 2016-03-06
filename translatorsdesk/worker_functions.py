@@ -408,6 +408,7 @@ def generateOutputFile(file, corrections):
     while i in xrange(len(meta['entries'])):
         target = ' '.join([each[1]['tgt'] for each in sorted(meta['entries'][i].items())])
         print target
+        
         _msgid = d[i]['src']
         _msgstr = target
 
