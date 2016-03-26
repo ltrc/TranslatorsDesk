@@ -1,7 +1,8 @@
 # -*- coding: utf-8 -*-
 import os
+import translatorsdesk.worker_functions as worker_functions
 
-from flask import Blueprint, render_template, current_app, abort
+from flask import Blueprint, render_template, current_app, abort, request, jsonify
 from flask.ext.login import login_required, current_user
 from sqlalchemy import desc
 from redis import Redis
@@ -17,12 +18,11 @@ blueprint = Blueprint("user", __name__, url_prefix='/users', static_folder="../s
 
 def _can_user_access_file(uid, fileName, current_user):
     file = File.query.filter_by(uuid = uid, name = fileName).first()
-    if not file.shareable:
-        if not current_user.is_authenticated():
+    if not current_user.is_authenticated():
+        return False
+    else:
+        if file.user_id != current_user.id:
             return False
-        else:
-            if file.user_id != current_user.id:
-                return False
     return True
 
 @blueprint.route("/account/", methods=['GET'])
@@ -46,11 +46,11 @@ def account():
 @blueprint.route("/file/delete", methods=['POST'])
 @login_required
 def delete_file():
-	data = request.json
+	data = request.values
 	uuid = data.get('uid', None)
 	name = data.get('fileName', None)
 
-	if not name or not uid:
+	if not name or not uuid:
 		return jsonify({"success": False, "message": "Data Missing"})
 
 	if not _can_user_access_file(uuid, name, current_user):
@@ -73,23 +73,28 @@ def delete_file():
 	job = q.enqueue_call(func=worker_functions.delete_folder, args=(folder_path,) )
 
 	#REMOVE FROM THE DB
-	file.delete()
-	return jsonify({"success": True, "message": file + " has been deleted"})
+	os.remove(file)
+	return jsonify({"success": True, "message": name + " has been deleted"})
 
 
 @blueprint.route("/file/share", methods=['POST'])
 @login_required
 def share_file():
-	data = request.json
+	print request.values.get
+	data = request.values
 	uuid = data.get('uid', None)
 	name = data.get('fileName', None)
 
-	if not name or not uid:
+	if not name or not uuid:
 		return jsonify({"success": False, "message": "Data Missing"})
 
 	if not _can_user_access_file(uuid, name, current_user):
 		abort(403)
 
 	file = File.query.filter_by(uuid = uuid, name = name).first()
-	file.update(shareable = True)
-	return jsonify({"success": True, "message": file + " has been made shareable"})
+	if file.shareable:
+		file.update(shareable = False)
+		return jsonify({"success": True, "message": name + " has been made private"})
+	else:
+		file.update(shareable = True)
+		return jsonify({"success": True, "message": name + " has been made shareable"})

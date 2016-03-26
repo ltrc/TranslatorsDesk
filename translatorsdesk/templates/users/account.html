@@ -137,6 +137,8 @@
 	<div class="body-content">
 		
 	</div>
+<input type="hidden" id="csrf_token" name="csrf_token" value="{{ csrf_token() }}"/>
+
 </div>
 <script type="text/javascript">
   var FILE_DATA = '{{ files | tojson | safe }}';
@@ -217,7 +219,7 @@
 			e.stopPropagation();
 			var id = $(this).closest('.file')[0].id;
 			// alert('File of id '+id+' has been deleted!');
-			ajaxCall("/users/file/delete", {uid: id.split('/')[0], fileName: id.split('/')[1]}, "POST", true, function(data) {
+			ajaxCall("/users/file/delete", {csrf_token: $("#csrf_token").val(), uid: id.split('/')[0], fileName: id.split('/')[1]}, "POST", true, function(data) {
 				console.log(data);
 			}); 
 		});
@@ -225,7 +227,7 @@
 			e.stopPropagation();
 			var id = $(this).closest('.file')[0].id;
 			// alert('File of id '+id+' has been switched to public!');
-			ajaxCall("/users/file/share", {uid: id.split('/')[0], fileName: id.split('/')[1]}, "POST", true, function(data) {
+			ajaxCall("/users/file/share", {csrf_token: $("#csrf_token").val(), uid: id.split('/')[0], fileName: id.split('/')[1]}, "POST", true, function(data) {
 				console.log(data);
 			}); 
 		});
