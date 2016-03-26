@@ -23,6 +23,15 @@
 .file:hover .filedate {
 	color: white;
 }
+
+.file:hover .delete_btn {
+	color: white;
+	border-color: white;
+}
+.file:hover .privacy_btn {
+	color: white;
+	border-color: white;
+}
 .filename {
 	display: block;
 	font-family: myriad;
@@ -81,9 +90,41 @@
 #searchbox:active, #searchbox:focus {
 	border: 1px solid rgba(0,49,86, 1);
 }
+
 .btn {
 	font-family: myriad;
 }
+
+.delete_btn {
+	display: inline-block;
+	border: 1px solid #B71C1C;
+	color: #B71C1C;
+	border-radius: 2px;
+	padding-left: 7px;
+	padding-right: 7px;
+	margin-bottom: 5px;
+
+}
+
+.delete_btn:hover {
+	color: white;
+	background-color: #B71C1C;
+}
+
+.privacy_btn {
+	display: inline-block;
+	border-radius: 2px;
+	padding-left: 7px;
+	padding-right: 7px;
+	border: 1px solid rgba(0,0,0,0.9);
+	margin-bottom: 5px;
+}
+
+.privacy_btn:hover {
+	color: white;
+	background-color: rgba(0,0,0,0.9);
+}
+
 </style>
 {% endblock %}
 
@@ -119,8 +160,8 @@
 	};
 
 	var privacy = {
-		true: "<i class=\"fa fa-globe\"></i>",
-		false: "<i class=\"fa fa-lock\"></i>"
+		true: "<sup><i class=\"fa fa-globe\"></i></sup> Public",
+		false: "<sup><i class=\"fa fa-lock\"></i></sup> Private"
 	}
 	function render_files(filelist) {
 		$('.body-content').html('');
@@ -133,14 +174,16 @@
 						<img src="'+window.icos[val[1].split('.')[val[1].split('.').length-1]]+'" />\
 					</div>\
 					<div class="filedetails">\
-						<span class="filename"><sup>'+window.privacy[val[2]]+"</sup> "+val[1]+'</span>';
+						<span class="filename">'+val[1]+'</span>';
 						if (val[3].startsWith('OUTPUT_FILE_GENERATED')) {
 							element += '<span class="filestatus">Translation Complete</span>';
 						}
 						else {
 							element += '<span class="filestatus">'+window.filestatus[val[3]]+'</span>';
 						}
-						element += '<span class="filedate anim">'+val[4]+'</span>\
+						element += '<span class="filedate anim">'+val[4]+'</span><br />\
+						<span class="delete_btn">Delete</span>\
+						<span class="privacy_btn">'+window.privacy[val[2]]+'</span>\
 					</div>\
 			    </div>\
 			</div>';
@@ -169,6 +212,22 @@
 		});
 		$('.file').click(function() {
 			window.location.href = "/translate/"+this.id;
+		});
+		$('.delete_btn').click(function(e) {
+			e.stopPropagation();
+			var id = $(this).closest('.file')[0].id;
+			// alert('File of id '+id+' has been deleted!');
+			ajaxCall("/users/file/delete", {uid: id.split('/')[0], fileName: id.split('/')[1]}, "POST", true, function(data) {
+				console.log(data);
+			}); 
+		});
+		$('.privacy_btn').click(function(e) {
+			e.stopPropagation();
+			var id = $(this).closest('.file')[0].id;
+			// alert('File of id '+id+' has been switched to public!');
+			ajaxCall("/users/file/share", {uid: id.split('/')[0], fileName: id.split('/')[1]}, "POST", true, function(data) {
+				console.log(data);
+			}); 
 		});
 	});
 </script>
