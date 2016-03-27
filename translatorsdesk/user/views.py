@@ -57,7 +57,6 @@ def delete_file():
 		abort(403)
 
 	file = File.query.filter_by(uuid = uuid, name = name).first()
-	file = os.path.join(current_app.config['UPLOAD_FOLDER'],  uuid, name)
 	folder_path = os.path.join(current_app.config['UPLOAD_FOLDER'],  uuid)
 
 	#REMOVE FROM REDIS DICT
@@ -73,7 +72,7 @@ def delete_file():
 	job = q.enqueue_call(func=worker_functions.delete_folder, args=(folder_path,) )
 
 	#REMOVE FROM THE DB
-	os.remove(file)
+	file.delete()
 	return jsonify({"success": True, "message": name + " has been deleted"})
 
 
