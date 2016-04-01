@@ -218,17 +218,24 @@
 		$('.delete_btn').click(function(e) {
 			e.stopPropagation();
 			var id = $(this).closest('.file')[0].id;
+			var toHide = $(this).parent().parent();
 			// alert('File of id '+id+' has been deleted!');
 			ajaxCall("/users/file/delete", {csrf_token: $("#csrf_token").val(), uid: id.split('/')[0], fileName: id.split('/')[1]}, "POST", true, function(data) {
 				console.log(data);
+				toHide.fadeOut();
+				console.log(id);
 			}); 
 		});
 		$('.privacy_btn').click(function(e) {
 			e.stopPropagation();
 			var id = $(this).closest('.file')[0].id;
+			var toToggle = $(this);
 			// alert('File of id '+id+' has been switched to public!');
 			ajaxCall("/users/file/share", {csrf_token: $("#csrf_token").val(), uid: id.split('/')[0], fileName: id.split('/')[1]}, "POST", true, function(data) {
 				console.log(data);
+				toToggle.fadeOut(200, function() {
+					toToggle.html(privacy[data["privacy"]]);					
+				}).fadeIn(200);
 			}); 
 		});
 	});

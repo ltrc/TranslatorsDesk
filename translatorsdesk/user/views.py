@@ -93,7 +93,7 @@ def share_file():
 	file = File.query.filter_by(uuid = uuid, name = name).first()
 	if file.shareable:
 		file.update(shareable = False)
-		return jsonify({"success": True, "message": name + " has been made private"})
+		return jsonify({"success": True, "message": "File has been made Private", "privacy": False})
 	else:
 		file.update(shareable = True)
-		return jsonify({"success": True, "message": name + " has been made shareable"})
+		return jsonify({"success": True, "message": "File has been made public", "privacy": True})
