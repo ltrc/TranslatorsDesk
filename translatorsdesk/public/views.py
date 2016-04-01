@@ -155,13 +155,16 @@ def upload():
             else:
                 return jsonify({"success": False, "message": "File Type not supported yet!!"})
 
-        elif raw_text:
+        elif raw_text and raw_text.strip() != "":
             _uuid = str(uuid.uuid4())
             secure_filename = "raw_text.txt"
             filepath = os.path.join(current_app.config['UPLOAD_FOLDER'],  _uuid, secure_filename)
             if not os.path.exists(os.path.dirname(filepath)):
                 os.makedirs(os.path.dirname(filepath))
             job = q.enqueue_call(func=worker_functions.save_text_file, args=(filepath, raw_text))
+
+        else:
+            return jsonify({"success": False, "message": "Empty Request"})
         
         if current_user.is_authenticated():
             user_file = File.create(
