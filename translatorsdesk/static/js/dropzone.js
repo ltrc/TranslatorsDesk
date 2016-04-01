@@ -19,7 +19,15 @@ $(function(){
                 //TODO : Fix the state change of this button
                 $("#add-files").attr("disabled", "disabled");
                 $("#raw_text").attr("disabled", "true");                
-
+                console.log(file);
+                var filename = file["name"].split('.');
+                if (filename[filename.length-1].toLowerCase() == "inpage") {
+                  inPage2Unicode(file, {}, function(result) {
+                    editors[0].setValue(result);
+                    console.log(result);
+                    $('#submit_raw').click();
+                  });
+                }
                 // Add detection for inpage
               });
 
@@ -75,6 +83,10 @@ $(function(){
 
       $('#submit_raw').click(function() {
         console.log(editors[0].getValue());
+        var toSend = editors[0].getValue();
+        if ($.trim(toSend) == "") {
+          return false;
+        }
         var i = 0;
                   window.setInterval(function() {
                     i += 1;
