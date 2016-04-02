@@ -1,41 +1,212 @@
 
-{% extends "layout.html" %}
-{% block content %}
-<div class="container-narrow">
-  <h1>Register</h1>
-    <br/>
-    <form id="registerForm" class="form form-register" method="POST" action="/register/" role="form">
-      <input type="hidden" name="csrf_token" value="{{ csrf_token() }}"/>
+<!doctype html>
+<!-- paulirish.com/2008/conditional-stylesheets-vs-css-hacks-answer-neither/ -->
+<!--[if lt IE 7]> <html class="no-js lt-ie9 lt-ie8 lt-ie7" lang="en"> <![endif]-->
+<!--[if IE 7]>    <html class="no-js lt-ie9 lt-ie8" lang="en"> <![endif]-->
+<!--[if IE 8]>    <html class="no-js lt-ie9" lang="en"> <![endif]-->
+<!--[if gt IE 8]><!--> <html class="no-js" lang="en"> <!--<![endif]-->
+<head>
+  <meta charset="utf-8">
+  <title>
+    Anuvaad
+  </title>
+  <meta name="description" content="{% block meta_description %}{% endblock %}">
+  <meta name="author" content="{% block meta_author %}{% endblock %}">
 
-            <div class="form-group">
-                {{register_form.username.label}}
-                {{register_form.username(placeholder="Username", class_="form-control")}}
-            </div>
-            <div class="form-group">
-                {{register_form.email.label}}
-                {{register_form.email(placeholder="Email", class_="form-control")}}
-            </div>
-            <div class="form-group">
-                {{register_form.password.label}}
-                {{register_form.password(placeholder="Password", class_="form-control")}}
-            </div>
-            <div class="form-group">
-                {{register_form.confirm.label}}
-                {{register_form.confirm(placeholder="Password (again)", class_="form-control")}}
-            </div>
-            <p><input class="btn btn-default btn-submit" type="submit" value="Register"></p>
-    </form>
-    <p><em>Already registered?</em> Click <a href="/">here</a> to login.</p>
-</div>
+  <!-- Mobile viewport optimized: h5bp.com/viewport -->
+  <meta name="viewport" content="width=device-width">
 
-<form id="loginForm" method="POST" class="navbar-form form-inline navbar-right" action="/login/" role="login">
+  <link rel="stylesheet" href="{{ url_for('static', filename='libs/font-awesome4/css/font-awesome.min.css') }}">
+
+  <link rel="stylesheet" href="{{ url_for('static', filename='css/jqueryui.css') }}">
+  {% assets "css_all" %}
+    <link rel="stylesheet" href="{{ ASSET_URL }}">
+  {% endassets %}
+  <style>
+    .btn {
+      color: white;
+      padding: 10px;
+      padding-left: 20px;
+      padding-right: 20px;
+      border-radius: 2px;
+      font-size: 0.9em;
+      box-shadow: 0 0 1px black;
+      width: 60%;
+      text-align: center;
+      margin: 0 auto;
+      /*border: 1px solid black;*/
+    }
+    #formtable {
+      background-color: rgba(255,255,255,0.9);
+      width: 100%;
+      max-width: 100%;
+      box-shadow: 0 0 1px black;
+    }
+    form {
+  margin-top: 50px;
+  text-align: center;
+}
+input {
+  padding: 7px;
+  width: 80%;
+  font-size: 1.05em;
+  font-family: myriad;
+  display: block; 
+  position: relative;
+  outline-width: 0px;
+  margin: 0 auto;
+  border-radius: 0px;
+  border: 0px;
+  box-shadow: 0 0 1px black;
+
+}
+input[type="submit"] {
+  padding: 10px;
+  padding-left: 20px;
+  padding-right: 20px;
+  border-radius: 2px;
+  font-size: 0.9em;
+  width: auto;
+  color: white;
+  cursor: pointer;
+  margin-top: 10px;
+
+}
+input[type="text"] {
+  border-radius: 2px;
+  width: 80%;
+  margin-top: 10px;
+
+}
+input[type="password"] {
+  border-radius: 2px;
+  width: 80%;
+  margin-top: 10px;
+}
+.tab {
+   padding-top: 20px;
+   padding-bottom: 20px;
+   background-color: rgba(248,248,248,1);
+   font-size: 1.4em;
+   box-shadow: 0 0 1px black; 
+   color: #8a8a8a;
+   border-collapse: collapse;
+}
+.selected {
+  color: black;
+  background-color: white;
+box-shadow: none;
+border-left: 1px solid rgba(0,0,0,0.1);
+}
+.tab:hover {
+  cursor: pointer;
+  }
+  .social {
+    border-top: 1px solid rgba(0,0,0,0.1);
+    text-align: center;
+    padding-top: 30px;
+    padding-bottom: 15px;
+
+  }
+  #tabcontents {
+    padding-bottom: 50px;
+  }
+#container {
+  width: 40%;
+  position: relative;
+  margin: 0 auto;
+  /*height: 300px;*/
+  /*position: fixed;*/
+  margin-top: 0px;
+  text-align: center;
+}
+#hero_logo {
+  font-size: 5em;
+}
+body {
+background: rgba(0, 49, 86, 1);
+}
+#container a {
+  text-decoration: none;
+}
+  </style>
+
+</head>
+<body class="{% block body_class %}{% endblock %}">
+
+<div id="container">
+  <a href="/"><h1 id="hero_logo"> Anuvaad </h1></a><br /><br />
+<table id="formtable">
+<tr> 
+  <td id="signup" class="tab anim" width="50%">
+    Sign Up
+  </td>
+  <td id="login" class="tab anim selected" width="50%">
+    Log in
+  </td>
+</tr>
+<tr>
+  <td width="100%" colspan="2" id="tabcontents">
+    <form id="loginForm" method="POST" action="/login/" role="login">
       <input type="hidden" name="csrf_token" value="{{ csrf_token() }}"/>
-      <div class="form-group">
         {{ login_form.username(placeholder="Username", class_="form-control") }}
         {{ login_form.password(placeholder="Password", class_="form-control") }}
-      </div>
-      <button type="submit" class="btn btn-success">Log in</button>
-      <a href="{{ url_for('public.register') }}" class="btn btn-primary">Create account</a>
+      <input type="submit" class="btn btn-block btn-success" style="width: 80%;" value="Log in" />
     </form>
-{% endblock %}
+  </td>
+</tr>
+</table>
+</div>
+
+
+
+
+{% include "footer.html" %}
+
+
+<!-- JavaScript at the bottom for fast page loading -->
+{% assets "js_all" %}
+    <script type="text/javascript" src="{{ ASSET_URL }}"></script>
+{% endassets %}
+
+  <script src="{{ url_for('static', filename='js/jqueryui.js') }}"> </script>
+  <script>
+$('.tab').click(function() {
+  $('.tab').removeClass('selected');
+  $(this).addClass('selected');
+
+  var selected = this.id;
+  $('#tabcontents').fadeOut(200, function() {
+
+    if(selected == "login") {
+    $('#tabcontents').html('<form id="loginForm" method="POST" action="/login/" role="login">\
+      <input type="hidden" name="csrf_token" value="{{ csrf_token() }}"/>\
+        {{ login_form.username(placeholder="Username", class_="form-control") }}\
+        {{ login_form.password(placeholder="Password", class_="form-control") }}\
+      <input type="submit" class="btn btn-success btn-block " style="width: 80%;" value="Log in" />\
+    </form>');
+  }
+  else if (selected == "signup") {
+$('#tabcontents').html('<form id="registerForm" method="POST" action="/register/" role="form">\
+      <input type="hidden" name="csrf_token" value="{{ csrf_token() }}"/>\
+                {{register_form.username(placeholder="Username", class_="form-control")}}\
+                {{register_form.email(placeholder="Email", class_="form-control")}}\
+                {{register_form.password(placeholder="Password", class_="form-control")}}\
+                {{register_form.confirm(placeholder="Password (again)", class_="form-control")}}\
+            <p><input class="btn btn-primary btn-block " type="submit" style="width: 80%;" value="Register"></p>\
+    </form>');
+  }
+  });
+  
+  $('#tabcontents').fadeIn(200);
+});
+
+  </script>
+{% block js %}{% endblock %}
+
+<!-- end scripts -->
+
+</body>
+</html>
+
 
