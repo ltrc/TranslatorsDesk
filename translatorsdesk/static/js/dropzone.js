@@ -21,7 +21,7 @@ $(function(){
                 $("#raw_text").attr("disabled", "true");                
                 console.log(file);
                 var filename = file["name"].split('.');
-                if (filename[filename.length-1].toLowerCase() == "inpage") {
+                if (filename[filename.length-1].toLowerCase() == "inp") {
                   inPage2Unicode(file, {}, function(result) {
                     editors[0].setValue(result);
                     console.log(result);

@@ -23,24 +23,21 @@ function update_po_data(entries) {
       window.PO_DATA_WORDS1[val[0]+"_"+paraid+"_"+idx+"_"+index] = val[1]+"_"+paraid+"_"+idx+"_"+index;
       window.PO_DATA_WORDS2[val[1]+"_"+paraid+"_"+idx+"_"+index] = val[0]+"_"+paraid+"_"+idx+"_"+index;
     });
-    // $('#src_'+paraid+'_'+idx).fadeOut(function() {
-      $('#src_'+paraid+'_'+idx).html(src_str_to_show);
-    // });
-    // $('#src_'+paraid+'_'+idx).fadeIn();
+    $('#src_'+paraid+'_'+idx).html(src_str_to_show);
     $('#tgt_'+paraid+'_'+idx).fadeOut(function() {
       $(this).html(tgt_str_to_show);
     });
     $('#tgt_'+paraid+'_'+idx).fadeIn();
   });
-    // console.log(words);
 
-  console.log("I got this.");
   make_progress(sentsDone, sentsToGet);
   if (sentsDone == sentsToGet) {
     make_progress(0,100);
   }
   fix_highlighting();
 }
+
+
 function process_po_data(entries) {
 $.each(entries, function(paraid, paradata){
         $.each(paradata, function(idx, data) {
@@ -131,6 +128,7 @@ $(document).ready(function(){
     window.sentsDone = 0;
     if (window.PO_DATA.data) {
       window.tgt_lang = PO_DATA.data.tgt_lang;
+      window.src_lang = PO_DATA.data.src_lang;
       process_po_data(window.PO_DATA.data.entries);
     }
     }
@@ -139,7 +137,7 @@ $(document).ready(function(){
    
     }
     // update_po_data(window.PO_DATA.data.entries);
-})
+});
 
 function fix_highlighting() {
     $('.tgt_word').mouseover(function() {
@@ -170,7 +168,38 @@ function fix_highlighting() {
     $(this).removeClass("highlight");
     $('.tgt_word').removeClass("highlight");
   });
+
+  $('.tgt_word').click(function() {
+      var word = this.innerHTML;
+      console.log(word);
+      socket.emit("translators_desk_get_word_details", 
+          {
+            data: word, 
+            lang: window.tgt_lang
+          });
+      socket.on("translators_desk_get_word_details_"+$.md5(word.toLowerCase()), response_word_suggestion);
+    });
+
+  $('.src_word').click(function() {
+      var word = this.innerHTML;
+      console.log(word);
+      socket.emit("translators_desk_get_word_details", 
+          {
+            data: word, 
+            lang: window.src_lang
+          });
+      socket.on("translators_desk_get_word_details_"+$.md5(word.toLowerCase()), response_word_suggestion);
+    });
+
 }
+
+
+function response_word_suggestion(data) {
+  data = JSON.parse(data);
+  console.log(data);
+  $('#modal_details').html(data["word"]+": ( "+data["cat"]+" ) "+data["meaning"]+"<br /><b>Example:</b><i> \""+data["example"]+"\"</i>");
+}
+
 function setup_modal() {
 var CODEMIRROR_EDITOR_ID = 0;    
 var tgtLang = window.tgt_lang;
@@ -212,6 +241,10 @@ function downloadURI(uri)
     // OpenInNewTab(uri);
     window.location = uri;
 }
+
+
+
+
 
 $("#download").click(function(){
   // alert("down");

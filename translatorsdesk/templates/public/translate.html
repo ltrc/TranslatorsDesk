@@ -9,6 +9,13 @@
   display: block;
   position: relative;
 }
+.src_word, .tgt_word {
+  cursor: pointer;
+}
+#modal_details {
+  font-size: 1.3em;
+  display: block;
+}
 </style>
 {% endblock %}
 {% block content %}
@@ -36,7 +43,8 @@
 <div id="sentence_overlay">
   <i class="fa fa-times fa-2x" id="close_btn"></i>
   <span id="modal_src">jo</span>
-  <span id="modal_tgt">bo</span>
+  <span id="modal_tgt">bo</span><br /><br />
+  <span id="modal_details"></span>
   <ul id="word_suggestions">
     <li class="anim">Word suggestions will appear here</li>
   </ul>

@@ -134,16 +134,17 @@ def translators_desk_get_word_details(message):
     word = message['data'].strip()
     lang = message['lang']
     print word, lang
-    if lang in ['hi', 'ur', 'pa']:
-        details = { 'cat' : '', 'meaning' : '', 'example' : ''}
-        lang_dict = languages[lang]
+    if lang in ['hin', 'urd', 'pan']:
+        details = { 'word': word, 'cat' : '', 'meaning' : '', 'example' : ''}
+        lang_dict = languages[lang[:-1]]
         id = lang_dict['words'].get(word, None)
         if id:
+            details['word'] = word
             details['cat'] = lang_dict['cat'][id]
             details['meaning'] = lang_dict['meaning'][id]
             details['example'] = lang_dict['example'][id]
         print details
-        emit("translators_desk_get_word_suggestion_" \
+        emit("translators_desk_get_word_details_" \
             + hashlib.md5(word.lower()).hexdigest(), \
             json.dumps(details))
 
