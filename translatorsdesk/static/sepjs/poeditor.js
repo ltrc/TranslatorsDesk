@@ -175,6 +175,7 @@ function render_modal() {
     // console.log(change);  THIS SHOULD MAKE IT POSSIBLE TO HAVE WORD ALIGNMENT EVEN ON EDIT!!! TODO FOR FUTURE.
     $('#modal_tgt').html(editors[0].getValue());
     window.corrected_data[paraid+"_"+sentid] = editors[0].getValue();
+    $('#tgt_'+paraid+'_'+sentid).html(editors[0].getValue());
    });
   editors[0].on("keyup", function(cm, change){
     event.stopPropagation();
