@@ -4,6 +4,7 @@
 <style>
 #codemirror_block_1 {
   width: 100%;
+  margin-top: 0px;
 }
 #word_suggestions {
   display: block;
@@ -15,6 +16,39 @@
 #modal_details {
   font-size: 1.3em;
   display: block;
+  margin-top: 30px;
+}
+#codemirror_block_1 {
+
+}
+#word_suggestions {
+  position: relative;
+  width: 100%;
+  margin-bottom: -1px;
+}
+#modal_prev {
+  position: fixed;
+  top: 70px;
+  width: 60%;
+  border-radius: 10px;
+  display: none;
+  left: 20%;
+  font-size: 1.2em;
+  background-color: rgba(255,255,255,0.5);
+  padding: 20px;
+  border: 2px solid black;
+}
+#modal_next {
+  position: fixed;
+  bottom: 80px;
+  width: 60%;
+  border-radius: 10px;
+  display: none;
+  left: 20%;
+  font-size: 1.2em;
+  background-color: rgba(255,255,255,0.5);
+  padding: 20px;
+  border: 2px solid black;
 }
 </style>
 {% endblock %}
@@ -39,17 +73,21 @@
   <button id="download" class="btn btn-success">Download this file</button>
   </center>
 </div>
+  <span id="modal_prev"></span>
+  <span id="modal_next"></span>
 
 <div id="sentence_overlay">
   <i class="fa fa-times fa-2x" id="close_btn"></i>
   <span id="modal_src">jo</span>
-  <span id="modal_tgt">bo</span><br /><br />
-  <span id="modal_details"></span>
+  <span id="modal_tgt">bo</span>
+  <br /><br />
   <ul id="word_suggestions">
     <li class="anim">Word suggestions will appear here</li>
   </ul>
-  <div id="codemirror_block_1" td-editor-id="1" class="codemirror_block anim" style="width: auto;"></div>
+  <div id="codemirror_block_1" td-editor-id="1" class="codemirror_block anim" style="width: 100%;"></div>
+  <span id="modal_details">&nbsp;<br />&nbsp;</span>
 </div>
+
 <div id="progressbar">
 </div>
 <input type="hidden" id="csrf_token" name="csrf_token" value="{{ csrf_token() }}"/>

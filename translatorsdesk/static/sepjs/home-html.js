@@ -70,7 +70,7 @@ $(document).ready(function(){
 
 	console.log($('#editor_overlay').width());
 	console.log(editor_top, editor_left);
-	$('#word_suggestions').css({top: editor_top-$('#word_suggestions').height()-1, left: editor_left});
+	// $('#word_suggestions').css({top: editor_top-$('#word_suggestions').height()-1, left: editor_left});
 	$('#editor_overlay').css({top: editor_top, left: editor_left});
 	$('.change_lang_btn').click(function() {
 		$('#word_suggestions').hide();

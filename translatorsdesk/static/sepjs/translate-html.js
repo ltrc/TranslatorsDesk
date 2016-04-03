@@ -62,3 +62,14 @@ $(document).ready(function(){
 	    socket.on('translators_desk_get_translation_data_response', update_po_data);		
 
 });
+
+$(document).keyup(function(key) {
+	if (key.which == 38 && window.modal_current.prev()) {
+		window.modal_current = window.modal_current.prev();
+		render_modal();
+	}
+	else if (key.which == 40 && window.modal_current.next()) {
+		window.modal_current = window.modal_current.next();
+		render_modal();
+	}
+});
