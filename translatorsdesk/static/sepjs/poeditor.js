@@ -48,13 +48,12 @@ $.each(entries, function(paraid, paradata){
                 console.log(data);
                 if (data.tgt != null) {
                   src_str_to_show = data.src;
-                  tgt_str_to_show = "";
+                  tgt_str_to_show = data.tgt;
                     window.corrected_data[paraid+"_"+idx] = [];
 
 
 
                   $.each(data.words, function(index, val) {
-                    tgt_str_to_show += val[1]+ " ";
                     window.modal_data[paraid+"_"+idx][1] += "<span id='"+val[1]+"_"+paraid+"_"+idx+"_"+index+"' class='tgt_word'>"+val[1]+"</span> ";
                     window.modal_data[paraid+"_"+idx][0] += "<span id='"+val[0]+"_"+paraid+"_"+idx+"_"+index+"' class='src_word'>"+val[0]+"</span> ";
                   // window.corrected_data[paraid+"_"+idx].push([val[0], val[1]]);
@@ -319,12 +318,9 @@ $("#download").click(function(){
     $('.target-text').each(function(index, valx) {
       var paraid = valx.id.split('_')[1];
       var sentid = valx.id.split('_')[2];
-      try {
+      if (window.corrected_data[paraid+"_"+sentid]) {
         var curr = [parseInt(paraid), parseInt(sentid), window.corrected_data[paraid+"_"+sentid]];  
-        window.CORRECTED_DATA.push(curr);      
-      }
-      catch (err) {
-
+        window.CORRECTED_DATA.push(curr);
       }
       // $.each(window.modal_data[paraid+"_"+sentid], function(ind, val) {
       //   curr[2].push(val[0].replace(/(<([^>]+)>)/ig,""), val[1].replace(/(<([^>]+)>)/ig,""));
