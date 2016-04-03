@@ -87,6 +87,7 @@ $.each(entries, function(paraid, paradata){
                       $('#sentence_overlay').fadeIn(200);
                       $('#modal_prev').text('');
                       $('#modal_next').text('');
+                      $('.toolbar').fadeOut(200);
                       $('#modal_prev').fadeIn(200);
                     $('#modal_next').fadeIn(200);
                       $('#sentence_overlay').animate({height: "50%"}, 300, function() {
@@ -98,6 +99,7 @@ $.each(entries, function(paraid, paradata){
                   $('#sentence_overlay #close_btn').click(function() {
                     event.stopPropagation();
                     $('#po-container').removeClass("blur");
+                      $('.toolbar').fadeIn(200);
                     $('#sentence_overlay').animate({height: "0"}, 300);
                     $('#sentence_overlay').fadeOut(200);
                     $('#modal_prev').fadeOut(200);
@@ -108,6 +110,7 @@ $.each(entries, function(paraid, paradata){
                   });
                   $(document).click(function() {
                       $('#po-container').removeClass("blur");
+                      $('.toolbar').fadeIn(200);
                       $('#sentence_overlay').animate({height: "0"}, 300);
                     $('#sentence_overlay').fadeOut(200);
                     $('#modal_prev').fadeOut(200);
