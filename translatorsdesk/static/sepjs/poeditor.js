@@ -22,7 +22,7 @@ function update_po_data(entries) {
       window.PO_DATA_WORDS1[val[0]+"_"+paraid+"_"+idx+"_"+index] = val[1]+"_"+paraid+"_"+idx+"_"+index;
       window.PO_DATA_WORDS2[val[1]+"_"+paraid+"_"+idx+"_"+index] = val[0]+"_"+paraid+"_"+idx+"_"+index;
     });
-    window.corrected_data[paraid+"_"+idx] = tgt_str_to_show;
+    // window.corrected_data[paraid+"_"+idx] = tgt_str_to_show;
     $('#src_'+paraid+'_'+idx).html(src_str_to_show);
     $('#tgt_'+paraid+'_'+idx).fadeOut(function() {
       $(this).html(tgt_str_to_show);
@@ -48,12 +48,13 @@ $.each(entries, function(paraid, paradata){
                 console.log(data);
                 if (data.tgt != null) {
                   src_str_to_show = data.src;
-                  tgt_str_to_show = data.tgt;
+                  tgt_str_to_show = "";
                     window.corrected_data[paraid+"_"+idx] = [];
 
 
 
                   $.each(data.words, function(index, val) {
+                    tgt_str_to_show += val[1]+ " ";
                     window.modal_data[paraid+"_"+idx][1] += "<span id='"+val[1]+"_"+paraid+"_"+idx+"_"+index+"' class='tgt_word'>"+val[1]+"</span> ";
                     window.modal_data[paraid+"_"+idx][0] += "<span id='"+val[0]+"_"+paraid+"_"+idx+"_"+index+"' class='src_word'>"+val[0]+"</span> ";
                   // window.corrected_data[paraid+"_"+idx].push([val[0], val[1]]);
@@ -62,7 +63,7 @@ $.each(entries, function(paraid, paradata){
                     window.PO_DATA_WORDS1[val[0]+"_"+paraid+"_"+idx+"_"+index] = val[1]+"_"+paraid+"_"+idx+"_"+index;
                     window.PO_DATA_WORDS2[val[1]+"_"+paraid+"_"+idx+"_"+index] = val[0]+"_"+paraid+"_"+idx+"_"+index;
                   });
-                  window.corrected_data[paraid+"_"+idx] = tgt_str_to_show;
+                  // window.corrected_data[paraid+"_"+idx] = tgt_str_to_show;
                 }
                 else {
                   window.sentsToGet += 1;
@@ -318,11 +319,16 @@ $("#download").click(function(){
     $('.target-text').each(function(index, valx) {
       var paraid = valx.id.split('_')[1];
       var sentid = valx.id.split('_')[2];
-      var curr = [parseInt(paraid), parseInt(sentid), window.corrected_data[paraid+"_"+sentid]];
+      try {
+        var curr = [parseInt(paraid), parseInt(sentid), window.corrected_data[paraid+"_"+sentid]];  
+        window.CORRECTED_DATA.push(curr);      
+      }
+      catch (err) {
+
+      }
       // $.each(window.modal_data[paraid+"_"+sentid], function(ind, val) {
       //   curr[2].push(val[0].replace(/(<([^>]+)>)/ig,""), val[1].replace(/(<([^>]+)>)/ig,""));
       // });
-      window.CORRECTED_DATA.push(curr);
     });
     var _D = {};
     _D["uid"] = window.uid;
