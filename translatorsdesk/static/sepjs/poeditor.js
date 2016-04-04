@@ -122,6 +122,7 @@ $.each(entries, function(paraid, paradata){
 
 $(document).ready(function(){
   window.modal_data = {};
+  window.unsaved = false;
   window.corrected_data = {};
   if(window.PO_DATA){
     console.log("HOOHAAH");
@@ -178,12 +179,13 @@ function render_modal() {
   editors[0].on("change", update_backend);
   editors[0].on("keyup", function(cm, change){
     // event.stopPropagation();
-    $(editors[0].getWrapperElement()).stop()
+    $(editors[0].getWrapperElement()).stop();
   });
   fix_highlighting();
 }
 
 function update_backend(){ 
+  window.unsaved = true;
   var element = window.modal_current.find('.panel-title');
   var paraid = element.attr('id').split('_')[1];
   var sentid = element.attr('id').split('_')[2];
@@ -297,11 +299,36 @@ function downloadURI(uri)
 }
 
 
+$("#save_btn").click(function(){
+var _D = {};
+    _D["uid"] = window.uid;
+    _D["fileName"] = window.fileName;
+    // _D.data = data;
+    window.CORRECTED_DATA = [];
+    $('.target-text').each(function(index, valx) {
+      var paraid = valx.id.split('_')[1];
+      var sentid = valx.id.split('_')[2];
+      if (window.corrected_data[paraid+"_"+sentid]) {
+        var curr = [parseInt(paraid), parseInt(sentid), window.corrected_data[paraid+"_"+sentid]];  
+        window.CORRECTED_DATA.push(curr);
+      }
+    });
 
+    _D["data"] = JSON.stringify(window.CORRECTED_DATA);
+    _D["csrf_token"] = $('#csrf_token').val();
+ajaxCall("/save", _D, "POST", true, function(data) {
+  window.unsaved = false;
+      }); 
+
+});
 
 
 $("#download").click(function(){
   // alert("down");
+  if (window.unsaved == true) {
+    alert("You have unsaved changes. Save them before downloading.");
+    return false;
+  }
   window.downloaded = false;
   var data = []
 
