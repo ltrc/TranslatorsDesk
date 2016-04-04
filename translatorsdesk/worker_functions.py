@@ -341,7 +341,7 @@ def takeBackupOfOldXLFFile(file):
                             stderr=subprocess.PIPE,
                             stdin=subprocess.PIPE)
     out, err = p.communicate()
-    print cmd, out, err
+    #print cmd, out, err
     change_state(file,"TAKING_BACKUP_OF_OLD_XLIFF:::COMPLETE")      
 
 
@@ -353,7 +353,7 @@ def moveNewXLFToCorrectLocation(file):
                             stderr=subprocess.PIPE,
                             stdin=subprocess.PIPE)
     out, err = p.communicate()
-    print cmd, out, err
+    #print cmd, out, err
     change_state(file,"UPDATE_XLF:::COMPLETE")           
 
 def removeOldOutputFile(file):
@@ -366,7 +366,7 @@ def removeOldOutputFile(file):
                             stderr=subprocess.PIPE,
                             stdin=subprocess.PIPE)
     out, err = p.communicate()
-    print cmd, out, err     
+    #print cmd, out, err     
     change_state(file,"REMOVE_OLD_OUTPUT:::COMPLETE")
 
 
@@ -379,7 +379,7 @@ def mergeTranslatedXLFFileWithDocument(file):
                             stderr=subprocess.PIPE,
                             stdin=subprocess.PIPE)
     out, err = p.communicate()
-    print cmd, out, err
+    #print cmd, out, err
     change_state(file,"MERGE_TRANSLATED_XLIFF_FILE:::COMPLETE")
 
 
@@ -390,8 +390,9 @@ def generateOutputFile(file, corrections):
     meta_file = open(file+".meta", 'r')
     meta = json.loads(meta_file.read())
     meta_file.close()
+    print corrections
     for c in corrections:
-        meta['entries'][int(c[0])][str(int(c[1]))]['tgt'] = ''.join(c[2]).strip()
+        meta['entries'][int(c[0])][str(c[1])]['tgt'] = c[2]
     f = open(file+'.meta', 'w')
     f.write(json.dumps(meta))
     f.close()

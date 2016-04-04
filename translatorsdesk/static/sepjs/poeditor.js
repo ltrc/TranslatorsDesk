@@ -11,7 +11,7 @@ function update_po_data(entries) {
     console.log(words);
     window.sentsDone += 1;
     window.modal_data[paraid+"_"+idx] = ["", ""];
-    window.corrected_data[paraid+"_"+idx] = [];
+    // window.corrected_data[paraid+"_"+idx] = [];
     var tgt_str_to_show = "";
     var src_str_to_show = "";
     $.each(words, function(index, val) {
@@ -49,7 +49,7 @@ $.each(entries, function(paraid, paradata){
                 if (data.tgt != null) {
                   src_str_to_show = data.src;
                   tgt_str_to_show = data.tgt;
-                    window.corrected_data[paraid+"_"+idx] = [];
+                    // window.corrected_data[paraid+"_"+idx] = [];
 
 
 
