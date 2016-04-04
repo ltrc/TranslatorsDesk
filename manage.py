@@ -136,17 +136,18 @@ def translators_desk_get_word_suggestion(message):
 def translators_desk_get_word_details(message):
     print "REQUEST FOR DETAILS"
     word = message['data'].strip()
-    lang = message['lang']
-    print word, lang
-    if lang in ['hin', 'urd', 'pan']:
-        details = { 'word': word, 'cat' : '', 'meaning' : '', 'example' : ''}
-        lang_dict = dictionaries[lang[:-1]]
+    src = message['src']
+    print word, src
+    if src in ['hin', 'urd', 'pan']:
+        details = { 'word': word, 'cat' : '', 'meaning' : '', 'example' : '', 'alternate' : []}
+        lang_dict = dictionaries[src[:-1]]
         id = lang_dict['words'].get(word, None)
         if id:
             details['word'] = word
             details['cat'] = lang_dict['cat'][id]
             details['meaning'] = lang_dict['meaning'][id]
             details['example'] = lang_dict['example'][id]
+            #details['alternate'] = []
         print details
         emit("translators_desk_get_word_details_" \
             + hashlib.md5(word.lower()).hexdigest(), \
@@ -223,9 +224,13 @@ def load_dictionaries():
     context_suggestions = {}
     context_suggestions['hi'] = BigramSpellSuggestion()
 
-    return (dictionaries, synonyms, context_suggestions)
+    f = open('translatorsdesk/static/dictionaries/hin_urd.parallel', 'r')
+    parallel ={ 'hi' : {}, 'ur' : {} }
+    parallel['hi']['ur'], parallel['ur']['hi'] = json.loads(f.read())
 
-spellcheckers, dictionaries, context_suggestions = load_dictionaries()
+    return (dictionaries, synonyms, context_suggestions, parallel)
+
+spellcheckers, dictionaries, context_suggestions, parallel = load_dictionaries()
 print "DICTIONARIES LOADED"
 manager = Manager(app)
 

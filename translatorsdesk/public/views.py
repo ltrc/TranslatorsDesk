@@ -106,7 +106,7 @@ def register():
                         email=register_form.email.data,
                         password=register_form.password.data,
                         active=True)
-        flash("Thank you for registering. You can now log in.", 'success')
+        flash("Thank you for registering.", 'success')
     else:
         flash_errors(register_form)
     return render_template('public/register.html', login_form=login_form, register_form=register_form)
@@ -250,7 +250,6 @@ def save():
     return '#'
 
 @blueprint.route('/download', methods=['POST'])
-@login_required
 def download():
     data = request.values
     uid = data.get('uid', None)
@@ -262,8 +261,9 @@ def download():
     if not _can_user_access_file(uid, fileName, current_user):
         abort(403)
     file = os.path.join(current_app.config['UPLOAD_FOLDER'],  uid, fileName)
+    worker_functions.change_state(file, "BEGIN_PROCESSING_OF_FILE")
     job = q.enqueue_call(func=worker_functions.generateOutputFile, args=(file, json.loads(corrections)))
-    return "#"
+    return jsonify({"success": True, "message": "Download Started"})
 
 
 @blueprint.route('/status/<uid>/<fileName>', methods=['GET'])
