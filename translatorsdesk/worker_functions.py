@@ -322,7 +322,7 @@ def newFilePath(fileName):
     return newPath
 
 def mergePOFileWithXLF(file):
-    change_state(file,"MERGING_PO_WITH_XLIFF")    
+    #change_state(file,"MERGING_PO_WITH_XLIFF")    
 	#Merge PO file onto XLIFF File
     cmd = ["pomerge", "-i"+file+".updated.po", "-t"+file+".xlf", "-o"+file+".xlf.new"]
     p = subprocess.Popen(cmd, stdout = subprocess.PIPE,
@@ -334,7 +334,7 @@ def mergePOFileWithXLF(file):
 
 
 def takeBackupOfOldXLFFile(file):
-    change_state(file,"TAKING_BACKUP_OF_OLD_XLIFF")      
+    #change_state(file,"TAKING_BACKUP_OF_OLD_XLIFF")      
     #Move old xlf file to a new location and mark it as .old
     cmd = ["mv", file+".xlf", file+".xlf.old"]
     p = subprocess.Popen(cmd, stdout = subprocess.PIPE,
@@ -346,7 +346,7 @@ def takeBackupOfOldXLFFile(file):
 
 
 def moveNewXLFToCorrectLocation(file):
-    change_state(file,"UPDATE_XLF")       
+    #change_state(file,"UPDATE_XLF")       
     #Move the newly generated xlf file to the expected location of xlf file
     cmd = ["mv", file+".xlf.new", file+".xlf"]
     p = subprocess.Popen(cmd, stdout = subprocess.PIPE,
@@ -357,7 +357,7 @@ def moveNewXLFToCorrectLocation(file):
     #change_state(file,"UPDATE_XLF:::COMPLETE")           
 
 def removeOldOutputFile(file):
-    change_state(file,"REMOVE_OLD_OUTPUT")
+    #change_state(file,"REMOVE_OLD_OUTPUT")
 
     newPath = newFilePath(file)
     #Delete any old generated files, if present
@@ -371,7 +371,7 @@ def removeOldOutputFile(file):
 
 
 def mergeTranslatedXLFFileWithDocument(file):
-    change_state(file,"MERGE_TRANSLATED_XLIFF_FILE")
+    #change_state(file,"MERGE_TRANSLATED_XLIFF_FILE")
 
     #Merge translated xlf file with the doc
     cmd = ["lib/okapi/tikal.sh", "-m", file+".xlf"]

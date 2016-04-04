@@ -134,20 +134,42 @@ def translators_desk_get_word_suggestion(message):
 
 @socketio.on('translators_desk_get_word_details', namespace='/td')
 def translators_desk_get_word_details(message):
-    print "REQUEST FOR DETAILS"
+    print "REQUEST FOR DETAILS", message
     word = message['data'].strip()
     src = message['src']
+    tgt = message['tgt']
     print word, src
     if src in ['hin', 'urd', 'pan']:
         details = { 'word': word, 'cat' : '', 'meaning' : '', 'example' : '', 'alternate' : []}
         lang_dict = dictionaries[src[:-1]]
         id = lang_dict['words'].get(word, None)
+        synonyms = []
         if id:
             details['word'] = word
             details['cat'] = lang_dict['cat'][id]
             details['meaning'] = lang_dict['meaning'][id]
             details['example'] = lang_dict['example'][id]
-            #details['alternate'] = []
+            synonyms = lang_dict['ids'][id]
+
+        #print parallel[src[:-1]][tgt[:-1]][ 'एक'.decode('utf-8') ]
+        alternate = set()
+        p = parallel[src[:-1]][tgt[:-1]].get(word.decode('utf-8'), None)
+        print p
+        if p:
+            alternate.add(p)
+        for each in synonyms:
+            p = parallel[src[:-1]][tgt[:-1]].get(each.decode('utf-8'), None)
+            if p:
+                alternate.add(p)
+
+        tgt_lang_dict = dictionaries[tgt[:-1]]
+        for alt in alternate:
+            id = tgt_lang_dict['words'].get(alt, None)
+            if id:
+                alternate = alternate.union(set(tgt_lang_dict['ids'][id]))
+
+        details['alternate'] = list(alternate)
+
         print details
         emit("translators_desk_get_word_details_" \
             + hashlib.md5(word.lower()).hexdigest(), \
@@ -227,6 +249,9 @@ def load_dictionaries():
     f = open('translatorsdesk/static/dictionaries/hin_urd.parallel', 'r')
     parallel ={ 'hi' : {}, 'ur' : {} }
     parallel['hi']['ur'], parallel['ur']['hi'] = json.loads(f.read())
+    # print parallel['hi']['ur']['बेहयाई'.decode('utf-8')]
+    # for each in parallel['hi']['ur']:
+    #     print each, parallel['hi']['ur'][each]
 
     return (dictionaries, synonyms, context_suggestions, parallel)
 
