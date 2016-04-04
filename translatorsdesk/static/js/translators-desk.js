@@ -95,9 +95,20 @@ CodeMirror.commands.translators_desk_aspell = function(editor) {
 	if(editor.currentWord && editor_word_length_query_threshold && editor.currentWord.trim().length > editor_word_length_query_threshold ){
 		//Only consider words of length more than 3
 		console.log("CHECKING");
+		var thisWord = editor.findWordAt(editor.getCursor()); 
+		var prevWord = thisWord.anchor;
+		prevWord["ch"] -= 2;
+		if (prevWord["ch"]>=1) {
+			prevWord = editors[0].findWordAt(prev);
+			prevWord = editors[0].getRange(prevWord["anchor"], prevWord["head"]);
+		}
+		else {
+			prevWord = "";
+		}
+		
 		socket.emit("translators_desk_get_word_suggestion", 
 					{
-						data: editor.currentWord, 
+						data: [prevWord, editor.currentWord], 
 						lang: get_editor_language(editor)
 					})
 

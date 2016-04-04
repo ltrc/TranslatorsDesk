@@ -122,6 +122,7 @@ $.each(entries, function(paraid, paradata){
 
 $(document).ready(function(){
   window.modal_data = {};
+  window.unsaved = false;
   window.corrected_data = {};
   if(window.PO_DATA){
     console.log("HOOHAAH");
@@ -178,12 +179,13 @@ function render_modal() {
   editors[0].on("change", update_backend);
   editors[0].on("keyup", function(cm, change){
     // event.stopPropagation();
-    $(editors[0].getWrapperElement()).stop()
+    $(editors[0].getWrapperElement()).stop();
   });
   fix_highlighting();
 }
 
 function update_backend(){ 
+  window.unsaved = true;
   var element = window.modal_current.find('.panel-title');
   var paraid = element.attr('id').split('_')[1];
   var sentid = element.attr('id').split('_')[2];
@@ -302,6 +304,10 @@ function downloadURI(uri)
 
 $("#download").click(function(){
   // alert("down");
+  if (window.unsaved == true) {
+    alert("You have unsaved changes. Save them before downloading.");
+    return false;
+  }
   window.downloaded = false;
   var data = []
 
