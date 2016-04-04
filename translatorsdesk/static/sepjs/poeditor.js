@@ -407,13 +407,13 @@ $("#download").click(function(){
 });
 
 $('#preview').click(function() {
-  if ($(this).text() == "Preview") {
-    $(this).text("Revert");
+  if ($(this).html() == '<span class="glyphicon glyphicon-search"></span> Preview') {
+    $(this).html('<span class="glyphicon glyphicon-search"></span> Revert');
     $('.source-text').slideUp();
     $('.panel-body').slideUp();  
   }
   else {
-    $(this).text("Preview");
+    $(this).html('<span class="glyphicon glyphicon-search"></span> Preview');
     $('.source-text').slideDown();
     // $('.panel-body').slideUp();  
   }
