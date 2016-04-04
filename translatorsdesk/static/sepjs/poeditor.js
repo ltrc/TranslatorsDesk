@@ -325,6 +325,7 @@ window.onbeforeunload = null;
 
 $("#download").click(function(){
   // alert("down");
+window.onbeforeunload = null;
 
   window.downloaded = false;
   var data = []
