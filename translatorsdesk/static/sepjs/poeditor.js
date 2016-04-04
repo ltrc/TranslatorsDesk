@@ -299,7 +299,28 @@ function downloadURI(uri)
 }
 
 
+$("#save_btn").click(function(){
+var _D = {};
+    _D["uid"] = window.uid;
+    _D["fileName"] = window.fileName;
+    // _D.data = data;
+    window.CORRECTED_DATA = [];
+    $('.target-text').each(function(index, valx) {
+      var paraid = valx.id.split('_')[1];
+      var sentid = valx.id.split('_')[2];
+      if (window.corrected_data[paraid+"_"+sentid]) {
+        var curr = [parseInt(paraid), parseInt(sentid), window.corrected_data[paraid+"_"+sentid]];  
+        window.CORRECTED_DATA.push(curr);
+      }
+    });
 
+    _D["data"] = JSON.stringify(window.CORRECTED_DATA);
+    _D["csrf_token"] = $('#csrf_token').val();
+ajaxCall("/save", _D, "POST", true, function(data) {
+  window.unsaved = false;
+      }); 
+
+});
 
 
 $("#download").click(function(){
