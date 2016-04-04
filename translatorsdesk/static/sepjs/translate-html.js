@@ -85,7 +85,7 @@ function downloadURI(uri)
 
 
 $("#save_btn").click(function(){
-var _D = {};
+	var _D = {};
     _D["uid"] = window.uid;
     _D["fileName"] = window.fileName;
     // $('#download').attr('disabled', 'disabled'); THIS SHOULD HAPPEN. FIX STATUS THING.
@@ -102,11 +102,11 @@ var _D = {};
 
     _D["data"] = JSON.stringify(window.CORRECTED_DATA);
     _D["csrf_token"] = $('#csrf_token').val();
-ajaxCall("/save", _D, "POST", true, function(data) {
-      }); 
-window.onbeforeunload = null;
-window.unsaved = false;
-window.fileURL = null;
+		ajaxCall("/save", _D, "POST", true, function(data) {
+	  }); 
+	window.onbeforeunload = null;
+	window.unsaved = false;
+	window.fileURL = null;
 });
 
 
