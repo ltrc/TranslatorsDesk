@@ -330,7 +330,7 @@ def mergePOFileWithXLF(file):
                             stdin=subprocess.PIPE)
     out, err = p.communicate()
     print cmd, out, err	
-    change_state(file,"MERGING_PO_WITH_XLIFF:::COMPLETE")    
+    #change_state(file,"MERGING_PO_WITH_XLIFF:::COMPLETE")    
 
 
 def takeBackupOfOldXLFFile(file):
@@ -342,7 +342,7 @@ def takeBackupOfOldXLFFile(file):
                             stdin=subprocess.PIPE)
     out, err = p.communicate()
     #print cmd, out, err
-    change_state(file,"TAKING_BACKUP_OF_OLD_XLIFF:::COMPLETE")      
+    #change_state(file,"TAKING_BACKUP_OF_OLD_XLIFF:::COMPLETE")      
 
 
 def moveNewXLFToCorrectLocation(file):
@@ -354,7 +354,7 @@ def moveNewXLFToCorrectLocation(file):
                             stdin=subprocess.PIPE)
     out, err = p.communicate()
     #print cmd, out, err
-    change_state(file,"UPDATE_XLF:::COMPLETE")           
+    #change_state(file,"UPDATE_XLF:::COMPLETE")           
 
 def removeOldOutputFile(file):
     change_state(file,"REMOVE_OLD_OUTPUT")
@@ -367,7 +367,7 @@ def removeOldOutputFile(file):
                             stdin=subprocess.PIPE)
     out, err = p.communicate()
     #print cmd, out, err     
-    change_state(file,"REMOVE_OLD_OUTPUT:::COMPLETE")
+    #change_state(file,"REMOVE_OLD_OUTPUT:::COMPLETE")
 
 
 def mergeTranslatedXLFFileWithDocument(file):
@@ -380,10 +380,11 @@ def mergeTranslatedXLFFileWithDocument(file):
                             stdin=subprocess.PIPE)
     out, err = p.communicate()
     #print cmd, out, err
-    change_state(file,"MERGE_TRANSLATED_XLIFF_FILE:::COMPLETE")
+    #change_state(file,"MERGE_TRANSLATED_XLIFF_FILE:::COMPLETE")
 
 def saveTranslationChanges(file, corrections):
     #UPDATE META DATA
+    print "SAVING META", corrections
     if not corrections:
         return False
     print "corrections:", corrections
@@ -396,12 +397,14 @@ def saveTranslationChanges(file, corrections):
     f = open(file+'.meta', 'w')
     f.write(json.dumps(meta))
     f.close()
-    return meta
 
 def generateOutputFile(file, corrections): 
     # change_state(file, "BEGIN_PROCESSING_OF_FILE")
     #UPDATE META DATA
-    meta = saveTranslationChanges(file, corrections)
+    saveTranslationChanges(file, corrections)
+    meta_file = open(file+".meta", 'r')
+    meta = json.loads(meta_file.read())
+    meta_file.close()
 
     #UPDATE PO FILE
     po = polib.pofile(file+".po")
@@ -435,5 +438,5 @@ def generateOutputFile(file, corrections):
 
     newPath = newFilePath(file)
     publicly_accessible_path = "/" + "/".join(newPath.split("/")[1:])
-
     change_state(file, "OUTPUT_FILE_GENERATED:::"+publicly_accessible_path)
+    print "OUTPUT_FILE_GENERATED:::"+publicly_accessible_path

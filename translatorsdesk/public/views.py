@@ -245,6 +245,7 @@ def save():
         return jsonify({"success": False, "message": "Data Missing"})
     if not _can_user_access_file(uid, fileName, current_user):
         abort(403)
+    file = os.path.join(current_app.config['UPLOAD_FOLDER'],  uid, fileName)
     job = q.enqueue_call(func=worker_functions.saveTranslationChanges, args=(file, json.loads(corrections)))
     return '#'
 
