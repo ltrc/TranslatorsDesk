@@ -317,8 +317,8 @@ var _D = {};
     _D["data"] = JSON.stringify(window.CORRECTED_DATA);
     _D["csrf_token"] = $('#csrf_token').val();
 ajaxCall("/save", _D, "POST", true, function(data) {
-window.onbeforeunload = null;
       }); 
+window.onbeforeunload = null;
 
 });
 
