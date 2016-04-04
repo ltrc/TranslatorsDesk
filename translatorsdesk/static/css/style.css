@@ -186,6 +186,10 @@ p.subheading {
   border-bottom: 3px solid rgb(0, 49, 86);
 
 }
+.btn-danger {
+  border-bottom: 3px solid rgba(0, 0,0,0.5);
+
+}
 .navbar-text a {
   text-decoration: none;
 }

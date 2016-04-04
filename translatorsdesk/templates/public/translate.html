@@ -36,11 +36,11 @@
   font-size: 1.2em;
   background-color: rgba(255,255,255,0.5);
   padding: 20px;
-  border: 2px solid black;
+  border: 2px solid rgba(0,0,0,0.8);
 }
 #modal_next {
   position: fixed;
-  bottom: 80px;
+  bottom: 60px;
   width: 60%;
   border-radius: 10px;
   display: none;
@@ -48,11 +48,32 @@
   font-size: 1.2em;
   background-color: rgba(255,255,255,0.5);
   padding: 20px;
-  border: 2px solid black;
+  border: 2px solid rgba(0,0,0,0.8);
+}
+.toolbar {
+  position: fixed;
+  top: 60px;
+  padding-top: 10px;
+  padding-bottom: 10px;
+  left: 0px;
+  text-align: center;
+  width: 100%;
+  background-color: rgba(255,255,255,0.9);
+  z-index: 99;
+} 
+.container-fluid {
+  margin-top: 50px;
 }
 </style>
 {% endblock %}
 {% block content %}
+
+<div class="toolbar">
+      <a href="/"><button class="btn btn-danger"><span class="glyphicon glyphicon-plus"></span> New Translation</button></a>
+<button id="download" class="btn btn-success"><span class="glyphicon glyphicon-cloud"></span> Save changes</button>
+<button id="preview" class="btn btn-primary"><span class="glyphicon glyphicon-search"></span> Preview</button>
+  <button id="download" class="btn btn-success"><span class="glyphicon glyphicon-floppy-disk"></span> Download</button>
+    </div>
 
 <div class="container-fluid">
 
@@ -67,12 +88,11 @@
   </div>
 
 </div>
-<div id="download_controls">
+<!-- <div id="download_controls">
   <center>
-  <button id="preview" class="btn btn-primary">Preview</button>
-  <button id="download" class="btn btn-success">Download this file</button>
+  
   </center>
-</div>
+</div> -->
   <span id="modal_prev"></span>
   <span id="modal_next"></span>
 

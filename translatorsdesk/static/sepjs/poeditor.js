@@ -87,6 +87,7 @@ $.each(entries, function(paraid, paradata){
                       $('#sentence_overlay').fadeIn(200);
                       $('#modal_prev').text('');
                       $('#modal_next').text('');
+                      $('.toolbar').fadeOut(200);
                       $('#modal_prev').fadeIn(200);
                     $('#modal_next').fadeIn(200);
                       $('#sentence_overlay').animate({height: "50%"}, 300, function() {
@@ -98,6 +99,7 @@ $.each(entries, function(paraid, paradata){
                   $('#sentence_overlay #close_btn').click(function() {
                     event.stopPropagation();
                     $('#po-container').removeClass("blur");
+                      $('.toolbar').fadeIn(200);
                     $('#sentence_overlay').animate({height: "0"}, 300);
                     $('#sentence_overlay').fadeOut(200);
                     $('#modal_prev').fadeOut(200);
@@ -108,6 +110,7 @@ $.each(entries, function(paraid, paradata){
                   });
                   $(document).click(function() {
                       $('#po-container').removeClass("blur");
+                      $('.toolbar').fadeIn(200);
                       $('#sentence_overlay').animate({height: "0"}, 300);
                     $('#sentence_overlay').fadeOut(200);
                     $('#modal_prev').fadeOut(200);
@@ -169,19 +172,26 @@ function render_modal() {
   // console.log(tgt_text);
   $('#modal_src').html(window.modal_data[paraid+"_"+sentid][0]);
   $('#modal_tgt').html(window.modal_data[paraid+"_"+sentid][1]);
-
+  // editors[0].clearHistory();
   editors[0].setValue(tgt_text);
-  editors[0].on("change", function(cm, change) { 
-    // console.log(change);  THIS SHOULD MAKE IT POSSIBLE TO HAVE WORD ALIGNMENT EVEN ON EDIT!!! TODO FOR FUTURE.
-    $('#modal_tgt').html(editors[0].getValue());
-    window.corrected_data[paraid+"_"+sentid] = editors[0].getValue();
-    $('#tgt_'+paraid+'_'+sentid).html(editors[0].getValue());
-   });
+  editors[0].off("change", update_backend);
+  editors[0].on("change", update_backend);
   editors[0].on("keyup", function(cm, change){
-    event.stopPropagation();
+    // event.stopPropagation();
+    $(editors[0].getWrapperElement()).stop()
   });
   fix_highlighting();
 }
+
+function update_backend(){ 
+  var element = window.modal_current.find('.panel-title');
+  var paraid = element.attr('id').split('_')[1];
+  var sentid = element.attr('id').split('_')[2];
+   $('#modal_tgt').html(editors[0].getValue());
+    window.corrected_data[paraid+"_"+sentid] = editors[0].getValue();
+    $('#tgt_'+paraid+'_'+sentid).html(editors[0].getValue());
+}
+
 function fix_highlighting() {
     $('.tgt_word').mouseover(function() {
     var word = this.id;
