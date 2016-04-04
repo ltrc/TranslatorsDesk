@@ -382,11 +382,11 @@ def mergeTranslatedXLFFileWithDocument(file):
     #print cmd, out, err
     change_state(file,"MERGE_TRANSLATED_XLIFF_FILE:::COMPLETE")
 
-
-def generateOutputFile(file, corrections): 
-    # change_state(file, "BEGIN_PROCESSING_OF_FILE")
-    print "corrections:", corrections
+def saveTranslationChanges(file, corrections):
     #UPDATE META DATA
+    if not corrections:
+        return False
+    print "corrections:", corrections
     meta_file = open(file+".meta", 'r')
     meta = json.loads(meta_file.read())
     meta_file.close()
@@ -396,6 +396,12 @@ def generateOutputFile(file, corrections):
     f = open(file+'.meta', 'w')
     f.write(json.dumps(meta))
     f.close()
+    return meta
+
+def generateOutputFile(file, corrections): 
+    # change_state(file, "BEGIN_PROCESSING_OF_FILE")
+    #UPDATE META DATA
+    meta = saveTranslationChanges(file, corrections)
 
     #UPDATE PO FILE
     po = polib.pofile(file+".po")

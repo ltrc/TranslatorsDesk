@@ -194,16 +194,18 @@ def upload():
 """
 @blueprint.route('/translate/<uid>/<fileName>/', methods=['GET'])
 def translate(uid, fileName):
-    
-    #Check if user is allowed to view the file
-    if not _can_user_access_file(uid, fileName, current_user):
-        abort(403)
 
     #Check if the uid and filename exists
     r_conn = get_redis_connection()
     _status = r_conn.lrange("state_"+uid+"/"+fileName, 0, -1)
     if len(_status) > 0:
         if fileExists(uid, fileName):
+
+            #Check if user is allowed to view the file
+            if not _can_user_access_file(uid, fileName, current_user):
+                abort(403)
+
+
             if _status[0].startswith("TRANSLATING_PO_FILE") or _status[0].startswith("GENERATING_TRANSLATED_PO_FILE") or _status[0].startswith("OUTPUT_FILE_GENERATED"):
                 filepath = os.path.join(current_app.config['UPLOAD_FOLDER'],  uid, fileName+".meta")
                 meta_file = open(filepath, 'r')
@@ -233,6 +235,18 @@ def translate(uid, fileName):
         print "ELSE 2"
         return abort(404)
 
+@blueprint.route('/save', methods=['POST'])
+def save():
+    data = request.values
+    uid = data.get('uid', None)
+    fileName = data.get('fileName', None)
+    corrections = data.get('data', None)
+    if not (uid and fileName and corrections):
+        return jsonify({"success": False, "message": "Data Missing"})
+    if not _can_user_access_file(uid, fileName, current_user):
+        abort(403)
+    job = q.enqueue_call(func=worker_functions.saveTranslationChanges, args=(file, json.loads(corrections)))
+    return '#'
 
 @blueprint.route('/download', methods=['POST'])
 @login_required
@@ -248,7 +262,7 @@ def download():
         abort(403)
     file = os.path.join(current_app.config['UPLOAD_FOLDER'],  uid, fileName)
     job = q.enqueue_call(func=worker_functions.generateOutputFile, args=(file, json.loads(corrections)))
-    return "#";
+    return "#"
 
 
 @blueprint.route('/status/<uid>/<fileName>', methods=['GET'])

@@ -43,6 +43,7 @@ HERE = os.path.abspath(os.path.dirname(__file__))
 TEST_PATH = os.path.join(HERE, 'tests')
 spellcheckers = {}
 
+from BigramSpellSuggestions import BigramSpellSuggestion
 
 
 """
@@ -111,14 +112,17 @@ def translators_desk_get_translation_data(message):
 @socketio.on('translators_desk_get_word_suggestion', namespace='/td')
 def translators_desk_get_word_suggestion(message):
     print "REQUEST FOR SUGGESTION"
-    word = message['data'].strip()
+    bigram = [word.strip() for word in message['data']]
+    word = bigram[-1]
     lang = message['lang']
-    print word, lang
+    print bigram, lang
     if lang in ['hi', 'ur', 'en', 'te', 'ta', 'pa']:
         suggestions = { 'spellings' : [], 'synonyms' : [] }
         if lang != 'ur':
-            suggestions['spellings'] = spellcheckers[lang].suggest(word.encode('utf-8'))
-        lang_dict = languages[lang]
+            if lang == 'hi':
+                suggestions['spellings'] = context_suggestions['hi'].find_candidate_word_for_word_prediction(bigram)
+            suggestions['spellings'].extend(spellcheckers[lang].suggest(word.encode('utf-8')))
+        lang_dict = dictionaries[lang]
         id = lang_dict['words'].get(word, None)
         if id:
             suggestions['synonyms'] = lang_dict['ids'][id]
@@ -136,7 +140,7 @@ def translators_desk_get_word_details(message):
     print word, lang
     if lang in ['hin', 'urd', 'pan']:
         details = { 'word': word, 'cat' : '', 'meaning' : '', 'example' : ''}
-        lang_dict = languages[lang[:-1]]
+        lang_dict = dictionaries[lang[:-1]]
         id = lang_dict['words'].get(word, None)
         if id:
             details['word'] = word
@@ -198,7 +202,7 @@ def load_dictionaries():
     dictionaries['ta'] = ta
     dictionaries['pa'] = pa
 
-    languages = {}
+    synonyms = {}
     f = open('translatorsdesk/static/dictionaries/hin.dict', 'r')
     hindi = {}
     hindi['words'], hindi['ids'], hindi['cat'], hindi['meaning'], hindi['example'] = json.loads(f.read())
@@ -212,13 +216,16 @@ def load_dictionaries():
     pan['words'], pan['ids'], pan['cat'], pan['meaning'], pan['example'] = json.loads(f.read())
     f.close()
 
-    languages['hi'] = hindi
-    languages['ur'] = urdu
-    languages['pa'] = pan
+    synonyms['hi'] = hindi
+    synonyms['ur'] = urdu
+    synonyms['pa'] = pan
 
-    return (dictionaries, languages)
+    context_suggestions = {}
+    context_suggestions['hi'] = BigramSpellSuggestion()
 
-spellcheckers, languages = load_dictionaries()
+    return (dictionaries, synonyms, context_suggestions)
+
+spellcheckers, dictionaries, context_suggestions = load_dictionaries()
 print "DICTIONARIES LOADED"
 manager = Manager(app)
 

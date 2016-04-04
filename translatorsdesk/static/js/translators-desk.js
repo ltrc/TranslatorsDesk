@@ -99,7 +99,7 @@ CodeMirror.commands.translators_desk_aspell = function(editor) {
 		var prevWord = thisWord.anchor;
 		prevWord["ch"] -= 2;
 		if (prevWord["ch"]>=1) {
-			prevWord = editors[0].findWordAt(prev);
+			prevWord = editors[0].findWordAt(prevWord);
 			prevWord = editors[0].getRange(prevWord["anchor"], prevWord["head"]);
 		}
 		else {
