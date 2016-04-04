@@ -1,35 +1,3 @@
-// function verifyFileStateChange(result) {
-// 	console.log(result);
-// 	if (window.translationStatus!='GENERATING_TRANSLATED_PO_FILE:::COMPLETE' && !window.translationStatus.startsWith('OUTPUT_FILE_GENERATED')) {
-// 		fileStateChange(result);
-
-// 	}
-// }
-
-// function fileStateChange(result) {
-	
-// 	// if (currentTranslationStatus!=result[0]) {
-// 		currentTranslationStatus = result[0];
-// 		$('#translation_status').text(currentTranslationStatus);
-// 	// }
-// 	console.log(currentTranslationStatus);
-// 	if (!result[0].startsWith('GENERATING_TRANSLATED_PO_FILE:::COMPLETE') && !result[0].startsWith('OUTPUT_FILE_GENERATED')) {
-// 		console.log("THIS", result[0])
-// 	    if (result[0].startsWith('PIPELINE_ERROR')) {
-// 		alert("Pipeline encountered an error. Please try again.");
-// 		window.setTimeout(function() {
-// 			window.location.href = "/";
-// 		}, 1000);
-// 	}
-// 	else{
-// 		socket.emit('translators_desk_check_file_state', {uid: window.uid, fileName: window.fileName});	
-// 		}
-// 	}
-// 	else {
-// 		console.log("RELOAD");
-// 		window.location.reload();
-// 	}
-// }
 
 $(document).ready(function(){
 	    	count = 0;
@@ -90,3 +58,116 @@ var confirmOnPageExit = function (e)
     // For Chrome, Safari, IE8+ and Opera 12+
     return message;
 };
+
+
+
+function OpenInNewTab(url) {
+      var win = window.open(url, '_blank');
+      win.focus();
+}
+
+function downloadURI(uri) 
+{
+    console.log("Attempting to download URI")
+    //var link = document.createElement("a");
+    //link.href = uri;
+    //link.click();
+    
+    // OpenInNewTab(uri);
+    window.location = uri;
+}
+
+
+$("#save_btn").click(function(){
+var _D = {};
+    _D["uid"] = window.uid;
+    _D["fileName"] = window.fileName;
+    // _D.data = data;
+    window.CORRECTED_DATA = [];
+    $('.target-text').each(function(index, valx) {
+      var paraid = valx.id.split('_')[1];
+      var sentid = valx.id.split('_')[2];
+      if (window.corrected_data[paraid+"_"+sentid]) {
+        var curr = [parseInt(paraid), parseInt(sentid), window.corrected_data[paraid+"_"+sentid]];  
+        window.CORRECTED_DATA.push(curr);
+      }
+    });
+
+    _D["data"] = JSON.stringify(window.CORRECTED_DATA);
+    _D["csrf_token"] = $('#csrf_token').val();
+ajaxCall("/save", _D, "POST", true, function(data) {
+      }); 
+window.onbeforeunload = null;
+
+});
+
+
+$("#download").click(function(){
+  // alert("down");
+window.onbeforeunload = null;
+
+  window.downloaded = false;
+  var data = []
+
+
+  $("#po-container .panel-row").each(function(){
+    var src = $(this).find(".source-text").text();
+    var tgt = $(this).find(".target-text").text();
+
+    data.push({"src":src, "tgt":tgt});
+  }).promise().done(function(){
+
+
+    window.CORRECTED_DATA = [];
+    $('.target-text').each(function(index, valx) {
+      var paraid = valx.id.split('_')[1];
+      var sentid = valx.id.split('_')[2];
+      if (window.corrected_data[paraid+"_"+sentid]) {
+        var curr = [parseInt(paraid), parseInt(sentid), window.corrected_data[paraid+"_"+sentid]];  
+        window.CORRECTED_DATA.push(curr);
+      }
+    });
+    var _D = {};
+    _D["uid"] = window.uid;
+    _D["fileName"] = window.fileName;
+    _D["data"] = JSON.stringify(window.CORRECTED_DATA);
+    _D["csrf_token"] = $('#csrf_token').val();
+
+      ajaxCall("/download", _D, "POST", true, function(data) {
+        console.log(data);
+      }); 
+
+    function checkForLink(){ 
+      $.get("/status/"+_D.uid+"/"+_D.fileName, function(data){
+          console.log(data);
+        if(data.fileReady){
+          if(!window.downloaded){
+          downloadURI(data.file);
+          window.clearInterval(window.downloadCheck);
+          window.downloaded = true;
+          }
+        }
+      })
+    }
+    window.downloadCheck = setInterval( checkForLink, 1000);
+
+
+  })
+
+
+});
+
+$('#preview').click(function() {
+  if ($(this).html() == '<span class="glyphicon glyphicon-search"></span> Preview') {
+    $(this).html('<span class="glyphicon glyphicon-search"></span> Revert');
+    $('.source-text').slideUp();
+    $('.panel-body').slideUp();  
+  }
+  else {
+    $(this).html('<span class="glyphicon glyphicon-search"></span> Preview');
+    $('.source-text').slideDown(); 
+  }
+});
+
+
+
