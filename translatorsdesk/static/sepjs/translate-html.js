@@ -106,6 +106,7 @@ ajaxCall("/save", _D, "POST", true, function(data) {
       }); 
 window.onbeforeunload = null;
 window.unsaved = false;
+window.fileURL = null;
 });
 
 
