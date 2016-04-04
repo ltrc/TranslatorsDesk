@@ -232,7 +232,8 @@ function fix_highlighting() {
       socket.emit("translators_desk_get_word_details", 
           {
             data: word, 
-            lang: window.tgt_lang
+            tgt: window.src_lang, 
+            src: window.tgt_lang
           });
       socket.on("translators_desk_get_word_details_"+$.md5(word.toLowerCase()), response_word_suggestion);
     });
@@ -243,7 +244,8 @@ function fix_highlighting() {
       socket.emit("translators_desk_get_word_details", 
           {
             data: word, 
-            lang: window.src_lang
+            tgt: window.tgt_lang,
+            src: window.src_lang
           });
       socket.on("translators_desk_get_word_details_"+$.md5(word.toLowerCase()), response_word_suggestion);
     });
