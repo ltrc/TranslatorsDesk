@@ -7,7 +7,7 @@ $(document).ready(function(){
 	    socket.emit('translators_desk_get_translation_data', {uid: window.uid, fileName: window.fileName});
 
 	    socket.on('translators_desk_file_state_change', function(result) {
-	    	console.log(result);
+	    	console.log("STATUS UPDATE"+result);
 	    	if (!result[0].startsWith('GENERATING_TRANSLATED_PO_FILE:::COMPLETE') && !result[0].startsWith('OUTPUT_FILE_GENERATED')) {
 				// console.log("Checking socket yo");
 			    socket.emit('translators_desk_check_file_state', {uid: window.uid, fileName: window.fileName});
@@ -24,6 +24,12 @@ $(document).ready(function(){
 		    	else {
 				    socket.emit('translators_desk_get_translation_data', {uid: window.uid, fileName: window.fileName});
 		    	}
+	    	}
+	    	else if(result[0].startsWith('OUTPUT_FILE_GENERATED')) {
+	    		window.fileURL = result[0].split(":::")[1];
+	    	}
+	    	else if(result[0].startsWith('GENERATING_TRANSLATED_PO_FILE:::COMPLETE')) {
+	    		window.fileURL = null;
 	    	}
 			
 	    });		
@@ -82,6 +88,7 @@ $("#save_btn").click(function(){
 var _D = {};
     _D["uid"] = window.uid;
     _D["fileName"] = window.fileName;
+    // $('#download').attr('disabled', 'disabled'); THIS SHOULD HAPPEN. FIX STATUS THING.
     // _D.data = data;
     window.CORRECTED_DATA = [];
     $('.target-text').each(function(index, valx) {
@@ -98,13 +105,20 @@ var _D = {};
 ajaxCall("/save", _D, "POST", true, function(data) {
       }); 
 window.onbeforeunload = null;
-
+window.unsaved = false;
 });
 
 
 $("#download").click(function(){
   // alert("down");
-window.onbeforeunload = null;
+  if (window.unsaved == false && window.fileURL!=null) {
+  	OpenInNewTab(window.fileURL);
+  	return true;
+  }
+  else {
+  	window.unsaved = false;
+	window.onbeforeunload = null;
+  }
 
   window.downloaded = false;
   var data = []
@@ -135,6 +149,9 @@ window.onbeforeunload = null;
 
       ajaxCall("/download", _D, "POST", true, function(data) {
         console.log(data);
+        if (data["success"] == true) {
+		    window.downloadCheck = setInterval( checkForLink, 1000);
+        }
       }); 
 
     function checkForLink(){ 
@@ -149,7 +166,6 @@ window.onbeforeunload = null;
         }
       })
     }
-    window.downloadCheck = setInterval( checkForLink, 1000);
 
 
   })

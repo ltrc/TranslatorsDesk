@@ -122,6 +122,7 @@ $.each(entries, function(paraid, paradata){
 
 $(document).ready(function(){
   window.modal_data = {};
+  window.unsaved = false;
   window.onbeforeunload = null;
   window.corrected_data = {};
   if(window.PO_DATA){
@@ -186,6 +187,7 @@ function render_modal() {
 
 function update_backend(){ 
   window.onbeforeunload = confirmOnPageExit;
+  window.unsaved = true;
   var element = window.modal_current.find('.panel-title');
   var paraid = element.attr('id').split('_')[1];
   var sentid = element.attr('id').split('_')[2];
