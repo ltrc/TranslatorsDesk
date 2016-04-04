@@ -122,7 +122,7 @@ $.each(entries, function(paraid, paradata){
 
 $(document).ready(function(){
   window.modal_data = {};
-  window.unsaved = false;
+  window.onbeforeunload = null;
   window.corrected_data = {};
   if(window.PO_DATA){
     console.log("HOOHAAH");
@@ -185,7 +185,7 @@ function render_modal() {
 }
 
 function update_backend(){ 
-  window.unsaved = true;
+  window.onbeforeunload = confirmOnPageExit;
   var element = window.modal_current.find('.panel-title');
   var paraid = element.attr('id').split('_')[1];
   var sentid = element.attr('id').split('_')[2];
@@ -317,7 +317,7 @@ var _D = {};
     _D["data"] = JSON.stringify(window.CORRECTED_DATA);
     _D["csrf_token"] = $('#csrf_token').val();
 ajaxCall("/save", _D, "POST", true, function(data) {
-  window.unsaved = false;
+window.onbeforeunload = null;
       }); 
 
 });
@@ -325,10 +325,7 @@ ajaxCall("/save", _D, "POST", true, function(data) {
 
 $("#download").click(function(){
   // alert("down");
-  if (window.unsaved == true) {
-    alert("You have unsaved changes. Save them before downloading.");
-    return false;
-  }
+
   window.downloaded = false;
   var data = []
 
