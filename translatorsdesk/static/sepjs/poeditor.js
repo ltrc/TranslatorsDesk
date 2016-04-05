@@ -240,7 +240,7 @@ function fix_highlighting() {
 function response_word_suggestion(data) {
 	data = JSON.parse(data);
 	console.log(data);
-	$('#modal_details').html("<big>"+data["word"]+": ( "+data["cat"]+" ) "+data["meaning"]+"<br /><i>Example: \""+data["example"]+"\"</i><br />Alternate translations: "+data["alternate"].join(" &bull; "));
+	$('#modal_details').html("<br /><big>"+data["word"]+": ( "+data["cat"]+" ) "+data["meaning"]+"<br /><i>Example: \""+data["example"]+"\"</i><br />Alternate translations: "+data["alternate"].join(" &bull; "));
 }
 
 function setup_modal() {
