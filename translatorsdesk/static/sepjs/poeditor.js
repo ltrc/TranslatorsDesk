@@ -102,12 +102,12 @@ function process_po_data(entries) {
 		event.stopPropagation();
 	});
 	$(document).click(function() {
-		$('#po-container').removeClass("blur");
-		$('.toolbar').fadeIn(200);
-		$('#sentence_overlay').animate({height: "0"}, 300);
-		$('#sentence_overlay').fadeOut(200);
-		$('#modal_prev').fadeOut(200);
-		$('#modal_next').fadeOut(200);
+		// $('#po-container').removeClass("blur");
+		// $('.toolbar').fadeIn(200);
+		// $('#sentence_overlay').animate({height: "0"}, 300);
+		// $('#sentence_overlay').fadeOut(200);
+		// $('#modal_prev').fadeOut(200);
+		// $('#modal_next').fadeOut(200);
 	});
 }
 
