@@ -43,7 +43,8 @@ HERE = os.path.abspath(os.path.dirname(__file__))
 TEST_PATH = os.path.join(HERE, 'tests')
 spellcheckers = {}
 
-from BigramSpellSuggestions import BigramSpellSuggestion
+from contextSpellSuggest.hindi.BigramSpellSuggestions import BigramSpellSuggestion as hindiBigramSpellSuggestion
+from contextSpellSuggest.urdu.BigramSpellSuggestions import BigramSpellSuggestion as urduBigramSpellSuggestion
 
 
 """
@@ -122,6 +123,8 @@ def translators_desk_get_word_suggestion(message):
             if lang == 'hi':
                 suggestions['spellings'] = context_suggestions['hi'].find_candidate_word_for_word_prediction(bigram)
             suggestions['spellings'].extend(spellcheckers[lang].suggest(word.encode('utf-8')))
+        else:
+            suggestions['spellings'] = context_suggestions['ur'].find_candidate_word_for_word_prediction(bigram)
         lang_dict = dictionaries[lang]
         id = lang_dict['words'].get(word, None)
         if id:
@@ -244,7 +247,8 @@ def load_dictionaries():
     synonyms['pa'] = pan
 
     context_suggestions = {}
-    context_suggestions['hi'] = BigramSpellSuggestion()
+    context_suggestions['hi'] = hindiBigramSpellSuggestion()
+    context_suggestions['ur'] = urduBigramSpellSuggestion()
 
     f = open('translatorsdesk/static/dictionaries/hin_urd.parallel', 'r')
     parallel ={ 'hi' : {}, 'ur' : {} }
