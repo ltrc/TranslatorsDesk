@@ -77,7 +77,10 @@ function process_po_data(entries) {
 	$('.panel-title').click(function(event) {
 		window.modal_current = $(this).parent();
 		event.stopPropagation();
-		$('#po-container').addClass("blur");
+		// var isChrome = /Chrome/.test(navigator.userAgent) && /Google Inc/.test(navigator.vendor);
+		// if (!isChrome) {
+			$('#po-container').addClass("blur");
+		// }
 		$('#sentence_overlay').fadeIn(200);
 		$('#modal_prev').text('');
 		$('#modal_next').text('');
@@ -89,7 +92,7 @@ function process_po_data(entries) {
 		});
 		render_modal();
 	}); 
-	$('#sentence_overlay #close_btn').click(function() {
+	$('#sentence_overlay #close_btn').click(function(event) {
 		event.stopPropagation();
 		$('#po-container').removeClass("blur");
 		$('.toolbar').fadeIn(200);
@@ -98,7 +101,7 @@ function process_po_data(entries) {
 		$('#modal_prev').fadeOut(200);
 		$('#modal_next').fadeOut(200);
 	});
-	$('#sentence_overlay').click(function() {
+	$('#sentence_overlay').click(function(event) {
 		event.stopPropagation();
 	});
 	$(document).click(function() {
@@ -210,7 +213,8 @@ function fix_highlighting() {
 		$('.tgt_word').removeClass("highlight");
 	});
 
-	$('.tgt_word').click(function() {
+	$('.tgt_word').click(function(event) {
+		event.stopPropagation();
 		var word = this.innerHTML;
 		console.log(word);
 		socket.emit("translators_desk_get_word_details", 
@@ -222,7 +226,8 @@ function fix_highlighting() {
 		socket.on("translators_desk_get_word_details_"+$.md5(word.toLowerCase()), response_word_suggestion);
 	});
 
-	$('.src_word').click(function() {
+	$('.src_word').click(function(event) {
+		event.stopPropagation();
 		var word = this.innerHTML;
 		console.log(word);
 		socket.emit("translators_desk_get_word_details", 
@@ -240,7 +245,7 @@ function fix_highlighting() {
 function response_word_suggestion(data) {
 	data = JSON.parse(data);
 	console.log(data);
-	$('#modal_details').html("<big>"+data["word"]+": ( "+data["cat"]+" ) "+data["meaning"]+"<br /><i>Example: \""+data["example"]+"\"</i><br />Alternate translations: "+data["alternate"].join(" &bull; "));
+	$('#modal_details').html(data["word"]+": ( "+data["cat"]+" ) "+data["meaning"]+"<br /><i>Example: \""+data["example"]+"\"</i><br />Alternate translations: "+data["alternate"].join(" &bull; "));
 }
 
 function setup_modal() {

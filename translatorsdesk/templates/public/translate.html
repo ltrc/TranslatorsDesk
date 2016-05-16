@@ -14,7 +14,7 @@
   cursor: pointer;
 }
 #modal_details {
-  font-size: 1.3em;
+  font-size: 1.2em;
   display: block;
   margin-top: 30px;
 }
@@ -33,7 +33,7 @@
   border-radius: 10px;
   display: none;
   left: 20%;
-  font-size: 1.2em;
+  font-size: 1em;
   background-color: rgba(255,255,255,0.5);
   padding: 20px;
   border: 2px solid rgba(0,0,0,0.8);
@@ -45,7 +45,7 @@
   border-radius: 10px;
   display: none;
   left: 20%;
-  font-size: 1.2em;
+  font-size: 1em;
   background-color: rgba(255,255,255,0.5);
   padding: 20px;
   border: 2px solid rgba(0,0,0,0.8);
@@ -63,6 +63,9 @@
 } 
 .container-fluid {
   margin-top: 50px;
+}
+#close_btn {
+  z-index: 999;
 }
 </style>
 {% endblock %}
@@ -100,7 +103,7 @@
   <i class="fa fa-times fa-2x" id="close_btn"></i>
   <span id="modal_src">jo</span>
   <span id="modal_tgt">bo</span>
-  <br /><br />
+  <br />
   <ul id="word_suggestions">
     <li class="anim">Word suggestions will appear here</li>
   </ul>
